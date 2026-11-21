@@ -45,17 +45,21 @@ facturApp/
 ```
 
 ## Roles y permisos
+Un solo login para todos: el sistema muestra las opciones según el rol. La tabla completa de permisos (con la fase de cada acción) está en `entregables/01-propuesta.md`, sección 3.
 - Admin:
   - Gestiona usuarios y catálogos (contratistas, categorías, repuestos).
-  - Activa/desactiva usuarios y restaura contraseñas.
-  - Puede cambiar a la vista de Oficina radicadora sin volver a iniciar sesión.
-  - Es el único que cambia la trazabilidad de la entrega de repuestos.
+  - Activa/desactiva usuarios (un usuario inactivo no puede entrar).
+  - Restaura contraseñas con una contraseña temporal; el usuario debe cambiarla en su siguiente inicio de sesión (fase 2).
+  - Puede cambiar a la vista de Oficina radicadora sin volver a iniciar sesión (fase 2).
+  - Es el único que registra entregas (totales o parciales) y cambia la trazabilidad de la entrega de repuestos.
+  - Es el único que registra entradas al almacén y consulta el inventario.
 - Oficina radicadora:
   - Crea y consulta solicitudes de repuestos.
   - Marca el estado de la solicitud (equipo reparado / devuelto).
   - Consulta y registra equipos.
-  - NO cambia la trazabilidad de la entrega de repuestos. NO gestiona usuarios ni catálogos.
-- Todos: cambian su propia contraseña.
+  - Ve e imprime remisiones.
+  - NO registra entregas ni cambia su trazabilidad. NO consulta el inventario. NO gestiona usuarios ni catálogos.
+- Todos: cambian su propia contraseña (fase 2).
 - El contratista (técnico reparador) es un dato de la solicitud, no un usuario del sistema.
 
 ## Datos de cada solicitud
@@ -63,6 +67,7 @@ facturApp/
 - Contratista (técnico reparador).
 - Repuestos solicitados (1 o más), elegidos de un catálogo (mínimo código y nombre), con cantidad.
 - Fecha de entrega.
+- Entregas totales o parciales: por cada repuesto se ve lo entregado y lo pendiente; cada entrega genera su remisión y descuenta el stock.
 - Trazabilidad de la entrega de repuestos.
 - Trazabilidad de la solicitud (equipo reparado / devuelto).
 
@@ -76,9 +81,9 @@ facturApp/
 | Equipos (neveras) | Lista, formulario, detalle con historial | Admin y Oficina |
 | Categorías de repuesto | Lista, formulario | Admin |
 | Repuestos (catálogo) | Lista, formulario | Admin |
-| Inventario | Stock disponible por repuesto (detalle por definir) | Por definir |
+| Inventario | Stock disponible por repuesto y entradas al almacén | Admin |
 | Solicitudes | Lista con filtros, formulario nuevo, detalle con línea de tiempo y cambios de estado | Admin y Oficina (según permisos) |
-| Remisiones | Remisión de cada entrega (detalle por definir) | Por definir |
+| Remisiones | Remisión de cada entrega (número consecutivo, fecha, contratista, equipo, repuestos y cantidades), para ver e imprimir | Admin y Oficina (la genera el Admin al registrar la entrega) |
 
 Correspondencia con el ejemplo: clients -> contratistas, products -> repuestos, categories -> categorías de repuesto, users -> usuarios. Equipos, solicitudes, inventario y remisiones son nuevos.
 
@@ -86,7 +91,13 @@ Correspondencia con el ejemplo: clients -> contratistas, products -> repuestos, 
 - Nombres, textos y comentarios en español sencillo.
 - Comentarios para principiantes: cabecera en cada archivo, docstring en cada función, explicar el porqué y los conceptos nuevos la primera vez que aparecen.
 - Nunca credenciales en el código: usar .env y un .env.example sin valores reales.
-- MVP primero: la fase 1 completa y funcionando antes de empezar la fase 2 (fases por definir).
+- MVP primero: la fase 1 completa y funcionando antes de empezar la fase 2.
+
+## Alcance (detalle en `entregables/01-propuesta.md`, sección 4)
+- Fase 1 (MVP): login con roles; usuarios (crear, editar, activar/desactivar); contratistas; catálogo de categorías y repuestos; equipos; inventario básico con entradas; solicitudes; entregas totales o parciales; estado reparado/devuelto; historial de cambios; remisión por entrega impresa desde el navegador; schema.sql, seed.sql, .env.example, README y pruebas pytest de login, permisos y entregas.
+- Fase 2 (mejoras): cambiar la propia contraseña y restaurar con contraseña temporal; cambio de vista del Admin; inicio con resumen; filtros y búsqueda; historial por equipo; historial de movimientos y alerta de stock mínimo; remisión en PDF; reportes con exportación; más pruebas.
+- NO incluye: facturación (precios, costos, impuestos), acceso de contratistas, compras a proveedores, notificaciones, recuperar contraseña por correo, firma electrónica, varias bodegas, agenda de técnicos, integración con otros sistemas, app móvil ni publicación en internet.
+- Regla: el stock baja al registrar cada entrega, no al crear la solicitud.
 
 ## Dirección visual (sistema y diapositivas)
 Objetivo: un diseño sobrio, elegante y profesional, propio del mundo de facturApp (almacén y mantenimiento de refrigeración industrial), que NO parezca hecho por una IA.
@@ -123,6 +134,8 @@ Diapositivas:
 - Diseño de la propuesta:
   - Etapa 1 (arquitectura y carpetas): aprobada.
   - Etapa 2 (módulos y pantallas): aprobada.
+  - Alcance por fases y tabla de permisos: aprobados.
+  - `entregables/01-propuesta.md`: secciones 1 (Diagnóstico), 2 (Arquitectura), 3 (Usuarios, permisos y módulos) y 4 (Alcance).
   - Etapa 3 (modelo de base de datos): pendiente.
   - Etapa 4 (estados de trazabilidad): pendiente.
 - Aún no hay código.

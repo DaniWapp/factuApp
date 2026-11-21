@@ -104,3 +104,108 @@ facturApp/
 | 6. Sin login ni roles | La API emite un token con el rol del usuario y revisa los permisos en cada ruta. |
 | 7 y 8. Mezcla de idiomas y nombres que no coinciden | Todo en español y con nombres del negocio: `clients` pasa a contratistas y `products` a repuestos. |
 | 18 y 19. Forma de ejecutar y `debug=True` fijo | El README explicará cómo ejecutar cada parte y la configuración vendrá del `.env`. |
+
+## 3. Usuarios, permisos y módulos
+
+### Roles
+
+El sistema tiene dos roles: **Admin** y **Oficina radicadora**. Hay **un solo login para todos**: cada persona entra por la misma pantalla y el sistema le muestra las opciones según su rol. El contratista (técnico reparador) **no** es un usuario del sistema: es un dato que se registra en cada solicitud.
+
+La columna "Fase" indica si la acción entra en el MVP (fase 1) o en las mejoras (fase 2), según la sección 4.
+
+| Acción | Admin | Oficina radicadora | Fase |
+|---|:---:|:---:|:---:|
+| Iniciar y cerrar sesión | Sí | Sí | 1 |
+| Crear y consultar solicitudes de repuestos | Sí | Sí | 1 |
+| Registrar entregas de repuestos (totales o parciales) y cambiar su trazabilidad | Sí | No | 1 |
+| Marcar la solicitud como equipo reparado o devuelto | Sí | Sí | 1 |
+| Consultar y registrar equipos (neveras) | Sí | Sí | 1 |
+| Registrar entradas de repuestos al almacén | Sí | No | 1 |
+| Consultar el inventario (stock disponible) | Sí | No | 1 |
+| Ver e imprimir remisiones | Sí | Sí | 1 |
+| Gestionar catálogos: contratistas, categorías y repuestos | Sí | No | 1 |
+| Crear, editar y listar usuarios | Sí | No | 1 |
+| Activar y desactivar usuarios (un usuario inactivo no puede entrar) | Sí | No | 1 |
+| Restaurar la contraseña de un usuario con una contraseña temporal | Sí | No | 2 |
+| Cambiar su propia contraseña | Sí | Sí | 2 |
+| Cambiar a la vista de Oficina radicadora sin volver a iniciar sesión | Sí | No aplica | 2 |
+
+**Contraseña temporal:** cuando el Admin restaura una contraseña, el sistema asigna una contraseña temporal y obliga al usuario a cambiarla en su siguiente inicio de sesión.
+
+### Módulos
+
+| Módulo | Pantallas | Quién lo usa |
+|---|---|---|
+| Autenticación | Iniciar sesión, cerrar sesión, cambiar contraseña | Todos |
+| Inicio | Resumen de solicitudes por estado y entregas pendientes | Todos |
+| Usuarios | Lista, formulario, activar o desactivar, restaurar contraseña | Admin |
+| Contratistas | Lista y formulario | Admin |
+| Equipos (neveras) | Lista, formulario y detalle con el historial de solicitudes del equipo | Admin y Oficina |
+| Categorías de repuesto | Lista y formulario | Admin |
+| Repuestos (catálogo) | Lista y formulario; cada repuesto tiene como mínimo código y nombre | Admin |
+| Inventario | Stock disponible por repuesto y entradas al almacén | Admin |
+| Solicitudes | Lista con filtros, formulario nuevo y detalle con línea de tiempo | Admin y Oficina, según los permisos |
+| Remisiones | Remisión de cada entrega de repuestos, para ver e imprimir | Admin y Oficina (la genera el Admin al registrar la entrega) |
+
+### El módulo central: Solicitudes
+
+1. **Nueva solicitud:** se elige el equipo (por su código) y el contratista, se indica la fecha de entrega y se agregan uno o más repuestos del catálogo con su cantidad.
+2. **Lista:** permite filtrar por estado, equipo, contratista y fechas.
+3. **Detalle:** muestra los datos de la solicitud, sus repuestos y una línea de tiempo con cada cambio de estado (quién lo hizo y cuándo). Los botones de cambio de estado solo aparecen para el rol que tiene permiso.
+
+### Del prototipo al proyecto
+
+| Prototipo | Proyecto |
+|---|---|
+| `clients` | Contratistas |
+| `products` | Repuestos (catálogo) |
+| `categories` | Categorías de repuesto |
+| `users` | Usuarios |
+| No existe | Autenticación, equipos, solicitudes, inventario y remisiones |
+
+## 4. Alcance
+
+### Fase 1: MVP (el flujo completo, de la solicitud a la remisión)
+
+1. **Login con roles:** iniciar y cerrar sesión con contraseña cifrada; cada rol ve solo sus pantallas y la API revisa los permisos en cada ruta.
+2. **Gestión de usuarios (Admin):** crear, editar y listar usuarios; activarlos o desactivarlos (un usuario inactivo no puede entrar).
+3. **Contratistas (Admin):** crear, editar y listar.
+4. **Catálogo de repuestos (Admin):** categorías y repuestos con código, nombre y categoría.
+5. **Equipos (neveras):** registrar y listar por código.
+6. **Inventario básico:** stock disponible por repuesto; el Admin registra las entradas al almacén; el stock baja automáticamente con cada entrega y no se puede entregar más de lo disponible.
+7. **Solicitudes:** crear una solicitud (equipo, contratista, fecha de entrega y uno o más repuestos con su cantidad), listarlas y ver su detalle.
+8. **Registro de entregas (Admin), totales o parciales:** se puede entregar todo lo solicitado o solo una parte y completar después; el sistema muestra lo entregado y lo pendiente por cada repuesto.
+9. **Estado de la solicitud:** Admin u Oficina radicadora marcan el equipo como reparado o devuelto.
+10. **Historial:** cada entrega y cada cambio de estado queda guardado con quién lo hizo y cuándo, y se ve en el detalle de la solicitud.
+11. **Remisión:** una por cada entrega (también por cada entrega parcial), con número consecutivo, fecha, contratista, equipo y repuestos con cantidades; se ve en pantalla y se imprime desde el navegador.
+12. **Base técnica:** `schema.sql` y `seed.sql`, `.env.example`, README con cómo ejecutar y pruebas con pytest del login, los permisos y el registro de entregas.
+
+### Fase 2: Mejoras
+
+1. **Cuentas:** cada usuario cambia su propia contraseña y el Admin restaura contraseñas.
+2. **Cambio de vista del Admin:** pasar a la vista de Oficina radicadora sin volver a iniciar sesión.
+3. **Inicio con resumen:** solicitudes por estado, entregas pendientes y repuestos con poco stock.
+4. **Filtros y búsqueda:** por estado, equipo, contratista y fechas, más el buscador del menú.
+5. **Historial por equipo:** todas las solicitudes de una nevera.
+6. **Inventario avanzado:** historial de movimientos (entradas y salidas) y alerta de stock mínimo.
+7. **Remisión en PDF** para descargar.
+8. **Reportes:** entregas por contratista y repuestos más usados, con exportación a Excel o CSV.
+9. **Más pruebas** para todos los módulos.
+
+### Lo que NO incluye
+
+1. **Facturación:** no maneja precios, costos, impuestos ni facturas.
+2. **Acceso de contratistas:** no tienen usuario ni inician sesión.
+3. **Compras a proveedores:** no hay órdenes de compra ni gestión de proveedores.
+4. **Notificaciones** por correo, WhatsApp o SMS.
+5. **Recuperar la contraseña por correo:** la restaura el Admin.
+6. **Firma electrónica** de la remisión: se firma en papel después de imprimirla.
+7. **Varias bodegas o sedes:** hay un solo inventario.
+8. **Agenda de técnicos o mantenimiento preventivo.**
+9. **Integración con otros sistemas** (ERP, SAP, etc.).
+10. **App móvil y publicación en internet:** el sistema corre en el equipo local con XAMPP.
+
+### Reglas de alcance
+
+1. El stock baja al registrar cada entrega, no al crear la solicitud.
+2. La fase 1 debe estar completa y funcionando antes de empezar la fase 2.
