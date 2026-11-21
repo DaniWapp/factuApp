@@ -2,7 +2,7 @@
 
 ## Qué es
 Sistema web para registrar solicitudes de repuestos para reparar equipos de refrigeración (neveras) y hacer la trazabilidad de la entrega de los repuestos y del estado de la solicitud, hasta que el equipo queda reparado o se devuelve. Incluye la remisión de cada entrega y el inventario de repuestos.
-Proyecto formativo SENA – ADSO. El proyecto de ejemplo del instructor está en `ARCHIVOS/ADSO-25T4-FacturApp-main.zip` y es la base de la estructura.
+Proyecto formativo SENA – ADSO. El prototipo original (basado en el ejemplo del instructor) está en `_backup/original/ADSO-25T4-FacturApp-main.zip` y es la base de la estructura.
 
 ## Stack (obligatorio)
 - Frontend: Python 3.12 + Flask 3 (Blueprints y create_app), plantillas Jinja2, HTML5, CSS3 propio (sin Bootstrap) y JavaScript (ES modules). Flask es requisito académico.
