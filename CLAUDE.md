@@ -45,7 +45,7 @@ facturApp/
 ```
 
 ## Roles y permisos
-Un solo login para todos: el sistema muestra las opciones según el rol. La tabla completa de permisos (con la fase de cada acción) está en `entregables/01-propuesta.md`, sección 3.
+Un solo login para todos: el sistema muestra las opciones según el rol. La tabla completa de permisos (con la fase de cada acción) está en `entregables/01-propuesta.md`, sección 4.
 - Admin:
   - Gestiona usuarios y catálogos (contratistas, categorías, repuestos).
   - Activa/desactiva usuarios (un usuario inactivo no puede entrar).
@@ -72,17 +72,19 @@ Un solo login para todos: el sistema muestra las opciones según el rol. La tabl
 - Trazabilidad de la solicitud (equipo reparado / devuelto).
 
 ## Módulos
+Lo marcado con (fase 2) se construye después del MVP.
+
 | Módulo | Pantallas | Quién |
 |---|---|---|
-| Autenticación | Login, cerrar sesión, cambiar contraseña | Todos |
-| Inicio | Resumen de solicitudes por estado y entregas pendientes | Todos |
-| Usuarios | Lista, formulario, activar/desactivar, restaurar contraseña | Admin |
+| Autenticación | Login, cerrar sesión; cambiar contraseña (fase 2) | Todos |
+| Inicio | Página de inicio con las opciones del rol; resumen de solicitudes por estado y entregas pendientes (fase 2) | Todos |
+| Usuarios | Lista, formulario, activar/desactivar; restaurar contraseña (fase 2) | Admin |
 | Contratistas | Lista, formulario | Admin |
-| Equipos (neveras) | Lista, formulario, detalle con historial | Admin y Oficina |
+| Equipos (neveras) | Lista, formulario; detalle con historial (fase 2) | Admin y Oficina |
 | Categorías de repuesto | Lista, formulario | Admin |
 | Repuestos (catálogo) | Lista, formulario | Admin |
 | Inventario | Stock disponible por repuesto y entradas al almacén | Admin |
-| Solicitudes | Lista con filtros, formulario nuevo, detalle con línea de tiempo y cambios de estado | Admin y Oficina (según permisos) |
+| Solicitudes | Lista, formulario nuevo, detalle con línea de tiempo y cambios de estado; filtros de la lista (fase 2) | Admin y Oficina (según permisos) |
 | Remisiones | Remisión de cada entrega (número consecutivo, fecha, contratista, equipo, repuestos y cantidades), para ver e imprimir | Admin y Oficina (la genera el Admin al registrar la entrega) |
 
 Correspondencia con el ejemplo: clients -> contratistas, products -> repuestos, categories -> categorías de repuesto, users -> usuarios. Equipos, solicitudes, inventario y remisiones son nuevos.
@@ -93,7 +95,7 @@ Correspondencia con el ejemplo: clients -> contratistas, products -> repuestos, 
 - Nunca credenciales en el código: usar .env y un .env.example sin valores reales.
 - MVP primero: la fase 1 completa y funcionando antes de empezar la fase 2.
 
-## Alcance (detalle en `entregables/01-propuesta.md`, sección 4)
+## Alcance (detalle en `entregables/01-propuesta.md`, sección 3)
 - Fase 1 (MVP): login con roles; usuarios (crear, editar, activar/desactivar); contratistas; catálogo de categorías y repuestos; equipos; inventario básico con entradas; solicitudes; entregas totales o parciales; estado reparado/devuelto; historial de cambios; remisión por entrega impresa desde el navegador; schema.sql, seed.sql, .env.example, README y pruebas pytest de login, permisos y entregas.
 - Fase 2 (mejoras): cambiar la propia contraseña y restaurar con contraseña temporal; cambio de vista del Admin; inicio con resumen; filtros y búsqueda; historial por equipo; historial de movimientos y alerta de stock mínimo; remisión en PDF; reportes con exportación; más pruebas.
 - NO incluye: facturación (precios, costos, impuestos), acceso de contratistas, compras a proveedores, notificaciones, recuperar contraseña por correo, firma electrónica, varias bodegas, agenda de técnicos, integración con otros sistemas, app móvil ni publicación en internet.
@@ -130,12 +132,15 @@ Diapositivas:
 - Capturas reales del sistema y diagramas propios en lugar de íconos o fotos de stock.
 
 ## Estado actual
+- Situación actual del cliente: las solicitudes se llevan en un Excel compartido.
 - Entregable 00 (método con IA): en curso.
 - Diseño de la propuesta:
   - Etapa 1 (arquitectura y carpetas): aprobada.
   - Etapa 2 (módulos y pantallas): aprobada.
   - Alcance por fases y tabla de permisos: aprobados.
-  - `entregables/01-propuesta.md`: secciones 1 (Diagnóstico), 2 (Arquitectura), 3 (Usuarios, permisos y módulos) y 4 (Alcance).
-  - Etapa 3 (modelo de base de datos): pendiente.
-  - Etapa 4 (estados de trazabilidad): pendiente.
+  - Etapa 3 (modelo de base de datos): pendiente; irá en la sección 7 de la propuesta.
+  - Etapa 4 (estados de trazabilidad): pendiente; aún no tiene sección asignada en la propuesta.
+- `entregables/01-propuesta.md`:
+  - Escritas: 1 (Diagnóstico), 2 (Problema y objetivo), 3 (Alcance), 4 (Roles, permisos y módulos), 5 (Stack y arquitectura) y 6 (Estructura de carpetas).
+  - Pendientes: 7 (Modelo de datos preliminar), 8 (Acceso, seguridad y UI/UX), 9 (Buenas prácticas) y 10 (Ruta de entregables).
 - Aún no hay código.

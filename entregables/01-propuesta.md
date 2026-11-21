@@ -42,128 +42,26 @@ Se revisó el prototipo guardado en `_backup/original/ADSO-25T4-FacturApp-main.z
 19. **`debug=True` está escrito en el código:** el modo de depuración debería venir de la configuración (`.env`) para no dejarlo activo por error.
 20. **Dato de ejemplo dudoso:** en la columna "Ciudad" del contratista aparece "Portobon", que parece el nombre de una empresa y no una ciudad.
 
-## 2. Arquitectura
+## 2. Problema y objetivo
 
-### Cómo se conectan las partes
+### Problema
 
-```
-Navegador -> Flask (frontend, puerto 5000) -> API FastAPI (JSON, puerto 8000) -> MariaDB (puerto 3306)
-```
+1. Las solicitudes de repuestos para reparar neveras se llevan hoy en un **Excel compartido**, sin un sistema que controle quién registra o cambia cada dato.
+2. Por eso es difícil saber qué repuestos se entregaron, cuáles faltan, a qué contratista y para qué equipo.
+3. Tampoco se sabe con facilidad si el equipo quedó reparado o se devolvió, ni cuánto stock queda en el almacén.
 
-1. **El navegador solo habla con Flask.** El usuario nunca ve ni llama directamente a la API.
-2. **Flask muestra las pantallas.** Recibe los formularios, se los envía a la API y guarda en su sesión el token del usuario que inició sesión.
-3. **FastAPI aplica las reglas del negocio.** Valida los datos, revisa los permisos de cada rol, cambia los estados y guarda el historial.
-4. **Solo FastAPI habla con la base de datos.** Flask nunca se conecta a MariaDB.
+### Objetivo general
 
-Frontend y backend se trabajan **como si vivieran en servidores separados**: cada uno tiene su propio entorno virtual, su `requirements.txt`, su `.env` y su `.env.example`. El frontend solo conoce la dirección de la API, que lee de su `.env`.
+Desarrollar un sistema web que registre las solicitudes de repuestos para la reparación de neveras y permita hacer la trazabilidad de las entregas, totales o parciales, y del estado de cada solicitud, con control de inventario y remisión imprimible.
 
-### Stack y por qué
+### Objetivos específicos
 
-| Parte | Tecnología | Por qué |
-|---|---|---|
-| Frontend | Python 3.12, Flask 3 (Blueprints y `create_app`), Jinja2, HTML5, CSS3 propio, JavaScript (ES modules) | Flask es requisito académico y el prototipo ya usa Blueprints. El CSS propio permite el diseño sobrio definido para el proyecto. |
-| Backend | FastAPI, Uvicorn, Pydantic v2 | Separa las reglas del negocio de las pantallas, valida los datos automáticamente y genera la documentación de la API en `/docs`. |
-| Acceso a datos | PyMySQL con SQL directo | Se escriben las consultas a mano, lo que ayuda a aprender SQL y a ver exactamente qué se ejecuta. |
-| Seguridad | PyJWT y bcrypt | El token (JWT) identifica al usuario en cada llamada a la API y bcrypt guarda las contraseñas cifradas. |
-| Base de datos | MariaDB de XAMPP, modelo en MySQL Workbench | Ya está instalada en el equipo y es compatible con MySQL. |
-| Pruebas | pytest | Permite comprobar que la API funciona sin probar todo a mano. |
+1. Registrar solicitudes con equipo, contratista, fecha de entrega y repuestos del catálogo.
+2. Registrar entregas totales o parciales que descuenten el stock y generen su remisión.
+3. Guardar el historial de cada cambio de estado: quién lo hizo y cuándo.
+4. Controlar el acceso con un solo login y permisos por rol (Admin y Oficina radicadora).
 
-### Estructura de carpetas
-
-```
-facturApp/
-├── ARCHIVOS/        Documentos de referencia (guía, rúbrica, notas)
-├── _backup/         Copia del prototipo original, sin cambios
-├── frontend/        Aplicación Flask
-│   └── src/
-│       ├── __init__.py    create_app y registro de Blueprints (solo aquí)
-│       ├── app.py
-│       ├── controllers/   Un archivo por módulo
-│       ├── services/      Cliente que llama a la API
-│       ├── templates/     layout.html y una carpeta por módulo
-│       └── static/        CSS, JavaScript e imágenes
-├── backend/         API FastAPI
-│   └── app/
-│       ├── main.py
-│       ├── database.py    Conexión a MariaDB con PyMySQL
-│       ├── repositories/  Consultas SQL de cada módulo
-│       ├── schemas/       Validación de datos con Pydantic
-│       ├── routers/       Rutas de la API por módulo
-│       └── services/      Reglas del negocio: estados e historial
-├── database/        schema.sql y seed.sql
-└── entregables/     Documentos que se entregan
-```
-
-### Qué problemas del diagnóstico resuelve esta arquitectura
-
-| Problema (sección 1) | Cómo se resuelve |
-|---|---|
-| 1. `create_app` repetido | Solo existirá en `frontend/src/__init__.py`. |
-| 2, 3 y 4. Formularios que no envían y datos escritos a mano | Los formularios enviarán los datos a Flask, Flask a la API y la API los guardará en MariaDB; las listas se llenarán desde la base de datos. |
-| 5. Sin base de datos ni API | Se agregan `backend/` y `database/`. |
-| 6. Sin login ni roles | La API emite un token con el rol del usuario y revisa los permisos en cada ruta. |
-| 7 y 8. Mezcla de idiomas y nombres que no coinciden | Todo en español y con nombres del negocio: `clients` pasa a contratistas y `products` a repuestos. |
-| 18 y 19. Forma de ejecutar y `debug=True` fijo | El README explicará cómo ejecutar cada parte y la configuración vendrá del `.env`. |
-
-## 3. Usuarios, permisos y módulos
-
-### Roles
-
-El sistema tiene dos roles: **Admin** y **Oficina radicadora**. Hay **un solo login para todos**: cada persona entra por la misma pantalla y el sistema le muestra las opciones según su rol. El contratista (técnico reparador) **no** es un usuario del sistema: es un dato que se registra en cada solicitud.
-
-La columna "Fase" indica si la acción entra en el MVP (fase 1) o en las mejoras (fase 2), según la sección 4.
-
-| Acción | Admin | Oficina radicadora | Fase |
-|---|:---:|:---:|:---:|
-| Iniciar y cerrar sesión | Sí | Sí | 1 |
-| Crear y consultar solicitudes de repuestos | Sí | Sí | 1 |
-| Registrar entregas de repuestos (totales o parciales) y cambiar su trazabilidad | Sí | No | 1 |
-| Marcar la solicitud como equipo reparado o devuelto | Sí | Sí | 1 |
-| Consultar y registrar equipos (neveras) | Sí | Sí | 1 |
-| Registrar entradas de repuestos al almacén | Sí | No | 1 |
-| Consultar el inventario (stock disponible) | Sí | No | 1 |
-| Ver e imprimir remisiones | Sí | Sí | 1 |
-| Gestionar catálogos: contratistas, categorías y repuestos | Sí | No | 1 |
-| Crear, editar y listar usuarios | Sí | No | 1 |
-| Activar y desactivar usuarios (un usuario inactivo no puede entrar) | Sí | No | 1 |
-| Restaurar la contraseña de un usuario con una contraseña temporal | Sí | No | 2 |
-| Cambiar su propia contraseña | Sí | Sí | 2 |
-| Cambiar a la vista de Oficina radicadora sin volver a iniciar sesión | Sí | No aplica | 2 |
-
-**Contraseña temporal:** cuando el Admin restaura una contraseña, el sistema asigna una contraseña temporal y obliga al usuario a cambiarla en su siguiente inicio de sesión.
-
-### Módulos
-
-| Módulo | Pantallas | Quién lo usa |
-|---|---|---|
-| Autenticación | Iniciar sesión, cerrar sesión, cambiar contraseña | Todos |
-| Inicio | Resumen de solicitudes por estado y entregas pendientes | Todos |
-| Usuarios | Lista, formulario, activar o desactivar, restaurar contraseña | Admin |
-| Contratistas | Lista y formulario | Admin |
-| Equipos (neveras) | Lista, formulario y detalle con el historial de solicitudes del equipo | Admin y Oficina |
-| Categorías de repuesto | Lista y formulario | Admin |
-| Repuestos (catálogo) | Lista y formulario; cada repuesto tiene como mínimo código y nombre | Admin |
-| Inventario | Stock disponible por repuesto y entradas al almacén | Admin |
-| Solicitudes | Lista con filtros, formulario nuevo y detalle con línea de tiempo | Admin y Oficina, según los permisos |
-| Remisiones | Remisión de cada entrega de repuestos, para ver e imprimir | Admin y Oficina (la genera el Admin al registrar la entrega) |
-
-### El módulo central: Solicitudes
-
-1. **Nueva solicitud:** se elige el equipo (por su código) y el contratista, se indica la fecha de entrega y se agregan uno o más repuestos del catálogo con su cantidad.
-2. **Lista:** permite filtrar por estado, equipo, contratista y fechas.
-3. **Detalle:** muestra los datos de la solicitud, sus repuestos y una línea de tiempo con cada cambio de estado (quién lo hizo y cuándo). Los botones de cambio de estado solo aparecen para el rol que tiene permiso.
-
-### Del prototipo al proyecto
-
-| Prototipo | Proyecto |
-|---|---|
-| `clients` | Contratistas |
-| `products` | Repuestos (catálogo) |
-| `categories` | Categorías de repuesto |
-| `users` | Usuarios |
-| No existe | Autenticación, equipos, solicitudes, inventario y remisiones |
-
-## 4. Alcance
+## 3. Alcance
 
 ### Fase 1: MVP (el flujo completo, de la solicitud a la remisión)
 
@@ -209,3 +107,139 @@ La columna "Fase" indica si la acción entra en el MVP (fase 1) o en las mejoras
 
 1. El stock baja al registrar cada entrega, no al crear la solicitud.
 2. La fase 1 debe estar completa y funcionando antes de empezar la fase 2.
+
+## 4. Roles, permisos y módulos
+
+### Roles
+
+El sistema tiene dos roles: **Admin** y **Oficina radicadora**. Hay **un solo login para todos**: cada persona entra por la misma pantalla y el sistema le muestra las opciones según su rol. El contratista (técnico reparador) **no** es un usuario del sistema: es un dato que se registra en cada solicitud.
+
+La columna "Fase" indica si la acción entra en el MVP (fase 1) o en las mejoras (fase 2), según la sección 3.
+
+| Acción | Admin | Oficina radicadora | Fase |
+|---|:---:|:---:|:---:|
+| Iniciar y cerrar sesión | Sí | Sí | 1 |
+| Crear y consultar solicitudes de repuestos | Sí | Sí | 1 |
+| Registrar entregas de repuestos (totales o parciales) y cambiar su trazabilidad | Sí | No | 1 |
+| Marcar la solicitud como equipo reparado o devuelto | Sí | Sí | 1 |
+| Consultar y registrar equipos (neveras) | Sí | Sí | 1 |
+| Registrar entradas de repuestos al almacén | Sí | No | 1 |
+| Consultar el inventario (stock disponible) | Sí | No | 1 |
+| Ver e imprimir remisiones | Sí | Sí | 1 |
+| Gestionar catálogos: contratistas, categorías y repuestos | Sí | No | 1 |
+| Crear, editar y listar usuarios | Sí | No | 1 |
+| Activar y desactivar usuarios (un usuario inactivo no puede entrar) | Sí | No | 1 |
+| Restaurar la contraseña de un usuario con una contraseña temporal | Sí | No | 2 |
+| Cambiar su propia contraseña | Sí | Sí | 2 |
+| Cambiar a la vista de Oficina radicadora sin volver a iniciar sesión | Sí | No aplica | 2 |
+
+**Contraseña temporal:** cuando el Admin restaura una contraseña, el sistema asigna una contraseña temporal y obliga al usuario a cambiarla en su siguiente inicio de sesión.
+
+### Módulos
+
+Lo marcado con **(fase 2)** se construye después del MVP, según la sección 3.
+
+| Módulo | Pantallas | Quién lo usa |
+|---|---|---|
+| Autenticación | Iniciar sesión y cerrar sesión; cambiar contraseña **(fase 2)** | Todos |
+| Inicio | Página de inicio con las opciones del rol; resumen de solicitudes por estado y entregas pendientes **(fase 2)** | Todos |
+| Usuarios | Lista, formulario, activar o desactivar; restaurar contraseña **(fase 2)** | Admin |
+| Contratistas | Lista y formulario | Admin |
+| Equipos (neveras) | Lista y formulario; detalle con el historial de solicitudes del equipo **(fase 2)** | Admin y Oficina |
+| Categorías de repuesto | Lista y formulario | Admin |
+| Repuestos (catálogo) | Lista y formulario; cada repuesto tiene como mínimo código y nombre | Admin |
+| Inventario | Stock disponible por repuesto y entradas al almacén | Admin |
+| Solicitudes | Lista, formulario nuevo y detalle con línea de tiempo; filtros de la lista **(fase 2)** | Admin y Oficina, según los permisos |
+| Remisiones | Remisión de cada entrega de repuestos, para ver e imprimir | Admin y Oficina (la genera el Admin al registrar la entrega) |
+
+### El módulo central: Solicitudes
+
+1. **Nueva solicitud:** se elige el equipo (por su código) y el contratista, se indica la fecha de entrega y se agregan uno o más repuestos del catálogo con su cantidad.
+2. **Lista:** muestra todas las solicitudes; los filtros por estado, equipo, contratista y fechas llegan en la **fase 2**.
+3. **Detalle:** muestra los datos de la solicitud, sus repuestos y una línea de tiempo con cada cambio de estado (quién lo hizo y cuándo). Los botones de cambio de estado solo aparecen para el rol que tiene permiso.
+
+### Del prototipo al proyecto
+
+| Prototipo | Proyecto |
+|---|---|
+| `clients` | Contratistas |
+| `products` | Repuestos (catálogo) |
+| `categories` | Categorías de repuesto |
+| `users` | Usuarios |
+| No existe | Autenticación, equipos, solicitudes, inventario y remisiones |
+
+## 5. Stack y arquitectura
+
+### Cómo se conectan las partes
+
+```
+Navegador -> Flask (frontend, puerto 5000) -> API FastAPI (JSON, puerto 8000) -> MariaDB (puerto 3306)
+```
+
+1. **El navegador solo habla con Flask.** El usuario nunca ve ni llama directamente a la API.
+2. **Flask muestra las pantallas.** Recibe los formularios, se los envía a la API y guarda en su sesión el token del usuario que inició sesión.
+3. **FastAPI aplica las reglas del negocio.** Valida los datos, revisa los permisos de cada rol, cambia los estados y guarda el historial.
+4. **Solo FastAPI habla con la base de datos.** Flask nunca se conecta a MariaDB.
+
+Frontend y backend se trabajan **como si vivieran en servidores separados**: cada uno tiene su propio entorno virtual, su `requirements.txt`, su `.env` y su `.env.example`. El frontend solo conoce la dirección de la API, que lee de su `.env`.
+
+### Stack y por qué
+
+| Parte | Tecnología | Por qué |
+|---|---|---|
+| Frontend | Python 3.12, Flask 3 (Blueprints y `create_app`), Jinja2, HTML5, CSS3 propio, JavaScript (ES modules) | Flask es requisito académico y el prototipo ya usa Blueprints. El CSS propio permite el diseño sobrio definido para el proyecto. |
+| Backend | FastAPI, Uvicorn, Pydantic v2 | Separa las reglas del negocio de las pantallas, valida los datos automáticamente y genera la documentación de la API en `/docs`. |
+| Acceso a datos | PyMySQL con SQL directo | Se escriben las consultas a mano, lo que ayuda a aprender SQL y a ver exactamente qué se ejecuta. |
+| Seguridad | PyJWT y bcrypt | El token (JWT) identifica al usuario en cada llamada a la API y bcrypt guarda las contraseñas cifradas. |
+| Base de datos | MariaDB de XAMPP, modelo en MySQL Workbench | Ya está instalada en el equipo y es compatible con MySQL. |
+| Pruebas | pytest | Permite comprobar que la API funciona sin probar todo a mano. |
+
+### Qué problemas del diagnóstico resuelve esta arquitectura
+
+| Problema (sección 1) | Cómo se resuelve |
+|---|---|
+| 1. `create_app` repetido | Solo existirá en `frontend/src/__init__.py`. |
+| 2, 3 y 4. Formularios que no envían y datos escritos a mano | Los formularios enviarán los datos a Flask, Flask a la API y la API los guardará en MariaDB; las listas se llenarán desde la base de datos. |
+| 5. Sin base de datos ni API | Se agregan `backend/` y `database/`. |
+| 6. Sin login ni roles | La API emite un token con el rol del usuario y revisa los permisos en cada ruta. |
+| 7 y 8. Mezcla de idiomas y nombres que no coinciden | Todo en español y con nombres del negocio: `clients` pasa a contratistas y `products` a repuestos. |
+| 18 y 19. Forma de ejecutar y `debug=True` fijo | El README explicará cómo ejecutar cada parte y la configuración vendrá del `.env`. |
+
+## 6. Estructura de carpetas
+
+Estructura prevista del proyecto. Las carpetas `frontend/`, `backend/` y `database/` todavía no existen: se crearán cuando empiece el desarrollo.
+
+```
+facturApp/
+├── ARCHIVOS/              Documentos de referencia: guía, rúbrica y notas
+├── _backup/               Copia del prototipo original, sin cambios
+├── CLAUDE.md              Contexto y reglas del proyecto para la IA
+├── README.md              Qué es el proyecto y cómo ejecutarlo
+├── frontend/              Aplicación Flask (pantallas)
+│   ├── src/
+│   │   ├── __init__.py    create_app y registro de Blueprints (solo aquí)
+│   │   ├── app.py         Punto de arranque del frontend
+│   │   ├── controllers/   Un Blueprint por módulo: reciben la petición y muestran la pantalla
+│   │   ├── services/      Cliente que llama a la API
+│   │   ├── templates/     layout.html y una carpeta de plantillas por módulo
+│   │   └── static/        CSS, JavaScript e imágenes
+│   ├── .env.example       Variables del frontend sin valores reales
+│   └── requirements.txt   Librerías del frontend
+├── backend/               API FastAPI organizada en capas
+│   ├── app/
+│   │   ├── main.py        Punto de arranque de la API
+│   │   ├── database.py    Conexión a MariaDB con PyMySQL
+│   │   ├── routers/       Capa de rutas: recibe la petición y responde en JSON
+│   │   ├── schemas/       Capa de validación: forma de los datos con Pydantic
+│   │   ├── services/      Capa de reglas del negocio: permisos, estados e historial
+│   │   └── repositories/  Capa de datos: consultas SQL de cada módulo
+│   ├── tests/             Pruebas con pytest
+│   ├── .env.example       Variables del backend sin valores reales
+│   └── requirements.txt   Librerías del backend
+├── database/              Base de datos
+│   ├── schema.sql         Creación de las tablas
+│   └── seed.sql           Datos iniciales de prueba
+└── entregables/           Documentos que se entregan
+```
+
+Las capas del backend se llaman en orden: **routers → services → repositories → base de datos**. Cada capa solo habla con la siguiente.
