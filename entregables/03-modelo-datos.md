@@ -19,7 +19,7 @@ Convenciones:
 | 4 | `contratistas` | Los técnicos o empresas que reciben los repuestos, identificados por cédula o NIT. |
 | 5 | `equipos` | Las neveras que se reparan, identificadas por su código. |
 | 6 | `solicitudes` | Cada solicitud de repuestos: equipo, contratista, fecha de entrega y estado. |
-| 7 | `detalle_solicitud` | Los repuestos de cada solicitud, con lo solicitado, apartado, entregado y devuelto. |
+| 7 | `detalle_solicitud` | Los repuestos de cada solicitud, con lo solicitado, apartado, entregado, devuelto y reemplazado. |
 | 8 | `entregas` | Cada entrega de repuestos; cada fila es una remisión con su número único. |
 | 9 | `detalle_entrega` | Los repuestos y cantidades de cada entrega. |
 | 10 | `entradas_almacen` | La mercancía que llega al almacén. |
@@ -93,6 +93,7 @@ erDiagram
         decimal cantidad_apartada
         decimal cantidad_entregada
         decimal cantidad_devuelta
+        decimal cantidad_reemplazada
         int reemplazado_por_id FK
     }
     entregas {
@@ -219,7 +220,7 @@ La tabla `consecutivos` no tiene relaciones: solo guarda contadores.
 | Columna | Tipo | Nulo | Llave | Descripción |
 |---|---|:---:|:---:|---|
 | id | INT UNSIGNED AUTO_INCREMENT | No | PK | Identificador del repuesto. |
-| codigo | VARCHAR(30) | No | UNIQUE | Código, por ejemplo VAL-001; solo letras sin tildes, números y guiones (RN-07, RN-25). |
+| codigo | VARCHAR(30) | No | UNIQUE | Código, por ejemplo VAL-001; no se repite (RN-07). Los caracteres permitidos (letras sin tildes, números y guiones) los valida el backend (RN-25). |
 | nombre | VARCHAR(120) | No | UNIQUE | Nombre del repuesto; no se repite (RN-07). |
 | categoria_id | INT UNSIGNED | No | FK → categorias | Categoría a la que pertenece. |
 | unidad_medida | ENUM('unidad','metro','litro','kilogramo') | No | | Cómo se cuenta el repuesto (RN-12, PA-04). |
@@ -248,7 +249,7 @@ Tabla provisional hasta responder PA-27 (datos del equipo).
 | Columna | Tipo | Nulo | Llave | Descripción |
 |---|---|:---:|:---:|---|
 | id | INT UNSIGNED AUTO_INCREMENT | No | PK | Identificador del equipo. |
-| codigo | VARCHAR(30) | No | UNIQUE | Código de la nevera; solo letras sin tildes, números y guiones (RN-25). |
+| codigo | VARCHAR(30) | No | UNIQUE | Código de la nevera; no se repite. Los caracteres permitidos los valida el backend (RN-25). |
 | descripcion | VARCHAR(150) | Sí | | Marca, modelo o ubicación, mientras se define PA-27. |
 | activo | TINYINT(1), por defecto 1 | No | | 1 = activo; 0 = desactivado (RN-05). |
 | creado_por | INT UNSIGNED | No | FK → usuarios | Usuario que lo registró. |
@@ -270,6 +271,10 @@ Tabla provisional hasta responder PA-27 (datos del equipo).
 
 **Dato calculado (no se guarda):** el estado de la entrega ("Pendiente", "Parcial" o "Completa") se calcula con `detalle_solicitud` (RN-21).
 
+**Al reabrir una solicitud (HU-35):** el backend deja `motivo_cierre` vacío (NULL); el motivo del cierre anterior y el de la reapertura quedan en `historial_solicitud`.
+
+**Índice:** `ix_solicitudes_estado` sobre `estado`, para que los listados filtren rápido (RNF-19).
+
 ### 3.7 `detalle_solicitud`
 
 | Columna | Tipo | Nulo | Llave | Descripción |
@@ -277,15 +282,18 @@ Tabla provisional hasta responder PA-27 (datos del equipo).
 | id | INT UNSIGNED AUTO_INCREMENT | No | PK | Identificador de la fila. |
 | solicitud_id | INT UNSIGNED | No | FK → solicitudes | Solicitud a la que pertenece. |
 | repuesto_id | INT UNSIGNED | No | FK → repuestos | Repuesto pedido. UNIQUE junto con `solicitud_id`: un repuesto no se repite en la misma solicitud (RN-15). |
-| cantidad_solicitada | DECIMAL(12,2) | No | | Cantidad pedida. CHECK: > 0 (RN-11). |
+| cantidad_solicitada | DECIMAL(12,2) | No | | Cantidad pedida originalmente; no cambia al reemplazar. CHECK: > 0 (RN-11). |
 | cantidad_apartada | DECIMAL(12,2), por defecto 0 | No | | Cantidad reservada en este momento (RN-13, RN-33). CHECK: ≥ 0. |
-| cantidad_entregada | DECIMAL(12,2), por defecto 0 | No | | Suma de las entregas vigentes. CHECK: ≤ `cantidad_solicitada` (RN-16). |
-| cantidad_devuelta | DECIMAL(12,2), por defecto 0 | No | | Cantidad devuelta sin usar. CHECK: ≤ `cantidad_entregada` (RN-28). |
-| reemplazado_por_id | INT UNSIGNED | Sí | FK → detalle_solicitud | Fila del repuesto que reemplazó a este (HU-37, RN-34). |
+| cantidad_entregada | DECIMAL(12,2), por defecto 0 | No | | Suma de las entregas vigentes. CHECK: ≥ 0 y ≤ `cantidad_solicitada` − `cantidad_reemplazada` (RN-16). |
+| cantidad_devuelta | DECIMAL(12,2), por defecto 0 | No | | Cantidad devuelta sin usar. CHECK: ≥ 0 y ≤ `cantidad_entregada` (RN-28). |
+| cantidad_reemplazada | DECIMAL(12,2), por defecto 0 | No | | Cantidad que se pasó a otro repuesto al reemplazar este (HU-37, RN-34). CHECK: ≥ 0. |
+| reemplazado_por_id | INT UNSIGNED | Sí | FK → detalle_solicitud | Fila del repuesto que reemplazó a este (HU-37, RN-34). CHECK: obligatoria si `cantidad_reemplazada` > 0. |
 
-**Restricción adicional:** CHECK `cantidad_apartada` + `cantidad_entregada` ≤ `cantidad_solicitada`.
+**Restricción adicional:** CHECK `cantidad_apartada` + `cantidad_entregada` + `cantidad_reemplazada` ≤ `cantidad_solicitada`.
 
-**Dato calculado (no se guarda):** en espera = `cantidad_solicitada` − `cantidad_entregada` − `cantidad_apartada` (RN-33).
+**Dato calculado (no se guarda):** en espera = `cantidad_solicitada` − `cantidad_reemplazada` − `cantidad_entregada` − `cantidad_apartada`. Solo cuenta en solicitudes abiertas (RN-33).
+
+**Ejemplo de reemplazo (HU-37):** una fila pidió 4 válvulas VAL-001, se entregaron 2 y las otras 2 quedaron en espera; VAL-001 se desactiva sin stock. Al reemplazarla, esta fila queda con `cantidad_solicitada` = 4 (lo que se pidió), `cantidad_entregada` = 2 y `cantidad_reemplazada` = 2, y se crea una fila nueva con el repuesto de reemplazo y cantidad 2.
 
 ### 3.8 `entregas`
 
@@ -300,9 +308,11 @@ Cada fila es una entrega y su remisión.
 | registrado_por | INT UNSIGNED | No | FK → usuarios | Admin que registró la entrega (RN-20). |
 | registrado_en | DATETIME, por defecto la fecha actual | No | | Fecha y hora de la entrega (RN-20). |
 | retractada | TINYINT(1), por defecto 0 | No | | 1 = la entrega fue retractada (HU-31). |
-| motivo_retraccion | VARCHAR(255) | Sí | | Motivo de la retracción. CHECK: obligatorio si `retractada` = 1 (RN-26). |
+| motivo_retraccion | VARCHAR(255) | Sí | | Motivo de la retracción. |
 | retractada_por | INT UNSIGNED | Sí | FK → usuarios | Admin que la retractó. |
 | retractada_en | DATETIME | Sí | | Fecha y hora de la retracción. |
+
+**Restricción adicional:** CHECK: si `retractada` = 1, son obligatorios `motivo_retraccion` (no vacío), `retractada_por` y `retractada_en` (RN-26).
 
 ### 3.9 `detalle_entrega`
 
@@ -324,9 +334,11 @@ Cada fila es una entrega y su remisión.
 | registrado_por | INT UNSIGNED | No | FK → usuarios | Admin que la registró. |
 | registrado_en | DATETIME, por defecto la fecha actual | No | | Fecha y hora de registro. |
 | retractada | TINYINT(1), por defecto 0 | No | | 1 = la entrada fue retractada (HU-32). |
-| motivo_retraccion | VARCHAR(255) | Sí | | Motivo de la retracción. CHECK: obligatorio si `retractada` = 1 (RN-26). |
+| motivo_retraccion | VARCHAR(255) | Sí | | Motivo de la retracción. |
 | retractada_por | INT UNSIGNED | Sí | FK → usuarios | Admin que la retractó. |
 | retractada_en | DATETIME | Sí | | Fecha y hora de la retracción. |
+
+**Restricción adicional:** CHECK: si `retractada` = 1, son obligatorios `motivo_retraccion` (no vacío), `retractada_por` y `retractada_en` (RN-26).
 
 ### 3.11 `devoluciones`
 
@@ -355,6 +367,8 @@ Cada fila es una entrega y su remisión.
 | usuario_id | INT UNSIGNED | No | FK → usuarios | Usuario que hizo la acción (RN-20). |
 | creado_en | DATETIME, por defecto la fecha actual | No | | Fecha y hora del movimiento (RN-20). |
 
+**Restricción adicional:** CHECK: cada tipo debe indicar su origen. Los tipos 'entrada' y 'retraccion_entrada' exigen `entrada_id`; 'entrega' y 'retraccion_entrega' exigen `entrega_id`; 'devolucion' exige `devolucion_id`.
+
 ### 3.13 `historial_solicitud`
 
 | Columna | Tipo | Nulo | Llave | Descripción |
@@ -363,9 +377,13 @@ Cada fila es una entrega y su remisión.
 | solicitud_id | INT UNSIGNED | No | FK → solicitudes | Solicitud afectada. |
 | accion | ENUM('creada','editada','entrega','retraccion_entrega','devolucion','reparado','devuelto','anulada','reabierta','contratista_reasignado','repuesto_reemplazado') | No | | Qué pasó. |
 | detalle | VARCHAR(255) | Sí | | Valor anterior y nuevo, o la remisión relacionada. |
-| motivo | VARCHAR(255) | Sí | | Motivo, cuando la acción lo exige (RN-23, RN-26, RN-29, RN-30). |
+| motivo | VARCHAR(255) | Sí | | Motivo de la acción. |
 | usuario_id | INT UNSIGNED | No | FK → usuarios | Usuario que hizo la acción (RN-20). |
 | creado_en | DATETIME, por defecto la fecha actual | No | | Fecha y hora de la acción (RN-20). |
+
+**Restricción adicional:** CHECK: las acciones 'retraccion_entrega', 'devuelto', 'anulada' y 'reabierta' exigen `motivo` no vacío (RN-23, RN-26, RN-29, RN-30).
+
+**Varios cambios a la vez:** si una edición cambia varios datos (por ejemplo, tres repuestos), el backend guarda una fila de historial por cada cambio, para que `detalle` nunca supere los 255 caracteres.
 
 ### 3.14 `consecutivos`
 
@@ -390,3 +408,50 @@ Cada fila es una entrega y su remisión.
 12. Cada **entrada, entrega, devolución o retracción** deja uno o más **movimientos de inventario** del repuesto afectado.
 13. Cada acción sobre una **solicitud** deja un registro en su **historial**.
 14. Un **usuario** registra equipos, crea solicitudes, registra o retracta entregas y entradas, y registra devoluciones; cada acción queda a su nombre.
+
+**Limitaciones del diagrama:** Mermaid no permite marcar los UNIQUE de dos columnas: (`solicitud_id`, `repuesto_id`) en `detalle_solicitud` y (`entrega_id`, `repuesto_id`) en `detalle_entrega`. Además, "una solicitud tiene uno o más repuestos" no lo impone la base de datos: lo exige el backend (RN-15).
+
+## 5. Qué protege la base de datos y qué protege el backend
+
+### 5.1 Reglas que la base de datos protege por completo
+
+| Regla | Cómo |
+|---|---|
+| RN-08 Cédula o NIT único | UNIQUE sobre `documento_normalizado` (el backend calcula el valor normalizado). |
+| RN-10 Stock nunca negativo | CHECK `stock_almacen` ≥ 0 y `stock_resultante` ≥ 0. |
+| RN-11 Cantidades mayores que cero | CHECK > 0 en solicitudes, entradas, entregas y devoluciones. |
+| RN-16 No entregar de más | CHECK `cantidad_entregada` ≤ `cantidad_solicitada` − `cantidad_reemplazada`. |
+| RN-23 Motivo al devolver | CHECK sobre `motivo_cierre`. |
+| RN-24 Stock mínimo no negativo | CHECK `stock_minimo` ≥ 0. |
+| RN-27 No retractar una entrada ya usada | CHECK `stock_apartado` ≤ `stock_almacen`. |
+| RN-28 No devolver de más | CHECK `cantidad_devuelta` ≤ `cantidad_entregada`. |
+
+### 5.2 Reglas compartidas
+
+| Regla | La base de datos | El backend |
+|---|---|---|
+| RN-05 No borrar, desactivar | FK con `ON DELETE RESTRICT` | Ofrecer "Desactivar" y ocultar los inactivos en operaciones nuevas |
+| RN-07 Nombres y códigos únicos | UNIQUE con colación que ignora mayúsculas y tildes | Quitar espacios al inicio y al final |
+| RN-13 Stock apartado | CHECK de cantidades en `detalle_solicitud` | Calcular cuánto apartar |
+| RN-14 Datos de la solicitud | NOT NULL + FK de equipo y contratista | Fecha de entrega no anterior a hoy |
+| RN-15 Repuestos de la solicitud | UNIQUE (solicitud, repuesto) | Al menos un repuesto |
+| RN-18 Numeración | UNIQUE del número | `SELECT ... FOR UPDATE` en `consecutivos`, dentro de una transacción |
+| RN-19 Remisión inalterable | Las FK impiden borrarla | Impedir que se edite |
+| RN-20 Fecha y usuario | `DEFAULT CURRENT_TIMESTAMP` | Guardar el usuario |
+| RN-26 Retracciones | CHECK de motivo, quién y cuándo | Solo el Admin |
+| RN-29 y RN-30 Anular y reabrir | CHECK de motivo | Sin entregas vigentes; solo el Admin; una anulada no se reabre |
+| RN-34 Reemplazo | CHECK de `cantidad_reemplazada` y `reemplazado_por_id` | Solo se reemplaza lo que no tiene stock |
+
+### 5.3 Reglas que solo protege el backend
+
+RN-01 a RN-04 (acceso y contraseñas), RN-06 (categoría con repuestos activos), RN-09 (el stock solo cambia con movimientos), RN-12 (decimales según la unidad), RN-17 (entrega completa o nada, con transacciones), RN-21 (estado de la entrega calculado), RN-22 (solicitud cerrada), RN-25 (caracteres permitidos), RN-31 (contratista desactivado), RN-32 (último Admin) y RN-33 (mercancía en espera).
+
+### 5.4 Datos que el backend debe mantener cuadrados
+
+La base de datos no puede comparar tablas entre sí, así que el backend debe actualizar estos valores en la misma transacción que la acción que los cambia:
+
+1. `detalle_solicitud.cantidad_entregada` = suma de `detalle_entrega.cantidad` de las entregas vigentes de esa solicitud y ese repuesto.
+2. `repuestos.stock_apartado` = suma de `detalle_solicitud.cantidad_apartada` de las solicitudes abiertas.
+3. `repuestos.stock_almacen` = suma de `movimientos_inventario.cantidad` de ese repuesto.
+4. Un repuesto en `detalle_entrega` o en `devoluciones` debe estar en el detalle de esa solicitud.
+5. Al cerrar o anular una solicitud, su `cantidad_apartada` vuelve a 0 y lo pendiente deja de contar como "en espera".

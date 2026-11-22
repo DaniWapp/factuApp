@@ -40,17 +40,21 @@ START TRANSACTION;
 
 -- IMPORTANTE SOBRE LAS CONTRASEÑAS:
 -- El valor de contrasena_hash es un HASH DE EJEMPLO que no corresponde a
--- ninguna contraseña: con estos datos nadie puede iniciar sesión todavía.
--- Las contraseñas reales se crearán desde el backend en el Entregable 06,
--- que las cifrará con bcrypt antes de guardarlas (RNF-01). Nunca se
--- escribe una contraseña real en un archivo SQL.
+-- ninguna contraseña conocida: con estos datos nadie puede iniciar sesión
+-- todavía. Las contraseñas reales se crearán desde el backend en el
+-- Entregable 06, que las cifrará con bcrypt antes de guardarlas (RNF-01).
+-- Nunca se escribe una contraseña real en un archivo SQL.
+--
+-- Aunque es de ejemplo, tiene el formato exacto de bcrypt (60 caracteres:
+-- "$2b$12$" + 22 de sal + 31 de hash). Así, si alguien intenta entrar,
+-- bcrypt responde "contraseña incorrecta" en lugar de fallar con un error.
 INSERT INTO usuarios (id, nombre, correo, contrasena_hash, rol, activo, debe_cambiar_contrasena, creado_en) VALUES
     (1, 'Administrador del sistema', 'admin@facturapp.test',
-        '$2b$12$HASHDEEJEMPLO.NOESUNACONTRASENAREAL.SECREARAENELBACKEND', 'admin',   1, 0, '2026-11-02 08:00:00'),
+        '$2b$12$HashDeEjemploNoValido.SeCreaRealmenteEnElBackendE06..', 'admin',   1, 0, '2026-11-02 08:00:00'),
     (2, 'Laura Gómez',               'laura.gomez@facturapp.test',
-        '$2b$12$HASHDEEJEMPLO.NOESUNACONTRASENAREAL.SECREARAENELBACKEND', 'oficina', 1, 0, '2026-11-02 08:10:00'),
+        '$2b$12$HashDeEjemploNoValido.SeCreaRealmenteEnElBackendE06..', 'oficina', 1, 0, '2026-11-02 08:10:00'),
     (3, 'Andrés Muñoz',              'andres.munoz@facturapp.test',
-        '$2b$12$HASHDEEJEMPLO.NOESUNACONTRASENAREAL.SECREARAENELBACKEND', 'oficina', 1, 0, '2026-11-02 08:15:00');
+        '$2b$12$HashDeEjemploNoValido.SeCreaRealmenteEnElBackendE06..', 'oficina', 1, 0, '2026-11-02 08:15:00');
 
 
 -- ---------------------------------------------------------------------
@@ -141,7 +145,8 @@ INSERT INTO solicitudes (id, numero, equipo_id, contratista_id, fecha_entrega, e
 
 -- Para cada repuesto: cuánto se pidió, cuánto está apartado y cuánto
 -- se entregó. Lo que está en espera se calcula:
--- solicitada - entregada - apartada.
+-- solicitada - reemplazada - entregada - apartada.
+-- cantidad_reemplazada no se escribe: queda en 0 (su valor por defecto).
 INSERT INTO detalle_solicitud (id, solicitud_id, repuesto_id, cantidad_solicitada, cantidad_apartada, cantidad_entregada, cantidad_devuelta) VALUES
     -- SOL-000001: entrega completa.
     (1, 1, 1, 1.00, 0.00, 1.00, 0.00),   -- COM-001: pidió 1, entregado 1

@@ -267,7 +267,8 @@ CREATE INDEX ix_solicitudes_estado ON solicitudes (estado);
 
 -- Tabla detalle_solicitud: los repuestos de cada solicitud.
 -- Lo que está en espera no se guarda: se calcula como
--- cantidad_solicitada - cantidad_entregada - cantidad_apartada (RN-33).
+-- cantidad_solicitada - cantidad_reemplazada - cantidad_entregada - cantidad_apartada
+-- y solo cuenta en solicitudes abiertas (RN-33).
 CREATE TABLE detalle_solicitud (
     id                  INT UNSIGNED NOT NULL AUTO_INCREMENT,
     solicitud_id        INT UNSIGNED NOT NULL,
@@ -279,6 +280,9 @@ CREATE TABLE detalle_solicitud (
     cantidad_entregada  DECIMAL(12,2) NOT NULL DEFAULT 0,
     -- Cantidad devuelta sin usar (RN-28).
     cantidad_devuelta   DECIMAL(12,2) NOT NULL DEFAULT 0,
+    -- Cantidad que se pasó a otro repuesto al reemplazar este (HU-37, RN-34).
+    -- cantidad_solicitada no se cambia: así se conserva lo que se pidió.
+    cantidad_reemplazada DECIMAL(12,2) NOT NULL DEFAULT 0,
     -- Fila del repuesto que reemplazó a este, si fue reemplazado (RN-34).
     reemplazado_por_id  INT UNSIGNED NULL,
 
@@ -299,14 +303,19 @@ CREATE TABLE detalle_solicitud (
     CONSTRAINT ck_detalle_solicitud_cantidad CHECK (cantidad_solicitada > 0),
     -- Ninguna cantidad de control puede ser negativa.
     CONSTRAINT ck_detalle_solicitud_no_negativas CHECK (
-        cantidad_apartada >= 0 AND cantidad_entregada >= 0 AND cantidad_devuelta >= 0
+        cantidad_apartada >= 0 AND cantidad_entregada >= 0
+        AND cantidad_devuelta >= 0 AND cantidad_reemplazada >= 0
     ),
-    -- No se puede entregar más de lo solicitado (RN-16).
-    CONSTRAINT ck_detalle_solicitud_entregada CHECK (cantidad_entregada <= cantidad_solicitada),
+    -- No se puede entregar más de lo solicitado, sin contar lo reemplazado (RN-16).
+    CONSTRAINT ck_detalle_solicitud_entregada CHECK (cantidad_entregada <= cantidad_solicitada - cantidad_reemplazada),
     -- No se puede devolver más de lo entregado (RN-28).
     CONSTRAINT ck_detalle_solicitud_devuelta CHECK (cantidad_devuelta <= cantidad_entregada),
-    -- Lo apartado más lo entregado no puede pasar de lo solicitado (RN-13).
-    CONSTRAINT ck_detalle_solicitud_apartada CHECK (cantidad_apartada + cantidad_entregada <= cantidad_solicitada)
+    -- Lo apartado, lo entregado y lo reemplazado juntos no pueden pasar de lo solicitado (RN-13, RN-34).
+    CONSTRAINT ck_detalle_solicitud_apartada CHECK (
+        cantidad_apartada + cantidad_entregada + cantidad_reemplazada <= cantidad_solicitada
+    ),
+    -- Si se reemplazó una cantidad, debe quedar indicada la fila que la reemplazó (RN-34).
+    CONSTRAINT ck_detalle_solicitud_reemplazo CHECK (cantidad_reemplazada = 0 OR reemplazado_por_id IS NOT NULL)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
