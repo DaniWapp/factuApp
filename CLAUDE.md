@@ -35,16 +35,20 @@ facturApp/
 │       ├── templates/    (layout.html + una carpeta por módulo)
 │       └── static/       (css, js, imágenes)
 ├── backend/         (API FastAPI)
-│   └── app/
-│       ├── main.py
-│       ├── database.py   (conexión PyMySQL)
-│       ├── repositories/ (consultas SQL por módulo)
-│       ├── schemas/      (validación Pydantic)
-│       ├── routers/      (endpoints por módulo)
-│       └── services/     (reglas: cambios de estado, historial)
+│   ├── app/
+│   │   ├── main.py       (crea la app, registra routers y manejadores de errores)
+│   │   ├── core/         (config.py: lee .env; seguridad.py: bcrypt y JWT; dependencias.py: usuario actual y rol; errores.py: errores de negocio → código HTTP)
+│   │   ├── db/           (conexion.py: conexión PyMySQL y transacción COMMIT/ROLLBACK)
+│   │   ├── schemas/      (validación Pydantic de lo que entra y sale)
+│   │   ├── routers/      (endpoints por módulo)
+│   │   ├── services/     (reglas de negocio, transacciones, estados e historial)
+│   │   └── repositories/ (consultas SQL por tabla; única capa que toca la base)
+│   └── tests/        (pytest)
 ├── database/        (schema.sql y seed.sql)
 └── entregables/
 ```
+- Nombre de capas: la capa de datos se llama `repositories/` (SQL directo, sin ORM). Si una instrucción dice "models", se entiende como `repositories/`; no se crea `models/`.
+- Permisos: el botón oculto en Flask es solo comodidad; la protección real está en `core/dependencias.py` (token → 401, rol → 403). Stock: lo revisa el service con `SELECT ... FOR UPDATE` dentro de la transacción, y los CHECK de MySQL son la última barrera.
 
 ## Roles y permisos
 Un solo login para todos: el sistema muestra las opciones según el rol. La tabla completa de permisos (con la fase de cada acción) está en `entregables/01-propuesta.md`, sección 4.
@@ -162,7 +166,9 @@ Diapositivas:
 - Situación actual del cliente: las solicitudes se llevan en un Excel compartido.
 - Entregable 00 (método con IA): en curso.
 - Entregable 02 (requisitos): terminado (`entregables/02-requisitos.md`, etiqueta v0.2-requisitos). Quedan por escribir los grupos Gestión de usuarios (HU-07 a HU-11) y Equipos (HU-15 y HU-16), y siguen abiertas las preguntas de la sección 6.
-- Entregable 03 (modelo de datos): terminado (`entregables/03-modelo-datos.md`, `database/schema.sql`, `database/seed.sql`, etiqueta v0.3-modelo-datos). La base de datos se llama `facturapp`: 14 tablas, diagrama entidad-relación, diccionario de datos y relaciones. Valores provisionales hasta responder PA-06, PA-11 y PA-27. 
+- Entregable 03 (modelo de datos): terminado (`entregables/03-modelo-datos.md`, `database/schema.sql`, `database/seed.sql`, etiqueta v0.3-modelo-datos). La base de datos se llama `facturapp`: 14 tablas, diagrama entidad-relación, diccionario de datos y relaciones.
+- Entregable 04 (arquitectura y API): en curso (`entregables/04-arquitectura-api.md`). Escritas: 1 (Capas del backend: core, db, schemas, routers, services, repositories) y 2 (Recorrido de "crear entrega").
+- Pendiente de decidir antes del Entregable 06: la sesión de Flask por defecto guarda el token en una cookie firmada pero no cifrada, así que el token sí llega al navegador (aunque con HttpOnly). El usuario decidió dejarlo así por ahora; recordárselo antes de programar el login. Valores provisionales hasta responder PA-06, PA-11 y PA-27. 
 - `database/schema.sql`: creado y probado en MySQL 8.0.17 de AppServ (14 tablas, 14 PK, 10 UNIQUE, 27 FK, 19 CHECK; se puede ejecutar varias veces). `detalle_solicitud.cantidad_reemplazada` guarda lo pasado a otro repuesto en HU-37 sin tocar lo solicitado. Lo que la base no protege y debe cuidar el backend está en `03-modelo-datos.md`, sección 5. Falta probarlo en MariaDB (XAMPP). 
 - `database/seed.sql`: creado y probado (3 usuarios con hash de ejemplo, 3 categorías, 6 repuestos, 3 contratistas, 3 equipos, 2 solicitudes, 2 entregas: REM-000001 completa y REM-000002 parcial). El stock cuadra con los movimientos. Las contraseñas reales se crearán desde el backend (Entregable 06). La base `facturapp` de AppServ tiene cargados estos datos.
 - Diseño de la propuesta:

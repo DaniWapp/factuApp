@@ -235,8 +235,9 @@ facturApp/
 │   └── requirements.txt   Librerías del frontend
 ├── backend/               API FastAPI organizada en capas
 │   ├── app/
-│   │   ├── main.py        Punto de arranque de la API
-│   │   ├── database.py    Conexión a MySQL o MariaDB con PyMySQL
+│   │   ├── main.py        Punto de arranque de la API: registra rutas y errores
+│   │   ├── core/          Configuración (.env), seguridad (bcrypt y JWT), usuario actual y rol, errores
+│   │   ├── db/            Conexión a MySQL o MariaDB con PyMySQL y manejo de transacciones
 │   │   ├── routers/       Capa de rutas: recibe la petición y responde en JSON
 │   │   ├── schemas/       Capa de validación: forma de los datos con Pydantic
 │   │   ├── services/      Capa de reglas del negocio: permisos, estados e historial
