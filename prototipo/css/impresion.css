@@ -1,0 +1,83 @@
+/* =====================================================================
+   Archivo:  prototipo/css/impresion.css
+   Proyecto: FacturApp
+
+   Qué es:
+     La hoja de estilos de IMPRESIÓN de la remisión. Solo se aplica
+     cuando se imprime (se enlaza con media="print"):
+       <link rel="stylesheet" href="css/impresion.css" media="print">
+
+   Qué hace:
+     - Usa hoja tamaño carta con márgenes de 15 mm.
+     - Quita el menú, la cabecera y los botones.
+     - Imprime en blanco y negro, para que salga bien en cualquier
+       impresora y se lea al fotocopiarse.
+   ===================================================================== */
+
+/* Tamaño carta y márgenes de la hoja. */
+@page {
+  size: letter;
+  margin: 15mm;
+}
+
+/* Fondo blanco y texto negro en toda la hoja. */
+body {
+  background: #FFFFFF !important;
+  color: #000000 !important;
+  font-size: 11pt;
+}
+
+/* Se ocultan el menú, la cabecera, los botones y todo lo marcado como "no imprimir". */
+.ui-lateral,
+.ui-cabecera,
+.ui-saltar,
+.ui-boton,
+.ui-aviso,
+.no-imprimir {
+  display: none !important;
+}
+
+/* El contenido ocupa toda la hoja, sin rellenos de pantalla. */
+.ui-app {
+  display: block;
+}
+.ui-contenido {
+  padding: 0;
+  max-width: none;
+}
+
+/* La remisión sin marco ni rellenos: la hoja ya es su marco. */
+.ui-remision {
+  max-width: none;
+  padding: 0;
+  border: 0;
+}
+
+/* Todos los textos en negro, también los secundarios y los de color. */
+.ui-remision * {
+  color: #000000 !important;
+}
+
+/* Líneas de la tabla en negro para que se vean al imprimir. */
+.ui-tabla-caja {
+  border: 0;
+  overflow: visible;
+}
+.ui-tabla th,
+.ui-tabla td {
+  border-bottom: 0.5pt solid #000000;
+}
+.ui-tabla th {
+  border-bottom-width: 1pt;
+}
+
+/* Las firmas siempre en dos columnas y sin partirse entre dos hojas. */
+.ui-remision__firmas {
+  grid-template-columns: 1fr 1fr;
+  break-inside: avoid;
+}
+
+/* Que una fila de la tabla no quede partida entre dos hojas. */
+.ui-tabla tr {
+  break-inside: avoid;
+}

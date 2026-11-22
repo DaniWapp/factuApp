@@ -1,0 +1,124 @@
+<!doctype html>
+<!--
+  Archivo:  prototipo/repuestos.html
+  Proyecto: FacturApp (prototipo de diseño, Entregable 05)
+
+  Listado de repuestos: título, acción principal, buscador, tabla con insignia de stock y ejemplo de estado vacío.
+
+  Usa solo css/ui.css (sin frameworks) y datos de ejemplo de database/seed.sql.
+  Se abre con doble clic; los enlaces permiten recorrer todo el prototipo.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Repuestos · FacturApp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/ui.css">
+</head>
+<body>
+<a class="ui-saltar" href="#contenido">Saltar al contenido</a>
+<div class="ui-app">
+  <aside class="ui-lateral" id="menu-lateral">
+    <a class="ui-marca" href="panel-admin.html">FacturApp<span>Almacén de repuestos</span></a>
+    <nav aria-label="Menú del Admin">
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="panel-admin.html">Inicio</a></li>
+      </ul>
+      <p class="ui-menu__grupo">Operación</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="#">Solicitudes</a></li>
+        <li data-solo-admin><a class="ui-menu__enlace" href="entrega-nueva.html">Nueva entrega</a></li>
+        <li><a class="ui-menu__enlace" href="remision.html">Remisiones</a></li>
+        <li><a class="ui-menu__enlace" href="#">Equipos</a></li>
+      </ul>
+      <div data-solo-admin>
+      <p class="ui-menu__grupo">Almacén</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="#">Inventario</a></li>
+        <li><a class="ui-menu__enlace" href="#">Entradas al almacén</a></li>
+      </ul>
+      <p class="ui-menu__grupo">Catálogos</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="repuestos.html" aria-current="page">Repuestos</a></li>
+        <li><a class="ui-menu__enlace" href="#">Categorías</a></li>
+        <li><a class="ui-menu__enlace" href="#">Contratistas</a></li>
+      </ul>
+      <p class="ui-menu__grupo">Administración</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="usuarios.html">Usuarios</a></li>
+      </ul>
+      </div>
+    </nav>
+  </aside>
+  <div class="ui-principal">
+    <header class="ui-cabecera">
+      <button class="ui-boton ui-boton--secundario ui-boton-menu" type="button" data-abrir-menu aria-controls="menu-lateral" aria-expanded="false">Menú</button>
+      <div class="ui-cabecera__derecha">
+        <button class="ui-interruptor" type="button" role="switch" aria-checked="false" data-vista-usuario>
+          <span class="ui-interruptor__riel" aria-hidden="true"></span>Vista de usuario
+        </button>
+        <details class="ui-desplegable">
+          <summary><span class="ui-cabecera__nombre">Administrador del sistema</span></summary>
+          <ul class="ui-desplegable__lista">
+            <li class="ui-desplegable__info">admin@facturapp.test<br>Admin</li>
+            <li><a class="ui-desplegable__opcion" href="mi-cuenta.html">Mi cuenta</a></li>
+            <li><a class="ui-desplegable__opcion" href="login.html">Cerrar sesión</a></li>
+          </ul>
+        </details>
+      </div>
+    </header>
+    <main class="ui-contenido" id="contenido">
+    <p class="ui-aviso ui-aviso--advertencia" id="aviso-vista" hidden>
+      <strong>Está viendo el sistema como Oficina radicadora.</strong>
+      <button class="ui-boton ui-boton--texto" type="button" data-volver-admin>Volver a la vista de Admin</button>
+    </p>
+      <div class="ui-encabezado">
+        <div>
+          <h1 class="ui-titulo">Repuestos</h1>
+          <p class="ui-descripcion">Catálogo de repuestos de refrigeración con su stock disponible.</p>
+        </div>
+        <a class="ui-boton ui-boton--principal" href="repuesto-form.html">Nuevo repuesto</a>
+      </div>
+
+      <div class="ui-campo ui-busqueda">
+        <label class="ui-campo__etiqueta" for="buscar">Buscar repuesto</label>
+        <input class="ui-campo__control" id="buscar" type="search" data-filtrar="tabla-repuestos" aria-describedby="ayuda-buscar">
+        <p class="ui-campo__ayuda" id="ayuda-buscar">Por código, nombre o categoría.</p>
+      </div>
+
+      <div class="ui-tabla-caja">
+        <table class="ui-tabla" id="tabla-repuestos">
+          <thead>
+            <tr><th scope="col">Código</th><th scope="col">Nombre</th><th scope="col">Categoría</th>
+            <th scope="col" class="ui-tabla__num">Stock disponible</th><th scope="col">Estado</th>
+            <th scope="col" class="ui-tabla__acciones">Acciones</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="ui-codigo">COM-001</td><td>Compresor hermético 1/2 HP R134a</td><td>Compresores</td><td class="ui-tabla__num">9</td><td><span class="ui-insignia ui-insignia--exito">Disponible</span></td><td class="ui-tabla__acciones"><a class="ui-boton ui-boton--texto" href="repuesto-form.html">Editar</a><button class="ui-boton ui-boton--texto ui-boton--peligro" type="button">Desactivar</button></td></tr>
+            <tr><td class="ui-codigo">COM-002</td><td>Compresor hermético 1/3 HP R600a</td><td>Compresores</td><td class="ui-tabla__num">6</td><td><span class="ui-insignia ui-insignia--exito">Disponible</span></td><td class="ui-tabla__acciones"><a class="ui-boton ui-boton--texto" href="repuesto-form.html">Editar</a><button class="ui-boton ui-boton--texto ui-boton--peligro" type="button">Desactivar</button></td></tr>
+            <tr><td class="ui-codigo">VAL-001</td><td>Válvula de expansión termostática</td><td>Válvulas</td><td class="ui-tabla__num">23</td><td><span class="ui-insignia ui-insignia--exito">Disponible</span></td><td class="ui-tabla__acciones"><a class="ui-boton ui-boton--texto" href="repuesto-form.html">Editar</a><button class="ui-boton ui-boton--texto ui-boton--peligro" type="button">Desactivar</button></td></tr>
+            <tr><td class="ui-codigo">VAL-002</td><td>Válvula solenoide 1/4"</td><td>Válvulas</td><td class="ui-tabla__num">10</td><td><span class="ui-insignia ui-insignia--exito">Disponible</span></td><td class="ui-tabla__acciones"><a class="ui-boton ui-boton--texto" href="repuesto-form.html">Editar</a><button class="ui-boton ui-boton--texto ui-boton--peligro" type="button">Desactivar</button></td></tr>
+            <tr><td class="ui-codigo">VAL-003</td><td>Válvula de servicio 1/4"</td><td>Válvulas</td><td class="ui-tabla__num">0</td><td><span class="ui-insignia ui-insignia--error">Sin stock</span></td><td class="ui-tabla__acciones"><a class="ui-boton ui-boton--texto" href="repuesto-form.html">Editar</a><button class="ui-boton ui-boton--texto ui-boton--peligro" type="button">Desactivar</button></td></tr>
+            <tr><td class="ui-codigo">MOT-001</td><td>Motor ventilador condensador 9 W</td><td>Motores de ventilador</td><td class="ui-tabla__num">12</td><td><span class="ui-insignia ui-insignia--exito">Disponible</span></td><td class="ui-tabla__acciones"><a class="ui-boton ui-boton--texto" href="repuesto-form.html">Editar</a><button class="ui-boton ui-boton--texto ui-boton--peligro" type="button">Desactivar</button></td></tr>
+            <tr><td class="ui-codigo">MOT-002</td><td>Motor ventilador evaporador 5 W</td><td>Motores de ventilador</td><td class="ui-tabla__num">15</td><td><span class="ui-insignia ui-insignia--exito">Disponible</span></td><td class="ui-tabla__acciones"><a class="ui-boton ui-boton--texto" href="repuesto-form.html">Editar</a><button class="ui-boton ui-boton--texto ui-boton--peligro" type="button">Desactivar</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <section class="ui-bloque" aria-labelledby="titulo-vacio">
+        <h2 class="ui-bloque__titulo" id="titulo-vacio">Ejemplo: así se ve la lista sin repuestos</h2>
+        <div class="ui-vacio">
+          <p class="ui-vacio__titulo">Todavía no hay repuestos.</p>
+          <p>Cree el primero para poder usarlo en las solicitudes y las entregas.</p>
+          <a class="ui-boton ui-boton--principal" href="repuesto-form.html">Crear el primer repuesto</a>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+<script src="js/prototipo.js"></script>
+</body>
+</html>

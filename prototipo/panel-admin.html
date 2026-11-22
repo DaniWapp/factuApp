@@ -1,0 +1,98 @@
+<!doctype html>
+<!--
+  Archivo:  prototipo/panel-admin.html
+  Proyecto: FacturApp (prototipo de diseño, Entregable 05)
+
+  Panel del Admin: menú lateral completo, interruptor "Vista de usuario" y menú de la cuenta.
+
+  Usa solo css/ui.css (sin frameworks) y datos de ejemplo de database/seed.sql.
+  Se abre con doble clic; los enlaces permiten recorrer todo el prototipo.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inicio · FacturApp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/ui.css">
+</head>
+<body>
+<a class="ui-saltar" href="#contenido">Saltar al contenido</a>
+<div class="ui-app">
+  <aside class="ui-lateral" id="menu-lateral">
+    <a class="ui-marca" href="panel-admin.html">FacturApp<span>Almacén de repuestos</span></a>
+    <nav aria-label="Menú del Admin">
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="panel-admin.html" aria-current="page">Inicio</a></li>
+      </ul>
+      <p class="ui-menu__grupo">Operación</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="#">Solicitudes</a></li>
+        <li data-solo-admin><a class="ui-menu__enlace" href="entrega-nueva.html">Nueva entrega</a></li>
+        <li><a class="ui-menu__enlace" href="remision.html">Remisiones</a></li>
+        <li><a class="ui-menu__enlace" href="#">Equipos</a></li>
+      </ul>
+      <div data-solo-admin>
+      <p class="ui-menu__grupo">Almacén</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="#">Inventario</a></li>
+        <li><a class="ui-menu__enlace" href="#">Entradas al almacén</a></li>
+      </ul>
+      <p class="ui-menu__grupo">Catálogos</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="repuestos.html">Repuestos</a></li>
+        <li><a class="ui-menu__enlace" href="#">Categorías</a></li>
+        <li><a class="ui-menu__enlace" href="#">Contratistas</a></li>
+      </ul>
+      <p class="ui-menu__grupo">Administración</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="usuarios.html">Usuarios</a></li>
+      </ul>
+      </div>
+    </nav>
+  </aside>
+  <div class="ui-principal">
+    <header class="ui-cabecera">
+      <button class="ui-boton ui-boton--secundario ui-boton-menu" type="button" data-abrir-menu aria-controls="menu-lateral" aria-expanded="false">Menú</button>
+      <div class="ui-cabecera__derecha">
+        <button class="ui-interruptor" type="button" role="switch" aria-checked="false" data-vista-usuario>
+          <span class="ui-interruptor__riel" aria-hidden="true"></span>Vista de usuario
+        </button>
+        <details class="ui-desplegable">
+          <summary><span class="ui-cabecera__nombre">Administrador del sistema</span></summary>
+          <ul class="ui-desplegable__lista">
+            <li class="ui-desplegable__info">admin@facturapp.test<br>Admin</li>
+            <li><a class="ui-desplegable__opcion" href="mi-cuenta.html">Mi cuenta</a></li>
+            <li><a class="ui-desplegable__opcion" href="login.html">Cerrar sesión</a></li>
+          </ul>
+        </details>
+      </div>
+    </header>
+    <main class="ui-contenido" id="contenido">
+    <p class="ui-aviso ui-aviso--advertencia" id="aviso-vista" hidden>
+      <strong>Está viendo el sistema como Oficina radicadora.</strong>
+      <button class="ui-boton ui-boton--texto" type="button" data-volver-admin>Volver a la vista de Admin</button>
+    </p>
+      <h1 class="ui-titulo">Inicio</h1>
+      <p class="ui-descripcion">Hola, Administrador del sistema. Elija una opción del menú o de esta lista.</p>
+      <div class="ui-tabla-caja">
+        <table class="ui-tabla">
+          <thead><tr><th scope="col">Opción</th><th scope="col">Para qué sirve</th></tr></thead>
+          <tbody>
+            <tr><td><a href="#">Solicitudes</a></td><td>Ver las solicitudes, registrar entregas y cerrar solicitudes.</td></tr>
+            <tr data-solo-admin><td><a href="entrega-nueva.html">Nueva entrega</a></td><td>Entregar repuestos a un contratista y generar la remisión.</td></tr>
+            <tr><td><a href="#">Equipos</a></td><td>Registrar y consultar las neveras.</td></tr>
+            <tr data-solo-admin><td><a href="#">Inventario</a></td><td>Consultar el stock y registrar entradas al almacén.</td></tr>
+            <tr data-solo-admin><td><a href="repuestos.html">Repuestos</a></td><td>Mantener el catálogo de repuestos.</td></tr>
+            <tr data-solo-admin><td><a href="usuarios.html">Usuarios</a></td><td>Crear, activar y desactivar usuarios.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/prototipo.js"></script>
+</body>
+</html>

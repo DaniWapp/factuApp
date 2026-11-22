@@ -1,0 +1,48 @@
+<!doctype html>
+<!--
+  Archivo:  prototipo/login.html
+  Proyecto: FacturApp (prototipo de diseño, Entregable 05)
+
+  Inicio de sesión: correo, contraseña, botón Entrar y un ejemplo del mensaje de error (HU-01).
+
+  Usa solo css/ui.css (sin frameworks) y datos de ejemplo de database/seed.sql.
+  Se abre con doble clic; los enlaces permiten recorrer todo el prototipo.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Iniciar sesión · FacturApp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/ui.css">
+</head>
+<body>
+<main class="ui-acceso">
+  <div class="ui-acceso__caja">
+    <p class="ui-marca" style="margin-left:0">FacturApp<span>Almacén de repuestos de refrigeración</span></p>
+    <h1 class="ui-titulo">Iniciar sesión</h1>
+    <p class="ui-descripcion">Entre con el correo y la contraseña que le dio el administrador.</p>
+
+    <!-- Ejemplo del mensaje de error de HU-01. En el sistema solo aparece cuando falla el inicio de sesión. -->
+    <p class="ui-aviso ui-aviso--error" id="error-login" role="alert"><strong>No se pudo entrar.</strong> Correo o contraseña incorrectos.</p>
+
+    <form data-login novalidate>
+      <div class="ui-campo">
+        <label class="ui-campo__etiqueta" for="correo">Correo</label>
+        <input class="ui-campo__control" id="correo" name="correo" type="email" autocomplete="username" value="admin@facturapp.test">
+      </div>
+      <div class="ui-campo">
+        <label class="ui-campo__etiqueta" for="contrasena">Contraseña</label>
+        <input class="ui-campo__control" id="contrasena" name="contrasena" type="password" autocomplete="current-password">
+      </div>
+      <button class="ui-boton ui-boton--principal ui-boton--ancho" type="submit">Entrar</button>
+    </form>
+
+    <p class="ui-nota" style="margin-top:24px">Prototipo: escriba cualquier contraseña. Si el correo contiene "oficina", entra como Oficina radicadora; si no, como Admin.</p>
+  </div>
+</main>
+<script src="js/prototipo.js"></script>
+</body>
+</html>

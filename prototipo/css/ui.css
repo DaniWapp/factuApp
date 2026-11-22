@@ -168,6 +168,18 @@ summary:focus-visible,
   outline-offset: 2px;
 }
 
+/* Texto oculto a la vista pero leído por los lectores de pantalla.
+   Sirve, por ejemplo, para las etiquetas de los campos dentro de una
+   tabla, donde el encabezado de la columna ya dice qué es. */
+.ui-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 /* Enlaces: en el color de acento y subrayados. */
 a {
   color: var(--acento);
@@ -347,6 +359,15 @@ a {
   font-family: var(--fuente-mono);
   font-variant-numeric: tabular-nums;
 }
+/* El encabezado de una columna numérica conserva la letra normal. */
+.ui-tabla th.ui-tabla__num {
+  font-family: var(--fuente-texto);
+}
+
+/* Los códigos (COM-001) nunca se parten en dos líneas. */
+.ui-tabla .ui-codigo {
+  white-space: nowrap;
+}
 
 /* Columna de acciones: enlaces de texto al final de la fila. */
 .ui-tabla .ui-tabla__acciones {
@@ -517,7 +538,524 @@ a {
 
 
 /* ---------------------------------------------------------------------
-   11. Movimiento reducido
+   11. Estructura de la aplicación
+   El esqueleto de las páginas internas:
+     .ui-app        contenedor de toda la página
+     .ui-lateral    barra lateral con el menú del rol
+     .ui-cabecera   barra superior con el usuario y su menú
+     .ui-contenido  el contenido de cada pantalla
+   En el celular la barra lateral se oculta y se abre con el botón
+   .ui-boton-menu; el JavaScript agrega la clase ui-app--menu-abierto.
+   --------------------------------------------------------------------- */
+
+/* Enlace "Saltar al contenido": invisible hasta que recibe el foco con Tab. */
+.ui-saltar {
+  position: absolute;
+  left: var(--espacio-2);
+  top: -48px;
+  padding: var(--espacio-2) var(--espacio-3);
+  background: var(--superficie);
+  border: var(--linea) solid var(--borde-campo);
+  border-radius: var(--radio-2);
+  z-index: 50;
+}
+.ui-saltar:focus {
+  top: var(--espacio-2);
+}
+
+/* Dos columnas: barra lateral de 240 px y el resto para el contenido. */
+.ui-app {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+/* Barra lateral: superficie blanca separada por una línea fina. */
+.ui-lateral {
+  background: var(--superficie);
+  border-right: var(--linea) solid var(--borde);
+  padding: var(--espacio-4) var(--espacio-3);
+}
+
+/* Nombre del sistema arriba de la barra lateral. */
+.ui-marca {
+  display: block;
+  margin: 0 var(--espacio-2) var(--espacio-6);
+  font-weight: var(--peso-fuerte);
+  font-size: var(--tam-subtitulo);
+  color: var(--texto);
+  text-decoration: none;
+}
+.ui-marca span {
+  display: block;
+  font-size: var(--tam-pequeno);
+  font-weight: var(--peso-normal);
+  color: var(--texto-2);
+}
+
+/* Título de un grupo del menú ("Catálogos", "Administración"). */
+.ui-menu__grupo {
+  margin: var(--espacio-4) var(--espacio-2) var(--espacio-1);
+  font-size: var(--tam-pequeno);
+  font-weight: var(--peso-fuerte);
+  color: var(--texto-2);
+}
+
+/* Lista de opciones del menú, sin viñetas. */
+.ui-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+}
+
+/* Cada opción del menú. */
+.ui-menu__enlace {
+  display: block;
+  padding: var(--espacio-2);
+  border-radius: var(--radio-2);
+  color: var(--texto);
+  text-decoration: none;
+}
+.ui-menu__enlace:hover {
+  background: var(--fondo);
+}
+/* Opción de la página actual: fondo suave y texto del acento. */
+.ui-menu__enlace[aria-current="page"] {
+  background: var(--acento-suave);
+  color: var(--acento);
+  font-weight: var(--peso-medio);
+}
+
+/* Columna derecha: cabecera arriba y contenido debajo. */
+.ui-principal {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Cabecera: barra blanca con una línea fina debajo. */
+.ui-cabecera {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-4);
+  padding: var(--espacio-2) var(--espacio-6);
+  background: var(--superficie);
+  border-bottom: var(--linea) solid var(--borde);
+  min-height: 56px;
+}
+
+/* Empuja el usuario y sus controles hacia la derecha. */
+.ui-cabecera__derecha {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-4);
+}
+
+/* Botón "Menú" para abrir la barra lateral: solo aparece en el celular. */
+.ui-boton-menu {
+  display: none;
+}
+
+/* Contenido de la pantalla. */
+.ui-contenido {
+  padding: var(--espacio-6);
+  max-width: 1120px;
+}
+
+/* Título de la página y su descripción. */
+.ui-titulo {
+  margin: 0 0 var(--espacio-1);
+  font-size: var(--tam-titulo);
+  font-weight: var(--peso-fuerte);
+}
+.ui-descripcion {
+  margin: 0 0 var(--espacio-6);
+  color: var(--texto-2);
+}
+
+/* Celular y tableta angosta: la barra lateral se oculta y flota al abrirla. */
+@media (max-width: 860px) {
+  .ui-app {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ui-lateral {
+    display: none;
+  }
+  .ui-app--menu-abierto .ui-lateral {
+    display: block;
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(280px, 85vw);
+    overflow-y: auto;
+    z-index: 40;
+    box-shadow: var(--sombra-flotante);
+  }
+  .ui-boton-menu {
+    display: inline-flex;
+  }
+  .ui-cabecera {
+    padding: var(--espacio-2) var(--espacio-4);
+  }
+  .ui-contenido {
+    padding: var(--espacio-4);
+  }
+  /* En pantallas angostas el nombre del usuario se acorta con "…". */
+  .ui-cabecera__nombre {
+    display: inline-block;
+    max-width: 96px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  /* Si no cabe todo en una línea, la cabecera pasa a dos líneas en vez de desbordarse. */
+  .ui-cabecera {
+    flex-wrap: wrap;
+  }
+  .ui-cabecera__derecha {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--espacio-2);
+  }
+}
+
+
+/* ---------------------------------------------------------------------
+   12. Interruptor
+   Un botón que se enciende y se apaga, por ejemplo "Vista de usuario".
+   Usa role="switch" y aria-checked="true" o "false", para que los
+   lectores de pantalla lo anuncien como interruptor.
+   --------------------------------------------------------------------- */
+.ui-interruptor {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-2);
+  padding: var(--espacio-1) 0;
+  font-family: var(--fuente-texto);
+  font-size: var(--tam-ayuda);
+  color: var(--texto);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+/* El riel del interruptor. */
+.ui-interruptor__riel {
+  position: relative;
+  width: 32px;
+  height: 18px;
+  border: var(--linea) solid var(--borde-campo);
+  border-radius: 9px;
+  background: var(--superficie);
+  flex: none;
+}
+
+/* El círculo que se mueve. */
+.ui-interruptor__riel::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--borde-campo);
+}
+
+/* Encendido: riel del acento y círculo a la derecha. */
+.ui-interruptor[aria-checked="true"] .ui-interruptor__riel {
+  background: var(--acento);
+  border-color: var(--acento);
+}
+.ui-interruptor[aria-checked="true"] .ui-interruptor__riel::after {
+  left: 16px;
+  background: #FFFFFF;
+}
+
+
+/* ---------------------------------------------------------------------
+   13. Menú desplegable
+   Una lista que se abre al hacer clic, por ejemplo el menú del usuario
+   con "Mi cuenta" y "Cerrar sesión". Se arma con <details> y <summary>,
+   que el navegador abre y cierra sin JavaScript. Flota, por eso lleva
+   sombra.
+   --------------------------------------------------------------------- */
+.ui-desplegable {
+  position: relative;
+}
+
+/* El botón que abre el menú. */
+.ui-desplegable > summary {
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-2);
+  padding: var(--espacio-1) var(--espacio-2);
+  border: var(--linea) solid var(--borde);
+  border-radius: var(--radio-2);
+  cursor: pointer;
+  font-weight: var(--peso-medio);
+}
+.ui-desplegable > summary::-webkit-details-marker {
+  display: none;
+}
+/* Flecha pequeña dibujada con bordes, sin íconos. */
+.ui-desplegable > summary::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid var(--texto-2);
+  border-bottom: 1.5px solid var(--texto-2);
+  transform: rotate(45deg) translateY(-2px);
+}
+
+/* La lista que flota debajo del botón. */
+.ui-desplegable__lista {
+  position: absolute;
+  right: 0;
+  top: calc(100% + var(--espacio-1));
+  min-width: 200px;
+  margin: 0;
+  padding: var(--espacio-1) 0;
+  list-style: none;
+  background: var(--superficie);
+  border: var(--linea) solid var(--borde);
+  border-radius: var(--radio-2);
+  box-shadow: var(--sombra-flotante);
+  z-index: 30;
+}
+
+/* Cada opción de la lista. */
+.ui-desplegable__opcion {
+  display: block;
+  padding: var(--espacio-2) var(--espacio-4);
+  color: var(--texto);
+  text-decoration: none;
+}
+.ui-desplegable__opcion:hover {
+  background: var(--fondo);
+}
+
+/* Datos del usuario arriba de la lista, separados por una línea. */
+.ui-desplegable__info {
+  padding: var(--espacio-2) var(--espacio-4) var(--espacio-3);
+  margin-bottom: var(--espacio-1);
+  border-bottom: var(--linea) solid var(--borde);
+  font-size: var(--tam-ayuda);
+  color: var(--texto-2);
+}
+
+
+/* ---------------------------------------------------------------------
+   14. Pantalla de inicio de sesión
+   La única pantalla centrada: un formulario solo en el medio.
+   --------------------------------------------------------------------- */
+.ui-acceso {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: var(--espacio-4);
+}
+
+/* Bloque del formulario de inicio de sesión. */
+.ui-acceso__caja {
+  width: min(400px, 100%);
+}
+
+/* Botón que ocupa todo el ancho del formulario. */
+.ui-boton--ancho {
+  width: 100%;
+  justify-content: center;
+}
+
+
+/* ---------------------------------------------------------------------
+   15. Partes de las pantallas de listado y formulario
+   --------------------------------------------------------------------- */
+
+/* Encabezado de una pantalla: título a la izquierda y acción principal a la derecha. */
+.ui-encabezado {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--espacio-4);
+  margin-bottom: var(--espacio-6);
+}
+.ui-encabezado .ui-descripcion {
+  margin-bottom: 0;
+}
+
+/* Barra de búsqueda encima de una tabla. */
+.ui-busqueda {
+  max-width: 360px;
+  margin-bottom: var(--espacio-4);
+}
+
+/* Botón con aspecto de enlace: acciones dentro de las filas de una tabla. */
+.ui-boton--texto {
+  padding: 0;
+  background: none;
+  color: var(--acento);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+/* Acción de texto peligrosa (por ejemplo, "Desactivar"). */
+.ui-boton--texto.ui-boton--peligro {
+  color: var(--error);
+  background: none;
+}
+/* Separación entre varias acciones de texto en la misma fila. */
+.ui-tabla__acciones .ui-boton--texto + .ui-boton--texto {
+  margin-left: var(--espacio-4);
+}
+
+/* Botones al final de un formulario: alineados a la izquierda. */
+.ui-formulario__botones {
+  display: flex;
+  gap: var(--espacio-3);
+  margin-top: var(--espacio-6);
+}
+
+/* Nota pequeña de "campos obligatorios" al inicio de un formulario. */
+.ui-nota {
+  margin: 0 0 var(--espacio-4);
+  font-size: var(--tam-ayuda);
+  color: var(--texto-2);
+}
+
+/* Campo dentro de una celda de tabla: sin márgenes y más compacto. */
+.ui-tabla .ui-campo {
+  margin: 0;
+  max-width: none;
+}
+
+/* Separación vertical entre bloques de una pantalla. */
+.ui-bloque {
+  margin-top: var(--espacio-8);
+}
+.ui-bloque__titulo {
+  margin: 0 0 var(--espacio-3);
+  font-size: var(--tam-subtitulo);
+  font-weight: var(--peso-fuerte);
+}
+
+/* Contraseña temporal en el diálogo: grande y monoespaciada. */
+.ui-clave-temporal {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-3);
+  margin: var(--espacio-3) 0;
+  padding: var(--espacio-3);
+  background: var(--fondo);
+  border: var(--linea) solid var(--borde);
+  border-radius: var(--radio-2);
+  font-family: var(--fuente-mono);
+  font-size: var(--tam-subtitulo);
+}
+
+
+/* ---------------------------------------------------------------------
+   16. Remisión
+   Formato de almacén: número grande arriba a la derecha, datos en una
+   grilla de etiqueta y valor, tabla de repuestos y espacio para firmas.
+   Los estilos de impresión están en css/impresion.css.
+   --------------------------------------------------------------------- */
+.ui-remision {
+  max-width: 816px; /* ancho aproximado de una hoja carta en pantalla */
+  padding: var(--espacio-8);
+  background: var(--superficie);
+  border: var(--linea) solid var(--borde);
+  border-radius: var(--radio-2);
+}
+
+/* Cabecera: empresa a la izquierda y número de remisión a la derecha. */
+.ui-remision__cabecera {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--espacio-4);
+  padding-bottom: var(--espacio-4);
+  border-bottom: 2px solid var(--texto);
+}
+.ui-remision__empresa {
+  font-weight: var(--peso-fuerte);
+}
+.ui-remision__empresa span {
+  display: block;
+  font-weight: var(--peso-normal);
+  font-size: var(--tam-ayuda);
+  color: var(--texto-2);
+}
+.ui-remision__numero {
+  text-align: right;
+}
+.ui-remision__numero span {
+  display: block;
+  font-size: var(--tam-pequeno);
+  font-weight: var(--peso-fuerte);
+  color: var(--texto-2);
+}
+.ui-remision__numero strong {
+  font-family: var(--fuente-mono);
+  font-size: var(--tam-titulo);
+}
+
+/* Datos en dos columnas de "etiqueta: valor". */
+.ui-remision__datos {
+  display: grid;
+  grid-template-columns: max-content 1fr max-content 1fr;
+  gap: var(--espacio-2) var(--espacio-4);
+  margin: var(--espacio-4) 0 var(--espacio-6);
+}
+.ui-remision__datos dt {
+  color: var(--texto-2);
+  font-size: var(--tam-ayuda);
+}
+.ui-remision__datos dd {
+  margin: 0;
+}
+@media (max-width: 640px) {
+  .ui-remision__datos {
+    grid-template-columns: max-content 1fr;
+  }
+}
+
+/* Firmas: dos columnas con líneas para escribir a mano. */
+.ui-remision__firmas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--espacio-8);
+  margin-top: var(--espacio-8);
+}
+.ui-remision__firma h3 {
+  margin: 0 0 var(--espacio-4);
+  font-size: var(--tam-texto);
+  font-weight: var(--peso-fuerte);
+}
+.ui-remision__linea {
+  display: flex;
+  gap: var(--espacio-2);
+  align-items: flex-end;
+  margin-bottom: var(--espacio-6);
+  font-size: var(--tam-ayuda);
+  color: var(--texto-2);
+}
+.ui-remision__linea::after {
+  content: "";
+  flex: 1;
+  border-bottom: var(--linea) solid var(--texto);
+}
+@media (max-width: 640px) {
+  .ui-remision__firmas {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ---------------------------------------------------------------------
+   17. Movimiento reducido
    Si la persona pidió en su sistema menos animaciones, se quitan.
    --------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {

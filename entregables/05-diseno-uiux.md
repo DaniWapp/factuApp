@@ -198,7 +198,25 @@ El foco del teclado es visible en todos los elementos con los que se interactúa
 | **Ventana de confirmación** | Superficie blanca con sombra suave, título corto, el mensaje y dos acciones: botón principal y "Cancelar" (RNF-09). |
 | **Menú** | Columna o barra con las opciones del rol; la opción activa con fondo `--acento-suave` y texto `--acento`. |
 
-### 3.5 Remisión impresa
+### 3.5 Prototipo navegable
+
+En la carpeta `prototipo/` hay páginas HTML que usan solo `css/ui.css` (sin frameworks), con datos de ejemplo de `database/seed.sql`. Se abren con doble clic, empezando por `prototipo/login.html`.
+
+| Página | Qué muestra |
+|---|---|
+| `login.html` | Inicio de sesión con un ejemplo del mensaje de error (HU-01). |
+| `panel-admin.html` | Estructura del Admin: barra lateral, cabecera, interruptor "Vista de usuario" (HU-06, fase 2) y menú de la cuenta. |
+| `panel-usuario.html` | Estructura de la Oficina radicadora, sin el interruptor. |
+| `repuestos.html` | Listado: título, acción principal, buscador, tabla con insignias de stock y estado vacío. |
+| `repuesto-form.html` | Formulario de una columna con un error de ejemplo. |
+| `usuarios.html` | Tabla de usuarios, diálogo para desactivar y diálogo con contraseña temporal (HU-11, fase 2). |
+| `mi-cuenta.html` | Cambio de contraseña con la regla visible (HU-04, fase 2). |
+| `entrega-nueva.html` | Entrega con filas de repuestos, stock disponible y validaciones. |
+| `remision.html` | Remisión imprimible, con su hoja de impresión `css/impresion.css`. |
+
+El JavaScript del prototipo está en `prototipo/js/` y se carga como script normal (no como módulo), porque los navegadores no permiten módulos al abrir un archivo con doble clic.
+
+### 3.6 Remisión impresa
 
 - Tamaño carta, en blanco y negro: al imprimir, el acento y los fondos se cambian por negro y blanco.
 - Sin menú ni botones (`@media print`).

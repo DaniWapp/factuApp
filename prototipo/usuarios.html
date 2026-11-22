@@ -1,0 +1,132 @@
+<!doctype html>
+<!--
+  Archivo:  prototipo/usuarios.html
+  Proyecto: FacturApp (prototipo de diseño, Entregable 05)
+
+  Gestión de usuarios: tabla con estado, diálogo para desactivar y diálogo con la contraseña temporal.
+
+  Usa solo css/ui.css (sin frameworks) y datos de ejemplo de database/seed.sql.
+  Se abre con doble clic; los enlaces permiten recorrer todo el prototipo.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usuarios · FacturApp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/ui.css">
+</head>
+<body>
+<a class="ui-saltar" href="#contenido">Saltar al contenido</a>
+<div class="ui-app">
+  <aside class="ui-lateral" id="menu-lateral">
+    <a class="ui-marca" href="panel-admin.html">FacturApp<span>Almacén de repuestos</span></a>
+    <nav aria-label="Menú del Admin">
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="panel-admin.html">Inicio</a></li>
+      </ul>
+      <p class="ui-menu__grupo">Operación</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="#">Solicitudes</a></li>
+        <li data-solo-admin><a class="ui-menu__enlace" href="entrega-nueva.html">Nueva entrega</a></li>
+        <li><a class="ui-menu__enlace" href="remision.html">Remisiones</a></li>
+        <li><a class="ui-menu__enlace" href="#">Equipos</a></li>
+      </ul>
+      <div data-solo-admin>
+      <p class="ui-menu__grupo">Almacén</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="#">Inventario</a></li>
+        <li><a class="ui-menu__enlace" href="#">Entradas al almacén</a></li>
+      </ul>
+      <p class="ui-menu__grupo">Catálogos</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="repuestos.html">Repuestos</a></li>
+        <li><a class="ui-menu__enlace" href="#">Categorías</a></li>
+        <li><a class="ui-menu__enlace" href="#">Contratistas</a></li>
+      </ul>
+      <p class="ui-menu__grupo">Administración</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="usuarios.html" aria-current="page">Usuarios</a></li>
+      </ul>
+      </div>
+    </nav>
+  </aside>
+  <div class="ui-principal">
+    <header class="ui-cabecera">
+      <button class="ui-boton ui-boton--secundario ui-boton-menu" type="button" data-abrir-menu aria-controls="menu-lateral" aria-expanded="false">Menú</button>
+      <div class="ui-cabecera__derecha">
+        <button class="ui-interruptor" type="button" role="switch" aria-checked="false" data-vista-usuario>
+          <span class="ui-interruptor__riel" aria-hidden="true"></span>Vista de usuario
+        </button>
+        <details class="ui-desplegable">
+          <summary><span class="ui-cabecera__nombre">Administrador del sistema</span></summary>
+          <ul class="ui-desplegable__lista">
+            <li class="ui-desplegable__info">admin@facturapp.test<br>Admin</li>
+            <li><a class="ui-desplegable__opcion" href="mi-cuenta.html">Mi cuenta</a></li>
+            <li><a class="ui-desplegable__opcion" href="login.html">Cerrar sesión</a></li>
+          </ul>
+        </details>
+      </div>
+    </header>
+    <main class="ui-contenido" id="contenido">
+    <p class="ui-aviso ui-aviso--advertencia" id="aviso-vista" hidden>
+      <strong>Está viendo el sistema como Oficina radicadora.</strong>
+      <button class="ui-boton ui-boton--texto" type="button" data-volver-admin>Volver a la vista de Admin</button>
+    </p>
+      <div class="ui-encabezado">
+        <div>
+          <h1 class="ui-titulo">Usuarios</h1>
+          <p class="ui-descripcion">Personas que pueden entrar al sistema y su rol.</p>
+        </div>
+        <a class="ui-boton ui-boton--principal" href="#">Nuevo usuario</a>
+      </div>
+
+      <p class="ui-aviso ui-aviso--exito" id="aviso-pagina" role="status" hidden></p>
+
+      <div class="ui-tabla-caja">
+        <table class="ui-tabla">
+          <thead>
+            <tr><th scope="col">Nombre</th><th scope="col">Correo</th><th scope="col">Rol</th>
+            <th scope="col">Estado</th><th scope="col" class="ui-tabla__acciones">Acciones</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Administrador del sistema</td><td>admin@facturapp.test</td><td>Admin</td><td><span class="ui-insignia ui-insignia--exito">Activo</span></td><td class="ui-tabla__acciones"><span class="ui-campo__ayuda">Su cuenta</span></td></tr>
+            <tr><td>Laura Gómez</td><td>laura.gomez@facturapp.test</td><td>Oficina radicadora</td><td><span class="ui-insignia ui-insignia--exito">Activo</span></td><td class="ui-tabla__acciones"><button class="ui-boton ui-boton--texto ui-boton--peligro" type="button" data-accion-estado data-nombre="Laura Gómez">Desactivar</button><button class="ui-boton ui-boton--texto" type="button" data-abrir-dialogo="dialogo-restaurar" data-nombre="Laura Gómez">Restaurar contraseña</button></td></tr>
+            <tr><td>Andrés Muñoz</td><td>andres.munoz@facturapp.test</td><td>Oficina radicadora</td><td><span class="ui-insignia ui-insignia--exito">Activo</span></td><td class="ui-tabla__acciones"><button class="ui-boton ui-boton--texto ui-boton--peligro" type="button" data-accion-estado data-nombre="Andrés Muñoz">Desactivar</button><button class="ui-boton ui-boton--texto" type="button" data-abrir-dialogo="dialogo-restaurar" data-nombre="Andrés Muñoz">Restaurar contraseña</button></td></tr>
+            <tr><td>Pedro Ruiz</td><td>pedro.ruiz@facturapp.test</td><td>Oficina radicadora</td><td><span class="ui-insignia ui-insignia--neutra">Inactivo</span></td><td class="ui-tabla__acciones"><button class="ui-boton ui-boton--texto" type="button" data-accion-estado data-nombre="Pedro Ruiz">Activar</button><button class="ui-boton ui-boton--texto" type="button" data-abrir-dialogo="dialogo-restaurar" data-nombre="Pedro Ruiz">Restaurar contraseña</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Diálogo: confirmar la desactivación (HU-10, RN-01, RN-32) -->
+      <dialog class="ui-dialogo" id="dialogo-desactivar" aria-labelledby="titulo-desactivar">
+        <h2 class="ui-dialogo__titulo" id="titulo-desactivar">¿Desactivar a <span data-nombre-destino></span>?</h2>
+        <p>No podrá iniciar sesión. Si tiene la sesión abierta, el sistema lo sacará en su siguiente acción.</p>
+        <p>Sus solicitudes, entregas y remisiones no se borran. Puede activarlo de nuevo cuando quiera.</p>
+        <div class="ui-dialogo__acciones">
+          <button class="ui-boton ui-boton--secundario" type="button" data-cerrar-dialogo>Cancelar</button>
+          <button class="ui-boton ui-boton--peligro" type="button" data-confirmar-desactivar>Desactivar</button>
+        </div>
+      </dialog>
+
+      <!-- Diálogo: contraseña temporal (HU-11, RN-04; fase 2) -->
+      <dialog class="ui-dialogo" id="dialogo-restaurar" aria-labelledby="titulo-restaurar">
+        <h2 class="ui-dialogo__titulo" id="titulo-restaurar">Contraseña temporal de <span data-nombre-destino></span></h2>
+        <p class="ui-aviso ui-aviso--advertencia"><strong>Solo se mostrará una vez.</strong> Cópiela ahora y entréguela a la persona.</p>
+        <div class="ui-clave-temporal">
+          <span id="clave-temporal">Frio-4827-Valv</span>
+          <button class="ui-boton ui-boton--secundario" type="button" data-copiar="clave-temporal">Copiar</button>
+        </div>
+        <p>Al iniciar sesión, el sistema le pedirá cambiarla por una propia.</p>
+        <div class="ui-dialogo__acciones">
+          <button class="ui-boton ui-boton--principal" type="button" data-cerrar-dialogo>Entendido</button>
+        </div>
+      </dialog>
+    </main>
+  </div>
+</div>
+<script src="js/prototipo.js"></script>
+</body>
+</html>
