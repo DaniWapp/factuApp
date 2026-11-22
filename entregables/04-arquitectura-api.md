@@ -418,7 +418,7 @@ Además de los seis módulos pedidos, se incluyen **equipos, inventario y solici
 | Método | Ruta | Rol | Recibe | Devuelve | Errores | HU |
 |---|---|---|---|---|---|---|
 | GET | `/api/usuarios` | Admin | — | 200: lista de `id`, `nombre`, `correo`, `rol`, `activo` | — | HU-09 |
-| POST | `/api/usuarios` | Admin | `nombre`, `correo`, `rol`, `contrasena` | 201: el usuario creado (sin contraseña) | 409 (`CORREO_REPETIDO`), 422 | HU-07 |
+| POST | `/api/usuarios` | Admin | `nombre`, `correo`, `rol`, `contrasena` (inicial y temporal: se guarda con `debe_cambiar_contrasena = 1`, PA-36) | 201: el usuario creado (sin contraseña) | 409 (`CORREO_REPETIDO`), 422 | HU-07 |
 | GET | `/api/usuarios/{id}` | Admin | — | 200: el usuario | 404 (`NO_ENCONTRADO`) | HU-08 |
 | PUT | `/api/usuarios/{id}` | Admin | `nombre`, `correo`, `rol` | 200: el usuario actualizado | 404, 409 (`CORREO_REPETIDO`), 422 | HU-08 |
 | PATCH | `/api/usuarios/{id}/estado` | Admin | `activo` (true o false) | 200: el usuario con su nuevo estado | 404, 409 (`NO_PUEDE_DESACTIVARSE`, `ULTIMO_ADMIN`) | HU-10 |
@@ -476,7 +476,7 @@ Además de los seis módulos pedidos, se incluyen **equipos, inventario y solici
 | GET | `/api/solicitudes` | Todos | — | 200: lista de `id`, `numero`, `creado_en`, `equipo`, `contratista`, `estado`, `estado_entrega` | — | HU-18 |
 | POST | `/api/solicitudes` | Todos | `equipo_id`, `contratista_id`, `fecha_entrega`, `repuestos` [`repuesto_id`, `cantidad`] | 201: la solicitud con su `numero` y, por repuesto, lo apartado y lo que quedó en espera | 409 (`EQUIPO_INACTIVO`, `CONTRATISTA_INACTIVO`, `REPUESTO_INACTIVO`), 422 (`FECHA_ANTERIOR`, `SIN_REPUESTOS`, `REPUESTO_REPETIDO`, `CANTIDAD_INVALIDA`) | HU-17 |
 | GET | `/api/solicitudes/{id}` | Todos | — | 200: datos, repuestos (solicitado, entregado, apartado, en espera, pendiente), remisiones y línea de tiempo | 404 | HU-18, HU-22 |
-| PUT | `/api/solicitudes/{id}` | Admin | `equipo_id`, `contratista_id`, `fecha_entrega`, `repuestos` | 200: la solicitud actualizada | 404, 409 (`TIENE_ENTREGAS`, `SOLICITUD_CERRADA`), 422 | HU-34 |
+| PUT | `/api/solicitudes/{id}` | Admin | `equipo_id`, `contratista_id`, `fecha_entrega`, `repuestos` (los repuestos quitados se borran del detalle y el cambio queda en el historial, PA-35) | 200: la solicitud actualizada | 404, 409 (`TIENE_ENTREGAS`, `SOLICITUD_CERRADA`), 422 | HU-34 |
 | POST | `/api/solicitudes/{id}/anulacion` | Admin | `motivo` | 200: la solicitud anulada | 404, 409 (`TIENE_ENTREGAS`, `SOLICITUD_CERRADA`), 422 (`MOTIVO_OBLIGATORIO`) | HU-34 |
 | POST | `/api/solicitudes/{id}/cierre` | Todos | `estado` (`reparado` o `devuelto`), `motivo` (obligatorio si es devuelto), `confirmar_pendientes` | 200: la solicitud cerrada | 404, 409 (`SOLICITUD_CERRADA`, `TIENE_PENDIENTES` si falta confirmar), 422 (`MOTIVO_OBLIGATORIO`) | HU-23 |
 | POST | `/api/solicitudes/{id}/reapertura` | Admin | `motivo` | 200: la solicitud abierta | 404, 409 (`SOLICITUD_ANULADA`, `SOLICITUD_ABIERTA`), 422 (`MOTIVO_OBLIGATORIO`) | HU-35 |
