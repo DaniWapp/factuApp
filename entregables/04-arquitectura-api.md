@@ -411,7 +411,8 @@ Además de los seis módulos pedidos, se incluyen **equipos, inventario y solici
 | Método | Ruta | Rol | Recibe | Devuelve | Errores | HU |
 |---|---|---|---|---|---|---|
 | POST | `/api/auth/login` | Público | `correo`, `contrasena` | 200: `token`, `usuario` (`id`, `nombre`, `rol`, `debe_cambiar_contrasena`) | 401 (`CREDENCIALES_INVALIDAS`, `USUARIO_DESACTIVADO`), 422 | HU-01 |
-| GET | `/api/auth/yo` | Todos | — | 200: `id`, `nombre`, `correo`, `rol`, `debe_cambiar_contrasena` | — | HU-03 |
+| GET | `/api/auth/yo` | Todos (también con contraseña temporal) | — | 200: `id`, `nombre`, `correo`, `rol`, `debe_cambiar_contrasena` | — | HU-03 |
+| POST | `/api/auth/contrasena` | Todos (también con contraseña temporal) | `actual`, `nueva`, `confirmacion` | 200: `mensaje` "Contraseña actualizada." | 409 (`CONTRASENA_ACTUAL_INCORRECTA`), 422 (`CONFIRMACION_DISTINTA`, `CONTRASENA_NO_VALIDA`, `CONTRASENA_REPETIDA`) | HU-04, HU-05 |
 
 ### 6.2 usuarios
 
@@ -497,7 +498,6 @@ Además de los seis módulos pedidos, se incluyen **equipos, inventario y solici
 
 ### 6.10 Endpoints de la fase 2
 
-- `PUT /api/auth/contrasena`: cambiar la propia contraseña o la temporal (HU-04, HU-05).
 - `GET /api/equipos/{id}/solicitudes`: historial de un equipo (HU-16).
 - `GET /api/inventario/{repuesto_id}/movimientos`: movimientos de un repuesto (HU-27).
 - Filtros de `GET /api/solicitudes`: `?estado=`, `?equipo_id=`, `?contratista_id=`, `?desde=`, `?hasta=`, `?buscar=` (HU-25).

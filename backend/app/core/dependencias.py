@@ -3,20 +3,28 @@ Archivo:  backend/app/core/dependencias.py
 Proyecto: FacturApp (backend)
 
 Qué hace:
-    Las "dependencias" de seguridad que usan las rutas:
-      - usuario_actual: lee el token del encabezado Authorization, lo
-        verifica y busca al usuario en la base de datos.
-      - requiere_admin: además exige que el usuario sea Admin.
-    Esta es la protección REAL de permisos (RN-02); lo que oculta el
-    frontend es solo comodidad.
+    Las "dependencias" de seguridad que usan las rutas. Son la protección
+    REAL de permisos (RN-02); lo que oculta el frontend es solo comodidad.
+
+      usuario_del_token  verifica el token y que el usuario siga ACTIVO,
+                         en CADA petición (RN-01). Lo usan solo las rutas
+                         de la propia cuenta (/auth/yo y /auth/contrasena).
+      usuario_actual     lo anterior, y además exige que NO tenga una
+                         contraseña temporal pendiente de cambiar (RN-04).
+                         Lo usan todas las demás rutas.
+      requiere_admin     lo anterior, y además exige el rol Admin.
+
+    (Equivalen a get_current_user y require_admin; el proyecto usa
+    nombres en español.)
 
 Respuestas de error (formato de errores, Entregable 04 sección 7):
-    401 NO_AUTENTICADO       no llegó ningún token
-    401 SESION_VENCIDA       el token venció o fue alterado
-    401 USUARIO_DESACTIVADO  el usuario ya no existe o fue desactivado (RN-01):
-                             se revisa en CADA petición, así la desactivación
-                             tiene efecto de inmediato (PA-25)
-    403 SIN_PERMISO          el rol no puede hacer esa acción
+    401 NO_AUTENTICADO              no llegó ningún token
+    401 SESION_VENCIDA              el token venció o fue alterado
+    401 USUARIO_DESACTIVADO         el usuario no existe o fue desactivado;
+                                    se revisa en cada petición, así la
+                                    desactivación tiene efecto de inmediato
+    403 CAMBIO_CONTRASENA_REQUERIDO tiene una contraseña temporal sin cambiar
+    403 SIN_PERMISO                 el rol no puede hacer esa acción
 
 Conceptos:
     - Depends(...): le pide a FastAPI que ejecute otra función antes de
@@ -40,12 +48,14 @@ from app.repositories.tablas import Usuario
 # FastAPI, lanzamos nuestro propio error 401 con el formato del proyecto.
 esquema_bearer = HTTPBearer(auto_error=False)
 
+MENSAJE_DESACTIVADO = "Su usuario está desactivado. Comuníquese con el administrador."
 
-def usuario_actual(
+
+def usuario_del_token(
     credenciales: HTTPAuthorizationCredentials | None = Depends(esquema_bearer),
     conexion: Any = Depends(obtener_conexion),
 ) -> Usuario:
-    """Devuelve el usuario que hace la petición, o lanza un error 401."""
+    """Devuelve el usuario dueño del token, si sigue activo; si no, lanza 401."""
     if credenciales is None:
         raise NoAutenticado("NO_AUTENTICADO", "Inicie sesión para continuar.")
 
@@ -54,10 +64,18 @@ def usuario_actual(
     except TokenInvalido as error:
         raise NoAutenticado("SESION_VENCIDA", "Su sesión expiró. Inicie sesión de nuevo.") from error
 
+    # El token puede seguir vigente aunque el Admin haya desactivado al
+    # usuario: por eso se consulta la base de datos en cada petición.
     usuario = usuarios_repo.buscar_por_id(conexion, int(datos["sub"]))
     if usuario is None or not usuario.activo:
-        raise NoAutenticado("USUARIO_DESACTIVADO",
-                            "Su usuario está desactivado. Comuníquese con el administrador.")
+        raise NoAutenticado("USUARIO_DESACTIVADO", MENSAJE_DESACTIVADO)
+    return usuario
+
+
+def usuario_actual(usuario: Usuario = Depends(usuario_del_token)) -> Usuario:
+    """Igual que usuario_del_token, pero bloquea a quien debe cambiar su contraseña temporal (RN-04)."""
+    if usuario.debe_cambiar_contrasena:
+        raise SinPermiso("CAMBIO_CONTRASENA_REQUERIDO", "Debe cambiar su contraseña temporal antes de continuar.")
     return usuario
 
 

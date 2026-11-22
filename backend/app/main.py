@@ -22,7 +22,7 @@ Después de arrancarla:
 from fastapi import FastAPI
 
 from app.core.errores import registrar_manejadores
-from app.routers import catalogos, entregas, salud, usuarios
+from app.routers import auth, catalogos, entregas, salud, usuarios
 
 # La aplicación. El título y la versión aparecen en /docs.
 app = FastAPI(
@@ -36,6 +36,7 @@ registrar_manejadores(app)
 
 # Todas las rutas de la API empiezan por /api (Entregable 04, sección 3.1).
 app.include_router(salud.router, prefix="/api")
+app.include_router(auth.router, prefix="/api")
 app.include_router(usuarios.router, prefix="/api")
 app.include_router(catalogos.router, prefix="/api")
 app.include_router(entregas.router, prefix="/api")

@@ -20,7 +20,7 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from conftest import codigo_error
+from tests.conftest import codigo_error
 
 ENTREGA_MOTORES = {"repuestos": [{"repuesto_id": 5, "cantidad": 2}]}
 

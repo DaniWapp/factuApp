@@ -14,7 +14,7 @@ from app.core.seguridad import validar_contrasena, verificar_contrasena
 from app.repositories import usuarios_repo
 from app.repositories.tablas import Usuario
 from app.services import usuarios_service
-from conftest import codigo_error, encabezado
+from tests.conftest import codigo_error, encabezado
 
 NUEVO = {"nombre": "Marta Rincón", "correo": "marta.rincon@facturapp.test", "rol": "oficina"}
 
@@ -162,10 +162,11 @@ def test_desactivado_queda_fuera_de_inmediato(cliente, admin):
     """RN-01 y PA-25: un usuario desactivado recibe 401 en su siguiente petición, aunque su token siga vigente."""
     creado = cliente.post("/api/usuarios", json={**NUEVO, "rol": "admin"}, headers=admin).json()
     admin_dos = encabezado(creado["usuario"]["id"], "admin")
-    assert cliente.get("/api/usuarios", headers=admin_dos).status_code == 200
+    # /api/auth/yo funciona aunque tenga la contraseña temporal pendiente de cambiar.
+    assert cliente.get("/api/auth/yo", headers=admin_dos).status_code == 200
 
     cliente.patch(f"/api/usuarios/{creado['usuario']['id']}/estado", json={"activo": False}, headers=admin)
-    respuesta = cliente.get("/api/usuarios", headers=admin_dos)
+    respuesta = cliente.get("/api/auth/yo", headers=admin_dos)
     assert respuesta.status_code == 401
     assert codigo_error(respuesta) == "USUARIO_DESACTIVADO"
 

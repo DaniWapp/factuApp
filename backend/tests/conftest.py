@@ -3,35 +3,57 @@ Archivo:  backend/tests/conftest.py
 Proyecto: FacturApp (backend)
 
 Qué hace:
-    Prepara lo que comparten las pruebas de la API ("fixtures"):
-      - conexion: una conexión a la base real dentro de una transacción
-        que se DESHACE (ROLLBACK) al terminar cada prueba. Así las pruebas
-        pueden crear, editar y entregar sin cambiar los datos de verdad.
-      - cliente: un cliente de la API que usa esa conexión.
-      - admin / oficina: encabezados con un token del Admin (usuario 1) y
-        de la Oficina radicadora (usuario 2) de database/seed.sql.
+    Prepara lo que comparten todas las pruebas ("fixtures").
 
-Requisito:
-    MySQL encendido, con database/schema.sql y database/seed.sql cargados.
+    1. BASE DE DATOS APARTE: antes de importar la API, cambia el nombre de
+       la base a "facturapp_pruebas". Así las pruebas NUNCA tocan
+       "facturapp", la base con los datos reales.
+    2. Al empezar la ejecución, recrea "facturapp_pruebas" con
+       database/schema.sql y database/seed.sql (ver bd_pruebas.py).
+    3. Cada prueba trabaja dentro de una transacción que se deshace
+       (ROLLBACK) al terminar: una prueba no afecta a la siguiente.
+
+Fixtures:
+    conexion  conexión a la base de pruebas que se deshace al final
+    cliente   cliente de la API que usa esa conexión
+    admin     encabezado con un token del Admin (usuario 1)
+    oficina   encabezado con un token de la Oficina radicadora (usuario 2)
 
 Conceptos:
-    - conftest.py: pytest lo lee solo; sus fixtures sirven en todos los
-      archivos de pruebas de la carpeta.
+    - Variable de entorno: pydantic-settings le da prioridad sobre el
+      .env, por eso basta con poner DB_NAME aquí.
+    - scope="session": se ejecuta una sola vez para todas las pruebas.
     - dependency_overrides: reemplaza una dependencia de FastAPI durante
-      las pruebas; aquí, obtener_conexion por la conexión que se deshace.
+      las pruebas (aquí, obtener_conexion).
 """
 
-import pytest
-from fastapi.testclient import TestClient
+import os
 
-from app.core.seguridad import crear_token
-from app.db.conexion import abrir_conexion, obtener_conexion
-from app.main import app
+# 1. Antes de cualquier "from app...": la API debe leer el nombre de la base de pruebas.
+os.environ["DB_NAME"] = "facturapp_pruebas"
+
+import pytest  # noqa: E402
+from fastapi.testclient import TestClient  # noqa: E402
+
+from app.core.config import obtener_configuracion  # noqa: E402
+from app.core.seguridad import crear_token  # noqa: E402
+from app.db.conexion import abrir_conexion, obtener_conexion  # noqa: E402
+from app.main import app  # noqa: E402
+from tests.bd_pruebas import recrear_bd_pruebas  # noqa: E402
+
+obtener_configuracion.cache_clear()  # por si algo ya la había leído con el nombre real
+assert obtener_configuracion().db_name == "facturapp_pruebas", "Las pruebas deben usar la base de pruebas"
+
+
+@pytest.fixture(scope="session", autouse=True)
+def base_de_pruebas_limpia():
+    """2. Recrea la base de pruebas una vez, al empezar todas las pruebas."""
+    recrear_bd_pruebas()
 
 
 @pytest.fixture
 def conexion():
-    """Conexión dentro de una transacción que se deshace al final de la prueba."""
+    """3. Conexión a la base de pruebas dentro de una transacción que se deshace al final."""
     con = abrir_conexion()
     yield con
     con.rollback()

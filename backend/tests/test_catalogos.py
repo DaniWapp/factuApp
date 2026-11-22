@@ -17,7 +17,7 @@ from decimal import Decimal
 import pytest
 
 from app.repositories import catalogos_repo
-from conftest import codigo_error
+from tests.conftest import codigo_error
 
 REPUESTO_NUEVO = {"codigo": "val-004", "nombre": "Válvula de servicio 1/4\"", "categoria_id": 2,
                   "unidad_medida": "unidad"}

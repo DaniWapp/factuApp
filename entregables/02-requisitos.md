@@ -42,14 +42,14 @@ Toda acción que guarda, cambia o desactiva datos pide confirmación antes de ej
 | HU-01 | Acceso | Iniciar sesión | Todos | 1 |
 | HU-02 | Acceso | Cerrar sesión | Todos | 1 |
 | HU-03 | Acceso | Ver solo las opciones de mi rol | Todos | 1 |
-| HU-04 | Acceso | Cambiar mi propia contraseña | Todos | 2 |
-| HU-05 | Acceso | Cambiar la contraseña temporal al entrar | Todos | 2 |
+| HU-04 | Acceso | Cambiar mi propia contraseña | Todos | 1 |
+| HU-05 | Acceso | Cambiar la contraseña temporal al entrar | Todos | 1 |
 | HU-06 | Acceso | Cambiar a la vista de Oficina sin volver a iniciar sesión | Admin | 2 |
 | HU-07 | Gestión de usuarios | Crear usuario | Admin | 1 |
 | HU-08 | Gestión de usuarios | Editar usuario | Admin | 1 |
 | HU-09 | Gestión de usuarios | Listar usuarios | Admin | 1 |
 | HU-10 | Gestión de usuarios | Activar o desactivar usuario | Admin | 1 |
-| HU-11 | Gestión de usuarios | Restaurar contraseña con una temporal | Admin | 2 |
+| HU-11 | Gestión de usuarios | Restaurar contraseña con una temporal | Admin | 1 |
 | HU-12 | Catálogos | Gestionar categorías de repuesto | Admin | 1 |
 | HU-13 | Catálogos | Gestionar repuestos (código y nombre) | Admin | 1 |
 | HU-14 | Catálogos | Gestionar contratistas | Admin | 1 |
@@ -77,7 +77,7 @@ Toda acción que guarda, cambia o desactiva datos pide confirmación antes de ej
 | HU-36 | Entregas | Reasignar el contratista de una solicitud | Admin | 1 |
 | HU-37 | Entregas | Reemplazar un repuesto desactivado en una solicitud | Admin | 1 |
 
-**Total:** 37 historias, 26 de la fase 1 y 11 de la fase 2.
+**Total:** 37 historias, 29 de la fase 1 y 8 de la fase 2 (HU-04, HU-05 y HU-11 pasaron a la fase 1 con PA-37).
 
 ## 3. Historias de usuario
 
@@ -110,7 +110,7 @@ Los textos entre comillas son los **mensajes exactos** que verá el usuario en p
 2. **Dado** que inicié sesión como Oficina radicadora, **cuando** escribo en el navegador la dirección de una página del Admin, **entonces** vuelvo a mi página de inicio y veo el mensaje "No tiene permiso para ver esta página.". (RN-02)
 3. **Dado** que inicié sesión como Admin, **cuando** veo el menú, **entonces** aparecen todas las opciones del sistema. (RN-02)
 
-#### HU-04. Cambiar mi propia contraseña (Todos, fase 2)
+#### HU-04. Cambiar mi propia contraseña (Todos, fase 1)
 
 **Como** usuario del sistema, **quiero** cambiar mi contraseña, **para** mantener mi cuenta segura.
 
@@ -119,7 +119,7 @@ Los textos entre comillas son los **mensajes exactos** que verá el usuario en p
 3. **Dado** que estoy cambiando mi contraseña, **cuando** la contraseña nueva y su confirmación no son iguales, **entonces** la contraseña no cambia y veo el mensaje "Las contraseñas nuevas no coinciden.".
 4. **Dado** que estoy cambiando mi contraseña, **cuando** la contraseña nueva tiene menos de 8 caracteres o no tiene letras y números, **entonces** la contraseña no cambia y veo el mensaje "La contraseña debe tener al menos 8 caracteres." o "La contraseña debe tener letras y números.", según el caso. (RN-03)
 
-#### HU-05. Cambiar la contraseña temporal al entrar (Todos, fase 2)
+#### HU-05. Cambiar la contraseña temporal al entrar (Todos, fase 1)
 
 **Como** usuario al que el Admin le restauró la contraseña, **quiero** que el sistema me pida cambiar la contraseña temporal al entrar, **para** que solo yo conozca mi contraseña.
 
@@ -375,7 +375,7 @@ Son las reglas que el sistema **siempre** debe cumplir, sin importar desde qué 
 | RN-01 | Solo un usuario activo puede iniciar sesión. | 1 |
 | RN-02 | Cada acción solo la puede hacer un rol que tenga permiso (tabla de la sección 4 de `01-propuesta.md`), aunque se escriba la dirección a mano. | 1 |
 | RN-03 | Toda contraseña debe tener al menos 8 caracteres, con letras y números. | 1 |
-| RN-04 | Quien entra con una contraseña temporal no puede usar ninguna otra función hasta cambiarla, y la nueva debe ser diferente a la temporal. | 2 |
+| RN-04 | Quien entra con una contraseña temporal no puede usar ninguna otra función hasta cambiarla, y la nueva debe ser diferente a la temporal. | 1 |
 | RN-05 | Los registros de los catálogos no se eliminan, se desactivan: un registro inactivo no se puede elegir en operaciones nuevas, pero se conserva en las anteriores. | 1 |
 | RN-06 | No se puede desactivar una categoría que tenga repuestos activos. | 1 |
 | RN-07 | No se repiten el nombre de una categoría ni el código o el nombre de un repuesto, sin importar mayúsculas ni espacios al inicio o al final. | 1 |
@@ -497,4 +497,4 @@ Decisiones y casos que faltan por confirmar. Al responder cada pregunta se actua
 | PA-34 | Cuando llega mercancía, ¿está bien que el sistema la aparte solo para las solicitudes en espera más antiguas, o el Admin debe elegir a qué solicitud se aparta? **Respondida:** automáticamente, de la más antigua a la más reciente. | RN-33, HU-19 |
 | PA-35 | Al editar una solicitud sin entregas, si se quita un repuesto, ¿se borra su fila del detalle o se deja con cantidad reemplazada o anulada? La regla general es que nada se borra. **Respondida:** se borra la fila (solo es posible mientras la solicitud no tenga entregas vigentes); el cambio queda registrado en el historial de la solicitud. | RN-05, RN-29, HU-34 |
 | PA-36 | Cuando el Admin crea un usuario y le escribe una contraseña inicial, ¿esa contraseña debe ser temporal (el usuario la cambia al entrar)? Hoy el cambio de contraseña es de la fase 2. **Respondida:** sí, es temporal (`debe_cambiar_contrasena = 1`). | RN-04, HU-07 |
-| PA-37 | Como la contraseña inicial es temporal (PA-36), el usuario necesita cambiarla al entrar por primera vez. ¿Se pasan a la fase 1 el cambio obligatorio de contraseña (HU-05) y la ruta `PUT /api/auth/contrasena`? Si siguen en la fase 2, en la fase 1 la marca se guarda pero no se exige. | RN-04, HU-05, HU-07 |
+| PA-37 | Como la contraseña inicial es temporal (PA-36), el usuario necesita cambiarla al entrar por primera vez. ¿Se pasan a la fase 1 el cambio obligatorio de contraseña (HU-05) y la ruta `PUT /api/auth/contrasena`? Si siguen en la fase 2, en la fase 1 la marca se guarda pero no se exige. **Respondida:** pasan a la fase 1; la API exige el cambio (403 `CAMBIO_CONTRASENA_REQUERIDO`) y ofrece `POST /api/auth/contrasena`. | RN-04, HU-05, HU-07 |
