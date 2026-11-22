@@ -1,0 +1,80 @@
+<!doctype html>
+<!--
+  Archivo:  prototipo/solicitudes-oficina.html
+  Proyecto: FacturApp (prototipo de diseño, Entregable 05)
+
+  Listado de solicitudes con el estado de la entrega y de la solicitud (HU-18).
+
+  Usa solo css/ui.css (sin frameworks) y datos de ejemplo de database/seed.sql.
+  Se abre con doble clic; los enlaces permiten recorrer todo el prototipo.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solicitudes · FacturApp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="icon" href="img/favicon.ico" sizes="any">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="stylesheet" href="css/ui.css">
+</head>
+<body>
+<a class="ui-saltar" href="#contenido">Saltar al contenido</a>
+<div class="ui-app">
+  <aside class="ui-lateral" id="menu-lateral">
+    <a class="ui-marca" href="panel-usuario.html">FacturApp<span>Almacén de repuestos</span></a>
+    <nav aria-label="Menú de la Oficina radicadora">
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="panel-usuario.html">Inicio</a></li>
+      </ul>
+      <p class="ui-menu__grupo">Operación</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="solicitudes-oficina.html" aria-current="page">Solicitudes</a></li>
+        <li><a class="ui-menu__enlace" href="solicitud-nueva-oficina.html">Nueva solicitud</a></li>
+        <li><a class="ui-menu__enlace" href="remision-oficina.html">Remisiones</a></li>
+        <li><a class="ui-menu__enlace" href="equipos-oficina.html">Equipos</a></li>
+      </ul>
+    </nav>
+  </aside>
+  <div class="ui-principal">
+    <header class="ui-cabecera">
+      <button class="ui-boton ui-boton--secundario ui-boton-menu" type="button" data-abrir-menu aria-controls="menu-lateral" aria-expanded="false">Menú</button>
+      <div class="ui-cabecera__derecha">
+        <details class="ui-desplegable">
+          <summary><span class="ui-cabecera__nombre">Laura Gómez</span></summary>
+          <ul class="ui-desplegable__lista">
+            <li class="ui-desplegable__info">laura.gomez@facturapp.test<br>Oficina radicadora</li>
+            <li><a class="ui-desplegable__opcion" href="mi-cuenta-oficina.html">Mi cuenta</a></li>
+            <li><a class="ui-desplegable__opcion" href="login.html">Cerrar sesión</a></li>
+          </ul>
+        </details>
+      </div>
+    </header>
+    <main class="ui-contenido" id="contenido">
+      <div class="ui-encabezado">
+        <div>
+          <h1 class="ui-titulo">Solicitudes</h1>
+          <p class="ui-descripcion">De la más reciente a la más antigua.</p>
+        </div>
+        <a class="ui-boton ui-boton--principal" href="solicitud-nueva-oficina.html">Nueva solicitud</a>
+      </div>
+      <p class="ui-aviso ui-aviso--exito" id="aviso-pagina" role="status" hidden></p>
+      <div class="ui-tabla-caja">
+        <table class="ui-tabla">
+          <thead><tr><th scope="col">Número</th><th scope="col">Fecha</th><th scope="col">Equipo</th><th scope="col">Contratista</th><th scope="col">Entrega</th><th scope="col">Solicitud</th><th scope="col" class="ui-tabla__acciones">Acciones</th></tr></thead>
+          <tbody>
+            <tr><td class="ui-codigo">SOL-000003</td><td class="ui-codigo">10/11/2026</td><td class="ui-codigo">NEV-0003</td><td>Frío Técnico Ltda.</td><td><span class="ui-insignia ui-insignia--neutra">Pendiente</span></td><td><span class="ui-insignia ui-insignia--neutra">Abierta</span></td><td class="ui-tabla__acciones"><a class="ui-boton ui-boton--texto" href="solicitud-detalle-oficina.html">Ver detalle</a></td></tr>
+            <tr><td class="ui-codigo">SOL-000002</td><td class="ui-codigo">07/11/2026</td><td class="ui-codigo">NEV-0002</td><td>Carlos Pérez Rincón</td><td><span class="ui-insignia ui-insignia--advertencia">Parcial</span></td><td><span class="ui-insignia ui-insignia--neutra">Abierta</span></td><td class="ui-tabla__acciones"><a class="ui-boton ui-boton--texto" href="solicitud-detalle-oficina.html">Ver detalle</a></td></tr>
+            <tr><td class="ui-codigo">SOL-000001</td><td class="ui-codigo">05/11/2026</td><td class="ui-codigo">NEV-0001</td><td>Refrigeración Andina S.A.S.</td><td><span class="ui-insignia ui-insignia--exito">Completa</span></td><td><span class="ui-insignia ui-insignia--exito">Reparado</span></td><td class="ui-tabla__acciones"><a class="ui-boton ui-boton--texto" href="solicitud-detalle-oficina.html">Ver detalle</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/prototipo.js"></script>
+</body>
+</html>

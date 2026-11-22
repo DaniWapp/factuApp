@@ -279,6 +279,8 @@ a {
    --------------------------------------------------------------------- */
 .ui-campo {
   display: grid;
+  grid-template-columns: minmax(0, 1fr); /* el campo nunca es más ancho que su espacio */
+  min-width: 0;
   gap: var(--espacio-1);
   max-width: 480px;
   margin-bottom: var(--espacio-4);
@@ -289,9 +291,12 @@ a {
   font-weight: var(--peso-medio);
 }
 
-/* El control: caja de texto, lista o área de texto. */
+/* El control: caja de texto, lista o área de texto. Puede encogerse
+   (min-width: 0) para que nunca se salga de su espacio. */
 .ui-campo__control {
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
   font-family: var(--fuente-texto);
   font-size: var(--tam-texto);
   color: var(--texto);
@@ -459,6 +464,15 @@ a {
   /* Los números ya no necesitan ir a la derecha. */
   .ui-tabla .ui-tabla__num {
     text-align: left;
+  }
+
+  /* En bloques, los códigos y fechas largas sí pueden partirse, y el
+     contenido de cada celda puede encogerse para no salirse. */
+  .ui-tabla .ui-codigo {
+    white-space: normal;
+  }
+  .ui-tabla td > * {
+    min-width: 0;
   }
 
   /* Las acciones van al final del bloque, sin etiqueta, y pueden pasar a otra línea. */
@@ -1125,6 +1139,185 @@ a {
   border-radius: var(--radio-2);
   font-family: var(--fuente-mono);
   font-size: var(--tam-subtitulo);
+}
+
+
+/* Datos de un registro en dos columnas de "etiqueta: valor"
+   (por ejemplo, los datos de una solicitud). En pantallas angostas,
+   una sola columna. */
+.ui-datos {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) max-content minmax(0, 1fr);
+  gap: var(--espacio-2) var(--espacio-4);
+  margin: 0 0 var(--espacio-6);
+}
+.ui-datos dt {
+  color: var(--texto-2);
+  font-size: var(--tam-ayuda);
+}
+.ui-datos dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 640px) {
+  .ui-datos {
+    grid-template-columns: max-content minmax(0, 1fr);
+  }
+}
+
+/* Barra de acciones de un registro: botones que pasan a otra línea si no caben. */
+.ui-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-2) var(--espacio-3);
+  margin: 0 0 var(--espacio-6);
+}
+
+/* Línea de tiempo: lista vertical con una línea fina a la izquierda y
+   un punto por cada acción (HU-18). */
+.ui-linea-tiempo {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 var(--espacio-4);
+  border-left: 2px solid var(--borde);
+}
+.ui-linea-tiempo li {
+  position: relative;
+  margin: 0 0 var(--espacio-4);
+}
+.ui-linea-tiempo li::before {
+  content: "";
+  position: absolute;
+  left: calc(-1 * var(--espacio-4) - 6px);
+  top: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--superficie);
+  border: 2px solid var(--acento);
+}
+/* Fecha, hora y usuario de cada acción, en gris. */
+.ui-linea-tiempo__meta {
+  display: block;
+  font-size: var(--tam-ayuda);
+  color: var(--texto-2);
+}
+
+/* Opciones de radio (por ejemplo, elegir un estado) una debajo de otra. */
+.ui-opciones {
+  display: grid;
+  gap: var(--espacio-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.ui-opciones label {
+  display: flex;
+  gap: var(--espacio-2);
+  align-items: center;
+}
+
+/* ---------------------------------------------------------------------
+   Selector con buscador
+   REGLA: toda lista desplegable (<select>) con más de 5 opciones lleva
+   un buscador. El JavaScript (prototipo.js, sección 13) esconde el
+   <select> original y muestra en su lugar:
+     .ui-selector__boton   el botón que se ve como un campo
+     .ui-selector__panel   el panel que se abre, con el buscador arriba
+     .ui-selector__lista   las opciones que coinciden con lo escrito
+   El <select> original sigue guardando el valor del formulario.
+   --------------------------------------------------------------------- */
+.ui-selector {
+  position: relative;
+  min-width: 0;
+}
+
+/* El botón tiene el mismo aspecto que un campo, con una flecha a la derecha. */
+.ui-selector__boton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-2);
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+.ui-selector__boton::after {
+  content: "";
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid var(--texto-2);
+  border-bottom: 1.5px solid var(--texto-2);
+  transform: rotate(45deg) translateY(-2px);
+}
+/* Texto del botón cuando todavía no hay nada elegido. */
+.ui-selector__boton--vacio {
+  color: var(--texto-2);
+}
+/* El texto elegido se corta con "…" si no cabe, en vez de desbordarse. */
+.ui-selector__texto {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Error: el botón toma el borde rojo, como cualquier campo. */
+.ui-campo--error .ui-selector__boton {
+  border-color: var(--error);
+  border-width: 2px;
+}
+
+/* Panel que flota debajo del botón: por eso lleva sombra. */
+.ui-selector__panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + var(--espacio-1));
+  z-index: 35;
+  padding: var(--espacio-2);
+  background: var(--superficie);
+  border: var(--linea) solid var(--borde);
+  border-radius: var(--radio-2);
+  box-shadow: var(--sombra-flotante);
+}
+
+/* Lista de opciones con altura máxima; si son muchas, se desplaza hacia abajo (nunca hacia los lados). */
+.ui-selector__lista {
+  list-style: none;
+  margin: var(--espacio-2) 0 0;
+  padding: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Cada opción. */
+.ui-selector__opcion {
+  padding: var(--espacio-2);
+  border-radius: var(--radio-1);
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+/* Opción señalada con el teclado o el mouse. */
+.ui-selector__opcion[aria-selected="true"],
+.ui-selector__opcion:hover {
+  background: var(--acento-suave);
+}
+/* Opción ya elegida en otra fila: se ve apagada y no se puede elegir. */
+.ui-selector__opcion[aria-disabled="true"] {
+  color: var(--texto-2);
+  text-decoration: line-through;
+  cursor: not-allowed;
+  background: none;
+}
+
+/* Mensaje cuando la búsqueda no encuentra nada. */
+.ui-selector__vacio {
+  padding: var(--espacio-2);
+  color: var(--texto-2);
+  font-size: var(--tam-ayuda);
 }
 
 

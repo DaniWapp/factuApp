@@ -1,0 +1,111 @@
+<!doctype html>
+<!--
+  Archivo:  prototipo/contratista-form.html
+  Proyecto: FacturApp (prototipo de diseño, Entregable 05)
+
+  Formulario de contratista con el error de documento repetido (RN-08).
+
+  Usa solo css/ui.css (sin frameworks) y datos de ejemplo de database/seed.sql.
+  Se abre con doble clic; los enlaces permiten recorrer todo el prototipo.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nuevo contratista · FacturApp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="icon" href="img/favicon.ico" sizes="any">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="stylesheet" href="css/ui.css">
+</head>
+<body>
+<a class="ui-saltar" href="#contenido">Saltar al contenido</a>
+<div class="ui-app">
+  <aside class="ui-lateral" id="menu-lateral">
+    <a class="ui-marca" href="panel-admin.html">FacturApp<span>Almacén de repuestos</span></a>
+    <nav aria-label="Menú del Admin">
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="panel-admin.html">Inicio</a></li>
+      </ul>
+      <p class="ui-menu__grupo">Operación</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="solicitudes.html">Solicitudes</a></li>
+        <li data-solo-admin><a class="ui-menu__enlace" href="entrega-nueva.html">Nueva entrega</a></li>
+        <li><a class="ui-menu__enlace" href="remision.html">Remisiones</a></li>
+        <li><a class="ui-menu__enlace" href="equipos.html">Equipos</a></li>
+      </ul>
+      <div data-solo-admin>
+      <p class="ui-menu__grupo">Almacén</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="inventario.html">Inventario</a></li>
+        <li><a class="ui-menu__enlace" href="entradas.html">Entradas al almacén</a></li>
+      </ul>
+      <p class="ui-menu__grupo">Catálogos</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="repuestos.html">Repuestos</a></li>
+        <li><a class="ui-menu__enlace" href="categorias.html">Categorías</a></li>
+        <li><a class="ui-menu__enlace" href="contratistas.html" aria-current="page">Contratistas</a></li>
+      </ul>
+      <p class="ui-menu__grupo">Administración</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="usuarios.html">Usuarios</a></li>
+      </ul>
+      </div>
+    </nav>
+  </aside>
+  <div class="ui-principal">
+    <header class="ui-cabecera">
+      <button class="ui-boton ui-boton--secundario ui-boton-menu" type="button" data-abrir-menu aria-controls="menu-lateral" aria-expanded="false">Menú</button>
+      <div class="ui-cabecera__derecha">
+        <button class="ui-interruptor" type="button" role="switch" aria-checked="false" data-vista-usuario>
+          <span class="ui-interruptor__riel" aria-hidden="true"></span>Vista de usuario
+        </button>
+        <details class="ui-desplegable">
+          <summary><span class="ui-cabecera__nombre">Administrador del sistema</span></summary>
+          <ul class="ui-desplegable__lista">
+            <li class="ui-desplegable__info">admin@facturapp.test<br>Admin</li>
+            <li><a class="ui-desplegable__opcion" href="mi-cuenta.html">Mi cuenta</a></li>
+            <li><a class="ui-desplegable__opcion" href="login.html">Cerrar sesión</a></li>
+          </ul>
+        </details>
+      </div>
+    </header>
+    <main class="ui-contenido" id="contenido">
+    <p class="ui-aviso ui-aviso--advertencia" id="aviso-vista" hidden>
+      <strong>Está viendo el sistema como Oficina radicadora.</strong>
+      <button class="ui-boton ui-boton--texto" type="button" data-volver-admin>Volver a la vista de Admin</button>
+    </p>
+      <h1 class="ui-titulo">Nuevo contratista</h1>
+      <p class="ui-descripcion">La cédula o NIT no se puede repetir; el nombre sí.</p>
+      <p class="ui-nota">Los campos marcados con * son obligatorios.</p>
+      <form action="contratistas.html" method="get" novalidate>
+        <div class="ui-campo ui-campo--error">
+          <label class="ui-campo__etiqueta" for="documento">Cédula o NIT *</label>
+          <input class="ui-campo__control ui-codigo" id="documento" name="documento" type="text" value="900.456.789-1" aria-describedby="ayuda-documento error-documento" aria-invalid="true">
+          <p class="ui-campo__ayuda" id="ayuda-documento">Solo números, puntos y guiones.</p>
+          <p class="ui-campo__error" id="error-documento">Ya existe un contratista con ese documento.</p>
+        </div>
+        <div class="ui-campo">
+          <label class="ui-campo__etiqueta" for="nombre">Nombre *</label>
+          <input class="ui-campo__control" id="nombre" name="nombre" type="text" value="Servifrío del Norte">
+          <p class="ui-campo__error" id="error-nombre"></p>
+        </div>
+        <div class="ui-campo">
+          <label class="ui-campo__etiqueta" for="telefono">Teléfono</label>
+          <input class="ui-campo__control ui-codigo" id="telefono" name="telefono" type="tel">
+          <p class="ui-campo__error" id="error-telefono"></p>
+        </div>
+        <div class="ui-formulario__botones">
+          <a class="ui-boton ui-boton--secundario" href="contratistas.html">Cancelar</a>
+          <button class="ui-boton ui-boton--principal" type="submit">Guardar</button>
+        </div>
+      </form>
+    </main>
+  </div>
+</div>
+<script src="js/prototipo.js"></script>
+</body>
+</html>

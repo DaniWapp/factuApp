@@ -1,0 +1,203 @@
+<!doctype html>
+<!--
+  Archivo:  prototipo/solicitud-detalle.html
+  Proyecto: FacturApp (prototipo de diseño, Entregable 05)
+
+  Detalle de la solicitud SOL-000002 con repuestos, remisiones, línea de tiempo y acciones según el rol.
+
+  Usa solo css/ui.css (sin frameworks) y datos de ejemplo de database/seed.sql.
+  Se abre con doble clic; los enlaces permiten recorrer todo el prototipo.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SOL-000002 · FacturApp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="icon" href="img/favicon.ico" sizes="any">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="stylesheet" href="css/ui.css">
+</head>
+<body>
+<a class="ui-saltar" href="#contenido">Saltar al contenido</a>
+<div class="ui-app">
+  <aside class="ui-lateral" id="menu-lateral">
+    <a class="ui-marca" href="panel-admin.html">FacturApp<span>Almacén de repuestos</span></a>
+    <nav aria-label="Menú del Admin">
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="panel-admin.html">Inicio</a></li>
+      </ul>
+      <p class="ui-menu__grupo">Operación</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="solicitudes.html" aria-current="page">Solicitudes</a></li>
+        <li data-solo-admin><a class="ui-menu__enlace" href="entrega-nueva.html">Nueva entrega</a></li>
+        <li><a class="ui-menu__enlace" href="remision.html">Remisiones</a></li>
+        <li><a class="ui-menu__enlace" href="equipos.html">Equipos</a></li>
+      </ul>
+      <div data-solo-admin>
+      <p class="ui-menu__grupo">Almacén</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="inventario.html">Inventario</a></li>
+        <li><a class="ui-menu__enlace" href="entradas.html">Entradas al almacén</a></li>
+      </ul>
+      <p class="ui-menu__grupo">Catálogos</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="repuestos.html">Repuestos</a></li>
+        <li><a class="ui-menu__enlace" href="categorias.html">Categorías</a></li>
+        <li><a class="ui-menu__enlace" href="contratistas.html">Contratistas</a></li>
+      </ul>
+      <p class="ui-menu__grupo">Administración</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="usuarios.html">Usuarios</a></li>
+      </ul>
+      </div>
+    </nav>
+  </aside>
+  <div class="ui-principal">
+    <header class="ui-cabecera">
+      <button class="ui-boton ui-boton--secundario ui-boton-menu" type="button" data-abrir-menu aria-controls="menu-lateral" aria-expanded="false">Menú</button>
+      <div class="ui-cabecera__derecha">
+        <button class="ui-interruptor" type="button" role="switch" aria-checked="false" data-vista-usuario>
+          <span class="ui-interruptor__riel" aria-hidden="true"></span>Vista de usuario
+        </button>
+        <details class="ui-desplegable">
+          <summary><span class="ui-cabecera__nombre">Administrador del sistema</span></summary>
+          <ul class="ui-desplegable__lista">
+            <li class="ui-desplegable__info">admin@facturapp.test<br>Admin</li>
+            <li><a class="ui-desplegable__opcion" href="mi-cuenta.html">Mi cuenta</a></li>
+            <li><a class="ui-desplegable__opcion" href="login.html">Cerrar sesión</a></li>
+          </ul>
+        </details>
+      </div>
+    </header>
+    <main class="ui-contenido" id="contenido">
+    <p class="ui-aviso ui-aviso--advertencia" id="aviso-vista" hidden>
+      <strong>Está viendo el sistema como Oficina radicadora.</strong>
+      <button class="ui-boton ui-boton--texto" type="button" data-volver-admin>Volver a la vista de Admin</button>
+    </p>
+      <div class="ui-encabezado">
+        <div>
+          <h1 class="ui-titulo">Solicitud <span class="ui-codigo">SOL-000002</span></h1>
+          <p class="ui-descripcion"><span class="ui-insignia ui-insignia--advertencia">Parcial</span> &nbsp; <span class="ui-insignia ui-insignia--neutra">Abierta</span></p>
+        </div>
+      </div>
+      <p class="ui-aviso ui-aviso--exito" id="aviso-pagina" role="status" hidden></p>
+      <dl class="ui-datos">
+        <dt>Equipo</dt><dd><span class="ui-codigo">NEV-0002</span> · Nevera horizontal 400 L</dd>
+        <dt>Contratista</dt><dd>Carlos Pérez Rincón</dd>
+        <dt>Fecha de entrega</dt><dd class="ui-codigo">10/11/2026</dd>
+        <dt>Creada por</dt><dd>Andrés Muñoz · <span class="ui-codigo">07/11/2026</span></dd>
+      </dl>
+      <div class="ui-acciones">
+        <a class="ui-boton ui-boton--principal" href="entrega-nueva.html">Registrar entrega</a>
+        <button class="ui-boton ui-boton--secundario" type="button" data-abrir-dialogo="dialogo-devolucion">Registrar devolución</button>
+        <button class="ui-boton ui-boton--secundario" type="button" data-abrir-dialogo="dialogo-reasignar">Reasignar contratista</button>
+        <button class="ui-boton ui-boton--secundario" type="button" data-abrir-dialogo="dialogo-reparado">Marcar como reparado</button>
+        <button class="ui-boton ui-boton--secundario" type="button" data-abrir-dialogo="dialogo-devuelto">Marcar como devuelto</button>
+      </div>
+      <p class="ui-nota">No disponibles en esta solicitud: <strong>Editar</strong> y <strong>Anular</strong> (ya tiene entregas, RN-29), <strong>Reabrir</strong> (está abierta, RN-30) y <strong>Reemplazar repuesto</strong> (no tiene repuestos desactivados sin stock, RN-34).</p>
+      <section class="ui-bloque" aria-labelledby="t-rep">
+        <h2 class="ui-bloque__titulo" id="t-rep">Repuestos</h2>
+      <div class="ui-tabla-caja">
+        <table class="ui-tabla">
+          <thead><tr><th scope="col">Código</th><th scope="col">Repuesto</th><th scope="col" class="ui-tabla__num">Solicitado</th><th scope="col" class="ui-tabla__num">Entregado</th><th scope="col" class="ui-tabla__num">Apartado</th><th scope="col" class="ui-tabla__num">En espera</th><th scope="col" class="ui-tabla__num">Pendiente</th></tr></thead>
+          <tbody>
+            <tr><td class="ui-codigo">VAL-002</td><td>Válvula solenoide 1/4"</td><td class="ui-tabla__num">2</td><td class="ui-tabla__num">2</td><td class="ui-tabla__num">0</td><td class="ui-tabla__num">0</td><td class="ui-tabla__num">0</td></tr>
+            <tr><td class="ui-codigo">MOT-001</td><td>Motor ventilador condensador 9 W</td><td class="ui-tabla__num">3</td><td class="ui-tabla__num">1</td><td class="ui-tabla__num">2</td><td class="ui-tabla__num">0</td><td class="ui-tabla__num">2</td></tr>
+          </tbody>
+        </table>
+      </div>
+      </section>
+      <section class="ui-bloque" aria-labelledby="t-rem">
+        <h2 class="ui-bloque__titulo" id="t-rem">Remisiones</h2>
+      <div class="ui-tabla-caja">
+        <table class="ui-tabla">
+          <thead><tr><th scope="col">Número</th><th scope="col">Fecha y hora</th><th scope="col">Recibió</th><th scope="col">Estado</th><th scope="col" class="ui-tabla__acciones">Acciones</th></tr></thead>
+          <tbody>
+            <tr><td><a class="ui-codigo" href="remision.html">REM-000002</a></td><td class="ui-codigo">08/11/2026 2:20 p. m.</td><td>Carlos Pérez Rincón</td><td><span class="ui-insignia ui-insignia--exito">Vigente</span></td><td class="ui-tabla__acciones"><button class="ui-boton ui-boton--texto ui-boton--peligro" type="button" data-abrir-dialogo="dialogo-retractar" data-nombre="REM-000002">Retractar</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+      </section>
+      <section class="ui-bloque" aria-labelledby="t-hist">
+        <h2 class="ui-bloque__titulo" id="t-hist">Línea de tiempo</h2>
+        <ol class="ui-linea-tiempo">
+          <li>Remisión <span class="ui-codigo">REM-000002</span>: entrega parcial, faltan 2 MOT-001.<span class="ui-linea-tiempo__meta">08/11/2026 2:20 p. m. · Administrador del sistema</span></li>
+          <li>Solicitud <span class="ui-codigo">SOL-000002</span> creada.<span class="ui-linea-tiempo__meta">07/11/2026 11:30 a. m. · Andrés Muñoz</span></li>
+        </ol>
+      </section>
+      <dialog class="ui-dialogo" id="dialogo-reparado" aria-labelledby="titulo-dialogo-reparado">
+        <h2 class="ui-dialogo__titulo" id="titulo-dialogo-reparado">¿Marcar SOL-000002 como reparada?</h2>
+        <p class="ui-aviso ui-aviso--advertencia"><strong>Atención.</strong> La solicitud tiene repuestos pendientes por entregar. Si la cierra, lo pendiente deja de estar apartado.</p>
+        <p>La solicitud quedará cerrada.</p>
+        <div class="ui-dialogo__acciones">
+          <button class="ui-boton ui-boton--secundario" type="button" data-cerrar-dialogo>Cancelar</button>
+          <button class="ui-boton ui-boton--principal" type="button" data-confirmar data-mensaje="<strong>Solicitud marcada como reparada.</strong>">Marcar como reparado</button>
+        </div>
+      </dialog>
+      <dialog class="ui-dialogo" id="dialogo-devuelto" aria-labelledby="titulo-dialogo-devuelto">
+        <h2 class="ui-dialogo__titulo" id="titulo-dialogo-devuelto">¿Marcar SOL-000002 como devuelta?</h2>
+        <p class="ui-aviso ui-aviso--advertencia"><strong>Atención.</strong> La solicitud tiene repuestos pendientes por entregar. Si la cierra, lo pendiente deja de estar apartado.</p>
+        <div class="ui-campo">
+          <label class="ui-campo__etiqueta" for="motivo-devuelto">Motivo *</label>
+          <textarea class="ui-campo__control" id="motivo-devuelto" rows="3" data-obligatorio aria-describedby="error-motivo-devuelto"></textarea>
+          <p class="ui-campo__error" id="error-motivo-devuelto">Escriba el motivo de la devolución.</p>
+        </div>
+        <div class="ui-dialogo__acciones">
+          <button class="ui-boton ui-boton--secundario" type="button" data-cerrar-dialogo>Cancelar</button>
+          <button class="ui-boton ui-boton--principal" type="button" data-confirmar data-mensaje="<strong>Solicitud marcada como devuelta.</strong>">Marcar como devuelto</button>
+        </div>
+      </dialog>
+      <dialog class="ui-dialogo" id="dialogo-retractar" aria-labelledby="titulo-dialogo-retractar">
+        <h2 class="ui-dialogo__titulo" id="titulo-dialogo-retractar">¿Retractar la entrega <span data-nombre-destino></span>?</h2>
+        <p>El stock vuelve a subir, lo entregado vuelve a quedar pendiente y la remisión queda marcada como retractada, con su número.</p>
+        <div class="ui-campo">
+          <label class="ui-campo__etiqueta" for="motivo-retractar">Motivo *</label>
+          <textarea class="ui-campo__control" id="motivo-retractar" rows="3" data-obligatorio aria-describedby="error-motivo-retractar"></textarea>
+          <p class="ui-campo__error" id="error-motivo-retractar">Escriba el motivo de la retracción.</p>
+        </div>
+        <div class="ui-dialogo__acciones">
+          <button class="ui-boton ui-boton--secundario" type="button" data-cerrar-dialogo>Cancelar</button>
+          <button class="ui-boton ui-boton--peligro" type="button" data-confirmar data-mensaje="<strong>Entrega retractada.</strong> La remisión REM-000002 quedó marcada como retractada.">Retractar entrega</button>
+        </div>
+      </dialog>
+      <dialog class="ui-dialogo" id="dialogo-devolucion" aria-labelledby="titulo-dialogo-devolucion">
+        <h2 class="ui-dialogo__titulo" id="titulo-dialogo-devolucion">Registrar devolución</h2>
+        <p>Repuestos que el contratista devuelve sin usar. Lo pendiente no cambia.</p>
+        <div class="ui-campo">
+          <label class="ui-campo__etiqueta" for="dev-repuesto">Repuesto *</label>
+          <select class="ui-campo__control" id="dev-repuesto" data-obligatorio aria-describedby="error-dev-repuesto"><option value="">Seleccione el repuesto</option><option value="4">VAL-002 · entregadas 2</option><option value="5">MOT-001 · entregado 1</option></select>
+          <p class="ui-campo__error" id="error-dev-repuesto">Seleccione el repuesto.</p>
+        </div>
+        <div class="ui-campo">
+          <label class="ui-campo__etiqueta" for="dev-cantidad">Cantidad *</label>
+          <input class="ui-campo__control ui-codigo" id="dev-cantidad" type="text" inputmode="decimal" data-obligatorio aria-describedby="error-dev-cantidad">
+          <p class="ui-campo__error" id="error-dev-cantidad">La cantidad debe ser mayor que cero.</p>
+        </div>
+        <div class="ui-dialogo__acciones">
+          <button class="ui-boton ui-boton--secundario" type="button" data-cerrar-dialogo>Cancelar</button>
+          <button class="ui-boton ui-boton--principal" type="button" data-confirmar data-mensaje="<strong>Devolución registrada.</strong> El stock se actualizó.">Registrar devolución</button>
+        </div>
+      </dialog>
+      <dialog class="ui-dialogo" id="dialogo-reasignar" aria-labelledby="titulo-dialogo-reasignar">
+        <h2 class="ui-dialogo__titulo" id="titulo-dialogo-reasignar">Reasignar contratista</h2>
+        <p>Las remisiones anteriores conservan el contratista que recibió; las entregas nuevas saldrán con el nuevo.</p>
+        <div class="ui-campo">
+          <label class="ui-campo__etiqueta" for="nuevo-contratista">Contratista nuevo *</label>
+          <select class="ui-campo__control" id="nuevo-contratista" data-obligatorio aria-describedby="error-nuevo-contratista"><option value="">Seleccione el contratista</option><option value="1">Refrigeración Andina S.A.S.</option><option value="3">Frío Técnico Ltda.</option></select>
+          <p class="ui-campo__error" id="error-nuevo-contratista">Seleccione el contratista.</p>
+        </div>
+        <div class="ui-dialogo__acciones">
+          <button class="ui-boton ui-boton--secundario" type="button" data-cerrar-dialogo>Cancelar</button>
+          <button class="ui-boton ui-boton--principal" type="button" data-confirmar data-mensaje="<strong>Contratista reasignado.</strong>">Reasignar</button>
+        </div>
+      </dialog>
+    </main>
+  </div>
+</div>
+<script src="js/prototipo.js"></script>
+</body>
+</html>

@@ -123,6 +123,8 @@
     cuerpoTabla.appendChild(fila);
     // Pone el nombre de cada columna en las celdas nuevas, para la vista de celular.
     if (window.etiquetarTablas) window.etiquetarTablas();
+    // Lista de más de 5 repuestos: se le agrega el buscador (regla del proyecto).
+    if (window.mejorarSelects) window.mejorarSelects(fila);
     actualizarOpciones();
     select.focus();
   }

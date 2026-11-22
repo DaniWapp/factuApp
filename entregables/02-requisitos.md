@@ -423,6 +423,7 @@ Describen **cómo** debe ser el sistema, no qué hace. Cada uno se puede comprob
 | RNF-08 | Usabilidad | Cuando un formulario tiene un error, los datos que el usuario ya escribió no se borran. |
 | RNF-09 | Usabilidad | Toda acción que guarda, cambia o desactiva datos pide confirmación ("Confirmar" / "Cancelar") antes de ejecutarse; si el usuario cancela, no cambia nada. No piden confirmación iniciar sesión, buscar, filtrar ni moverse entre pantallas. |
 | RNF-10 | Usabilidad | Cualquier pantalla del sistema se abre con máximo 2 clics desde el menú. |
+| RNF-34 | Usabilidad | Toda lista desplegable con más de 5 opciones se abre con un buscador arriba de la lista; la búsqueda ignora mayúsculas y tildes, acepta varias palabras en cualquier orden y se puede usar solo con el teclado. |
 | RNF-11 | Accesibilidad | Todo campo de formulario tiene una etiqueta conectada (`<label for>` con su `id`) y toda tabla separa encabezado y datos (`<thead>` y `<tbody>`). |
 | RNF-12 | Accesibilidad | El texto tiene un contraste mínimo de 4,5:1 con su fondo (nivel AA de WCAG 2.1). |
 | RNF-13 | Accesibilidad | Todas las acciones se pueden hacer solo con el teclado (Tab, Enter, Esc), y el elemento con foco siempre se ve resaltado. |

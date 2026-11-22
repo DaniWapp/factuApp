@@ -1,0 +1,109 @@
+<!doctype html>
+<!--
+  Archivo:  prototipo/inventario.html
+  Proyecto: FacturApp (prototipo de diseño, Entregable 05)
+
+  Stock por repuesto: en almacén, apartado, disponible y en espera (HU-20).
+
+  Usa solo css/ui.css (sin frameworks) y datos de ejemplo de database/seed.sql.
+  Se abre con doble clic; los enlaces permiten recorrer todo el prototipo.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inventario · FacturApp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="icon" href="img/favicon.ico" sizes="any">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="stylesheet" href="css/ui.css">
+</head>
+<body>
+<a class="ui-saltar" href="#contenido">Saltar al contenido</a>
+<div class="ui-app">
+  <aside class="ui-lateral" id="menu-lateral">
+    <a class="ui-marca" href="panel-admin.html">FacturApp<span>Almacén de repuestos</span></a>
+    <nav aria-label="Menú del Admin">
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="panel-admin.html">Inicio</a></li>
+      </ul>
+      <p class="ui-menu__grupo">Operación</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="solicitudes.html">Solicitudes</a></li>
+        <li data-solo-admin><a class="ui-menu__enlace" href="entrega-nueva.html">Nueva entrega</a></li>
+        <li><a class="ui-menu__enlace" href="remision.html">Remisiones</a></li>
+        <li><a class="ui-menu__enlace" href="equipos.html">Equipos</a></li>
+      </ul>
+      <div data-solo-admin>
+      <p class="ui-menu__grupo">Almacén</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="inventario.html" aria-current="page">Inventario</a></li>
+        <li><a class="ui-menu__enlace" href="entradas.html">Entradas al almacén</a></li>
+      </ul>
+      <p class="ui-menu__grupo">Catálogos</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="repuestos.html">Repuestos</a></li>
+        <li><a class="ui-menu__enlace" href="categorias.html">Categorías</a></li>
+        <li><a class="ui-menu__enlace" href="contratistas.html">Contratistas</a></li>
+      </ul>
+      <p class="ui-menu__grupo">Administración</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="usuarios.html">Usuarios</a></li>
+      </ul>
+      </div>
+    </nav>
+  </aside>
+  <div class="ui-principal">
+    <header class="ui-cabecera">
+      <button class="ui-boton ui-boton--secundario ui-boton-menu" type="button" data-abrir-menu aria-controls="menu-lateral" aria-expanded="false">Menú</button>
+      <div class="ui-cabecera__derecha">
+        <button class="ui-interruptor" type="button" role="switch" aria-checked="false" data-vista-usuario>
+          <span class="ui-interruptor__riel" aria-hidden="true"></span>Vista de usuario
+        </button>
+        <details class="ui-desplegable">
+          <summary><span class="ui-cabecera__nombre">Administrador del sistema</span></summary>
+          <ul class="ui-desplegable__lista">
+            <li class="ui-desplegable__info">admin@facturapp.test<br>Admin</li>
+            <li><a class="ui-desplegable__opcion" href="mi-cuenta.html">Mi cuenta</a></li>
+            <li><a class="ui-desplegable__opcion" href="login.html">Cerrar sesión</a></li>
+          </ul>
+        </details>
+      </div>
+    </header>
+    <main class="ui-contenido" id="contenido">
+    <p class="ui-aviso ui-aviso--advertencia" id="aviso-vista" hidden>
+      <strong>Está viendo el sistema como Oficina radicadora.</strong>
+      <button class="ui-boton ui-boton--texto" type="button" data-volver-admin>Volver a la vista de Admin</button>
+    </p>
+      <div class="ui-encabezado">
+        <div>
+          <h1 class="ui-titulo">Inventario</h1>
+          <p class="ui-descripcion">Disponible = en almacén − apartado. En espera: lo pedido que todavía no tiene stock.</p>
+        </div>
+        <a class="ui-boton ui-boton--principal" href="entrada-form.html">Registrar entrada</a>
+      </div>
+      <p class="ui-aviso ui-aviso--exito" id="aviso-pagina" role="status" hidden></p>
+      <div class="ui-tabla-caja">
+        <table class="ui-tabla">
+          <thead><tr><th scope="col">Código</th><th scope="col">Repuesto</th><th scope="col" class="ui-tabla__num">En almacén</th><th scope="col" class="ui-tabla__num">Apartado</th><th scope="col" class="ui-tabla__num">Disponible</th><th scope="col" class="ui-tabla__num">En espera</th><th scope="col">Estado</th></tr></thead>
+          <tbody>
+            <tr><td class="ui-codigo">COM-001</td><td>Compresor hermético 1/2 HP R134a</td><td class="ui-tabla__num">9</td><td class="ui-tabla__num">0</td><td class="ui-tabla__num">9</td><td class="ui-tabla__num">0</td><td><span class="ui-insignia ui-insignia--exito">Disponible</span></td></tr>
+            <tr><td class="ui-codigo">COM-002</td><td>Compresor hermético 1/3 HP R600a</td><td class="ui-tabla__num">6</td><td class="ui-tabla__num">0</td><td class="ui-tabla__num">6</td><td class="ui-tabla__num">0</td><td><span class="ui-insignia ui-insignia--exito">Disponible</span></td></tr>
+            <tr><td class="ui-codigo">VAL-001</td><td>Válvula de expansión termostática</td><td class="ui-tabla__num">23</td><td class="ui-tabla__num">0</td><td class="ui-tabla__num">23</td><td class="ui-tabla__num">0</td><td><span class="ui-insignia ui-insignia--exito">Disponible</span></td></tr>
+            <tr><td class="ui-codigo">VAL-002</td><td>Válvula solenoide 1/4"</td><td class="ui-tabla__num">10</td><td class="ui-tabla__num">0</td><td class="ui-tabla__num">10</td><td class="ui-tabla__num">0</td><td><span class="ui-insignia ui-insignia--exito">Disponible</span></td></tr>
+            <tr><td class="ui-codigo">VAL-003</td><td>Válvula de servicio 1/4"</td><td class="ui-tabla__num">0</td><td class="ui-tabla__num">0</td><td class="ui-tabla__num">0</td><td class="ui-tabla__num">2</td><td><span class="ui-insignia ui-insignia--error">Sin stock</span> <span class="ui-insignia ui-insignia--advertencia">En espera</span></td></tr>
+            <tr><td class="ui-codigo">MOT-001</td><td>Motor ventilador condensador 9 W</td><td class="ui-tabla__num">14</td><td class="ui-tabla__num">2</td><td class="ui-tabla__num">12</td><td class="ui-tabla__num">0</td><td><span class="ui-insignia ui-insignia--exito">Disponible</span></td></tr>
+            <tr><td class="ui-codigo">MOT-002</td><td>Motor ventilador evaporador 5 W</td><td class="ui-tabla__num">15</td><td class="ui-tabla__num">0</td><td class="ui-tabla__num">15</td><td class="ui-tabla__num">0</td><td><span class="ui-insignia ui-insignia--exito">Disponible</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="ui-nota" style="margin-top:12px"><a href="entradas.html">Ver las entradas al almacén</a></p>
+    </main>
+  </div>
+</div>
+<script src="js/prototipo.js"></script>
+</body>
+</html>

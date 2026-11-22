@@ -1,0 +1,107 @@
+<!doctype html>
+<!--
+  Archivo:  prototipo/solicitud-nueva-oficina.html
+  Proyecto: FacturApp (prototipo de diseño, Entregable 05)
+
+  Nueva solicitud: equipo, contratista, fecha y filas de repuestos con validaciones (HU-17).
+
+  Usa solo css/ui.css (sin frameworks) y datos de ejemplo de database/seed.sql.
+  Se abre con doble clic; los enlaces permiten recorrer todo el prototipo.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nueva solicitud · FacturApp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="icon" href="img/favicon.ico" sizes="any">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="stylesheet" href="css/ui.css">
+</head>
+<body>
+<a class="ui-saltar" href="#contenido">Saltar al contenido</a>
+<div class="ui-app">
+  <aside class="ui-lateral" id="menu-lateral">
+    <a class="ui-marca" href="panel-usuario.html">FacturApp<span>Almacén de repuestos</span></a>
+    <nav aria-label="Menú de la Oficina radicadora">
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="panel-usuario.html">Inicio</a></li>
+      </ul>
+      <p class="ui-menu__grupo">Operación</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="solicitudes-oficina.html">Solicitudes</a></li>
+        <li><a class="ui-menu__enlace" href="solicitud-nueva-oficina.html" aria-current="page">Nueva solicitud</a></li>
+        <li><a class="ui-menu__enlace" href="remision-oficina.html">Remisiones</a></li>
+        <li><a class="ui-menu__enlace" href="equipos-oficina.html">Equipos</a></li>
+      </ul>
+    </nav>
+  </aside>
+  <div class="ui-principal">
+    <header class="ui-cabecera">
+      <button class="ui-boton ui-boton--secundario ui-boton-menu" type="button" data-abrir-menu aria-controls="menu-lateral" aria-expanded="false">Menú</button>
+      <div class="ui-cabecera__derecha">
+        <details class="ui-desplegable">
+          <summary><span class="ui-cabecera__nombre">Laura Gómez</span></summary>
+          <ul class="ui-desplegable__lista">
+            <li class="ui-desplegable__info">laura.gomez@facturapp.test<br>Oficina radicadora</li>
+            <li><a class="ui-desplegable__opcion" href="mi-cuenta-oficina.html">Mi cuenta</a></li>
+            <li><a class="ui-desplegable__opcion" href="login.html">Cerrar sesión</a></li>
+          </ul>
+        </details>
+      </div>
+    </header>
+    <main class="ui-contenido" id="contenido">
+      <h1 class="ui-titulo">Nueva solicitud</h1>
+      <p class="ui-descripcion">Pida los repuestos para reparar una nevera.</p>
+      <p class="ui-nota">Los campos marcados con * son obligatorios.</p>
+      <form id="form-solicitud" novalidate data-destino="solicitudes-oficina.html" data-mensaje="<strong>Solicitud SOL-000004 creada.</strong>">
+        <div class="ui-campo">
+          <label class="ui-campo__etiqueta" for="equipo">Equipo *</label>
+          <select class="ui-campo__control" id="equipo" name="equipo"><option value="">Seleccione el equipo</option><option value="1">NEV-0001 · Nevera vertical 2 puertas</option><option value="2">NEV-0002 · Nevera horizontal 400 L</option><option value="3">NEV-0003 · Nevera exhibidora 1 puerta</option></select>
+          <p class="ui-campo__error" id="error-equipo"></p>
+        </div>
+        <div class="ui-campo">
+          <label class="ui-campo__etiqueta" for="contratista">Contratista *</label>
+          <select class="ui-campo__control" id="contratista" name="contratista"><option value="">Seleccione el contratista</option><option value="1">Refrigeración Andina S.A.S.</option><option value="2">Carlos Pérez Rincón</option><option value="3">Frío Técnico Ltda.</option></select>
+          <p class="ui-campo__error" id="error-contratista"></p>
+        </div>
+        <div class="ui-campo">
+          <label class="ui-campo__etiqueta" for="fecha">Fecha de entrega *</label>
+          <input class="ui-campo__control ui-codigo" id="fecha" name="fecha" type="date" value="" aria-describedby="ayuda-fecha">
+          <p class="ui-campo__ayuda" id="ayuda-fecha">Fecha en que se esperan los repuestos. No puede ser anterior a hoy.</p>
+          <p class="ui-campo__error" id="error-fecha"></p>
+        </div>
+        <section class="ui-bloque" aria-labelledby="titulo-repuestos">
+          <h2 class="ui-bloque__titulo" id="titulo-repuestos">Repuestos</h2>
+          <p class="ui-nota">Si no hay stock suficiente, lo que falte quedará en espera de mercancía.</p>
+          <div class="ui-tabla-caja">
+            <table class="ui-tabla">
+              <thead><tr><th scope="col">Repuesto</th><th scope="col">Cantidad</th><th scope="col" class="ui-tabla__acciones">Quitar</th></tr></thead>
+              <tbody id="filas-repuestos"></tbody>
+            </table>
+          </div>
+          <p class="ui-campo__error" id="error-filas" role="alert"></p>
+          <p><button class="ui-boton ui-boton--secundario" type="button" id="agregar-repuesto">Agregar repuesto</button></p>
+        </section>
+        <div class="ui-formulario__botones">
+          <a class="ui-boton ui-boton--secundario" href="solicitudes-oficina.html">Cancelar</a>
+          <button class="ui-boton ui-boton--principal" type="submit">Guardar solicitud</button>
+        </div>
+      </form>
+      <template id="molde-fila">
+        <tr>
+          <td><div class="ui-campo"><label class="ui-campo__etiqueta ui-oculto" data-etiqueta-repuesto>Repuesto</label><select class="ui-campo__control" data-repuesto><option value="">Seleccione el repuesto</option></select><p class="ui-campo__error"></p></div></td>
+          <td><div class="ui-campo"><label class="ui-campo__etiqueta ui-oculto" data-etiqueta-cantidad>Cantidad</label><input class="ui-campo__control ui-codigo" type="text" inputmode="decimal" data-cantidad><p class="ui-campo__error"></p></div></td>
+          <td class="ui-tabla__acciones"><button class="ui-boton ui-boton--texto ui-boton--peligro" type="button" data-quitar>Quitar</button></td>
+        </tr>
+      </template>
+    </main>
+  </div>
+</div>
+<script src="js/prototipo.js"></script>
+<script src="js/solicitud.js"></script>
+</body>
+</html>

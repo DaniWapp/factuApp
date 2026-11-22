@@ -192,6 +192,7 @@ Todas las clases del sistema empiezan por `ui-`. Las variantes se escriben con `
 | Diálogo | `ui-dialogo`, `__titulo`, `__acciones` (sobre `<dialog>`) | Ventana de confirmación (RNF-09); lo único con sombra. |
 | Estado vacío | `ui-vacio`, `__titulo` | Lo que se muestra cuando una lista no tiene datos, con la acción para empezar. |
 | Código o número | `ui-codigo` | Letra IBM Plex Mono con cifras tabulares. |
+| Selector con buscador | `ui-selector`, `__boton`, `__panel`, `__lista`, `__opcion` | Toda lista con más de 5 opciones se abre con un buscador (RNF-34). El JavaScript lo crea solo a partir del `<select>`. |
 
 El foco del teclado es visible en todos los elementos con los que se interactúa: contorno de 3 px del acento, separado 2 px (RNF-13).
 
@@ -225,6 +226,17 @@ En la carpeta `prototipo/` hay páginas HTML que usan solo `css/ui.css` (sin fra
 | `mi-cuenta.html` | Cambio de contraseña con la regla visible (HU-04, fase 2). |
 | `entrega-nueva.html` | Entrega con filas de repuestos, stock disponible y validaciones. |
 | `remision.html` | Remisión imprimible, con su hoja de impresión `css/impresion.css`. |
+| `usuario-form.html` | Formulario de usuario con contraseña inicial temporal. |
+| `categorias.html`, `categoria-form.html` | Categorías; desactivar una con repuestos activos no está permitido. |
+| `contratistas.html`, `contratista-form.html` | Contratistas con desactivación y error de documento repetido. |
+| `equipos.html`, `equipo-form.html` | Equipos (también en versión de la Oficina). |
+| `inventario.html` | Stock en almacén, apartado, disponible y en espera. |
+| `entradas.html`, `entrada-form.html` | Entradas al almacén con retracción y motivo obligatorio. |
+| `solicitudes.html`, `solicitud-nueva.html` | Lista y creación de solicitudes (también en versión de la Oficina). |
+| `solicitud-detalle.html` | Detalle con repuestos, remisiones, línea de tiempo y las ventanas de acción del rol. |
+| `solicitud-editar.html` | Edición y anulación de una solicitud sin entregas. |
+
+Las páginas que terminan en `-oficina.html` son las mismas pantallas con el menú y los permisos de la Oficina radicadora.
 
 El JavaScript del prototipo está en `prototipo/js/` y se carga como script normal (no como módulo), porque los navegadores no permiten módulos al abrir un archivo con doble clic.
 

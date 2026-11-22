@@ -14,6 +14,9 @@
        8. El buscador de las tablas.
        9. El formulario para cambiar la contraseña.
       10. Las etiquetas de las tablas para verlas en el celular.
+      11. El botón Confirmar de los diálogos.
+      12. El selector con buscador (listas de más de 5 opciones).
+      13. Los avisos que llegan desde otra página.
 
    Cómo se usa:
      Se carga al final de cada página:
@@ -343,4 +346,272 @@
 
   etiquetarTablas();
   window.etiquetarTablas = etiquetarTablas;
+
+  /* -------------------------------------------------------------------
+     11. Botón "Confirmar" de los diálogos
+     Un botón con data-confirmar dentro de un <dialog>:
+       - revisa que los campos con data-obligatorio no estén vacíos; si
+         alguno lo está, muestra su error y no cierra el diálogo;
+       - si todo está bien, cierra el diálogo y muestra el aviso de
+         éxito con el texto de data-mensaje.
+     Es solo una simulación: no se guarda nada.
+     ------------------------------------------------------------------- */
+  document.querySelectorAll("[data-confirmar]").forEach(function (boton) {
+    boton.addEventListener("click", function () {
+      var dialogo = boton.closest("dialog");
+      var faltaAlgo = false;
+
+      dialogo.querySelectorAll("[data-obligatorio]").forEach(function (campo) {
+        var vacio = campo.value.trim() === "";
+        var contenedor = campo.closest(".ui-campo");
+        contenedor.classList.toggle("ui-campo--error", vacio);
+        campo.setAttribute("aria-invalid", vacio ? "true" : "false");
+        if (vacio && !faltaAlgo) campo.focus();
+        if (vacio) faltaAlgo = true;
+      });
+      if (faltaAlgo) return;
+
+      dialogo.close();
+      // Deja el diálogo limpio para la próxima vez.
+      dialogo.querySelectorAll("textarea, input:not([type=radio]), select").forEach(function (campo) {
+        campo.value = "";
+      });
+      mostrarAviso(boton.dataset.mensaje || "<strong>Listo.</strong>");
+    });
+  });
+
+  /* -------------------------------------------------------------------
+     12. Selector con buscador
+     REGLA del proyecto: toda lista desplegable (<select>) con más de 5
+     opciones lleva un buscador. Esta función busca esos <select> y los
+     convierte en un selector con buscador:
+       - el <select> original se esconde, pero sigue guardando el valor
+         (así los formularios y las validaciones funcionan igual);
+       - aparece un botón con el aspecto de un campo;
+       - al abrirlo se ve un buscador y la lista de opciones;
+       - con el teclado: flechas para moverse, Enter para elegir, Esc
+         para cerrar.
+     Se deja disponible como window.mejorarSelects(contenedor) para usarla
+     con las filas que se agregan después (entrega.js, solicitud.js).
+
+     Conceptos:
+       - role="combobox" / role="listbox" / role="option": le dicen al
+         lector de pantalla que es una lista para elegir.
+       - aria-activedescendant: indica cuál opción está señalada.
+       - dispatchEvent(new Event("change")): avisa que el valor cambió,
+         como si la persona hubiera usado el <select> original.
+     ------------------------------------------------------------------- */
+  var MINIMO_PARA_BUSCADOR = 5;
+  var contadorSelectores = 0;
+
+  function mejorarSelects(contenedor) {
+    (contenedor || document).querySelectorAll("select.ui-campo__control").forEach(function (select) {
+      if (select.dataset.mejorado) return;
+      // Solo cuentan las opciones reales, no "Seleccione...".
+      var reales = Array.prototype.filter.call(select.options, function (o) { return o.value !== ""; });
+      if (reales.length <= MINIMO_PARA_BUSCADOR) return;
+      crearSelector(select);
+    });
+  }
+
+  function crearSelector(select) {
+    contadorSelectores++;
+    var id = "selector-" + contadorSelectores;
+    select.dataset.mejorado = "si";
+
+    // Envoltura que contiene el botón y el panel.
+    var envoltura = document.createElement("div");
+    envoltura.className = "ui-selector";
+    select.parentNode.insertBefore(envoltura, select);
+    envoltura.appendChild(select);
+    select.classList.add("ui-oculto");
+    select.tabIndex = -1;
+
+    // Botón visible: usa las clases del campo para verse igual.
+    var boton = document.createElement("button");
+    boton.type = "button";
+    boton.className = "ui-campo__control ui-selector__boton";
+    boton.setAttribute("aria-haspopup", "listbox");
+    boton.setAttribute("aria-expanded", "false");
+    var textoBoton = document.createElement("span");
+    textoBoton.className = "ui-selector__texto";
+    boton.appendChild(textoBoton);
+    envoltura.insertBefore(boton, select);
+
+    // La etiqueta <label for="..."> del select ahora nombra al botón.
+    if (select.id) {
+      boton.id = select.id + "-boton";
+      document.querySelectorAll('label[for="' + select.id + '"]').forEach(function (etiqueta) {
+        etiqueta.setAttribute("for", boton.id);
+      });
+    }
+    var describe = select.getAttribute("aria-describedby");
+    if (describe) boton.setAttribute("aria-describedby", describe);
+
+    // Panel con el buscador y la lista.
+    var panel = document.createElement("div");
+    panel.className = "ui-selector__panel";
+    panel.hidden = true;
+    var buscador = document.createElement("input");
+    buscador.type = "search";
+    buscador.className = "ui-campo__control";
+    buscador.setAttribute("role", "combobox");
+    buscador.setAttribute("aria-expanded", "true");
+    buscador.setAttribute("aria-controls", id + "-lista");
+    buscador.setAttribute("aria-autocomplete", "list");
+    buscador.setAttribute("aria-label", "Buscar");
+    buscador.placeholder = "Escriba para buscar";
+    var lista = document.createElement("ul");
+    lista.className = "ui-selector__lista";
+    lista.id = id + "-lista";
+    lista.setAttribute("role", "listbox");
+    panel.appendChild(buscador);
+    panel.appendChild(lista);
+    envoltura.appendChild(panel);
+
+    var visibles = [];   // opciones que se ven con el texto buscado
+    var senalada = -1;   // posición de la opción señalada con el teclado
+
+    // Escribe en el botón el texto de la opción elegida.
+    function actualizarBoton() {
+      var elegida = select.options[select.selectedIndex];
+      var vacio = !elegida || elegida.value === "";
+      textoBoton.textContent = elegida ? elegida.text : "";
+      boton.classList.toggle("ui-selector__boton--vacio", vacio);
+    }
+
+    // Dibuja las opciones que coinciden con lo escrito en el buscador.
+    function dibujarLista() {
+      // Cada palabra escrita debe aparecer en la opción, en cualquier orden:
+      // "motor cond" encuentra "Motor ventilador condensador".
+      var palabras = normalizar(buscador.value.trim()).split(/\s+/).filter(Boolean);
+      lista.textContent = "";
+      visibles = [];
+      Array.prototype.forEach.call(select.options, function (opcion, posicion) {
+        if (opcion.value === "") return;
+        var texto = normalizar(opcion.text);
+        var coincide = palabras.every(function (palabra) { return texto.indexOf(palabra) !== -1; });
+        if (!coincide) return;
+        var item = document.createElement("li");
+        item.className = "ui-selector__opcion";
+        item.id = id + "-op-" + posicion;
+        item.setAttribute("role", "option");
+        item.textContent = opcion.text;
+        if (opcion.disabled) item.setAttribute("aria-disabled", "true");
+        item.addEventListener("mousedown", function (evento) {
+          evento.preventDefault(); // evita que el buscador pierda el foco antes de elegir
+          elegir(posicion);
+        });
+        lista.appendChild(item);
+        visibles.push({ item: item, posicion: posicion, deshabilitada: opcion.disabled });
+      });
+      if (visibles.length === 0) {
+        var vacio = document.createElement("li");
+        vacio.className = "ui-selector__vacio";
+        vacio.textContent = "No hay resultados.";
+        lista.appendChild(vacio);
+      }
+      senalar(visibles.length ? 0 : -1);
+    }
+
+    // Señala una opción (fondo suave) y la deja a la vista dentro de la lista.
+    function senalar(nueva) {
+      visibles.forEach(function (v) { v.item.setAttribute("aria-selected", "false"); });
+      senalada = nueva;
+      if (nueva >= 0 && visibles[nueva]) {
+        visibles[nueva].item.setAttribute("aria-selected", "true");
+        visibles[nueva].item.scrollIntoView({ block: "nearest" });
+        buscador.setAttribute("aria-activedescendant", visibles[nueva].item.id);
+      } else {
+        buscador.removeAttribute("aria-activedescendant");
+      }
+    }
+
+    function abrir() {
+      panel.hidden = false;
+      boton.setAttribute("aria-expanded", "true");
+      buscador.value = "";
+      dibujarLista();
+      buscador.focus();
+    }
+
+    function cerrar(devolverFoco) {
+      panel.hidden = true;
+      boton.setAttribute("aria-expanded", "false");
+      if (devolverFoco) boton.focus();
+    }
+
+    // Elige una opción: cambia el <select> original y avisa del cambio.
+    function elegir(posicion) {
+      var opcion = select.options[posicion];
+      if (!opcion || opcion.disabled) return;
+      select.selectedIndex = posicion;
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+      actualizarBoton();
+      cerrar(true);
+    }
+
+    boton.addEventListener("click", function () {
+      if (panel.hidden) abrir(); else cerrar(true);
+    });
+    // Flecha abajo sobre el botón también abre la lista.
+    boton.addEventListener("keydown", function (evento) {
+      if (evento.key === "ArrowDown") { evento.preventDefault(); abrir(); }
+    });
+
+    buscador.addEventListener("input", dibujarLista);
+    buscador.addEventListener("keydown", function (evento) {
+      if (evento.key === "ArrowDown") {
+        evento.preventDefault();
+        senalar(Math.min(senalada + 1, visibles.length - 1));
+      } else if (evento.key === "ArrowUp") {
+        evento.preventDefault();
+        senalar(Math.max(senalada - 1, 0));
+      } else if (evento.key === "Enter") {
+        evento.preventDefault(); // no envía el formulario
+        if (visibles[senalada]) elegir(visibles[senalada].posicion);
+      } else if (evento.key === "Escape") {
+        evento.preventDefault();
+        evento.stopPropagation(); // no cierra el diálogo donde esté el selector
+        cerrar(true);
+      } else if (evento.key === "Tab") {
+        cerrar(false);
+      }
+    });
+
+    // Un clic fuera del selector lo cierra.
+    document.addEventListener("click", function (evento) {
+      if (!panel.hidden && !envoltura.contains(evento.target)) cerrar(false);
+    });
+
+    // Si otro código cambia el <select> o le da el foco (por ejemplo, al
+    // marcar un error), el botón se actualiza o recibe el foco.
+    select.addEventListener("change", actualizarBoton);
+    select.addEventListener("focus", function () { boton.focus(); });
+    // El estado de error del <select> se copia al botón.
+    new MutationObserver(function () {
+      boton.setAttribute("aria-invalid", select.getAttribute("aria-invalid") || "false");
+    }).observe(select, { attributes: true, attributeFilter: ["aria-invalid"] });
+
+    actualizarBoton();
+  }
+
+  mejorarSelects(document);
+  window.mejorarSelects = mejorarSelects;
+
+  /* -------------------------------------------------------------------
+     13. Aviso que viene de otra página
+     Cuando una página guarda algo y lleva a otra (por ejemplo, "Nueva
+     solicitud" lleva a la lista), deja el texto del aviso en
+     sessionStorage; aquí se muestra y se borra.
+     ------------------------------------------------------------------- */
+  try {
+    var avisoGuardado = sessionStorage.getItem("facturapp-aviso");
+    if (avisoGuardado) {
+      sessionStorage.removeItem("facturapp-aviso");
+      mostrarAviso(avisoGuardado);
+    }
+  } catch (error) {
+    // Si el navegador no deja usar sessionStorage, no se muestra el aviso.
+  }
 })();

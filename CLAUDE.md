@@ -152,6 +152,8 @@ Hacer:
 - Números con cifras tabulares, alineados a la derecha en las tablas.
 - Íconos de línea simples, de una sola familia, y solo cuando ayudan a entender.
 - Textos cortos, con el vocabulario del almacén: "Remisión", "Stock disponible", "Contratista".
+- REGLA INQUEBRANTABLE: toda lista desplegable (select) con más de 5 opciones abre con un buscador arriba de la lista (ignora mayúsculas y tildes, acepta varias palabras, se usa con el teclado). En el prototipo: `mejorarSelects()` en `prototipo/js/prototipo.js` y `.ui-selector` en `ui.css`.
+- Ícono de la pestaña: `prototipo/img/favicon.ico`, `favicon.svg` y `apple-touch-icon.png` (una factura blanca sobre verde petróleo).
 - REGLA GENERAL: nunca hay desplazamiento (scroll) horizontal, en ningún lugar, tampoco dentro de las tablas. En espacios angostos (800 px o menos) las tablas muestran cada fila como un bloque, con el nombre de la columna junto a cada dato (`data-etiqueta`). Comprobar cada pantalla a 320, 375, 500, 700, 900, 1024 y 1280 px.
 
 Evitar (se ve "hecho por IA"):

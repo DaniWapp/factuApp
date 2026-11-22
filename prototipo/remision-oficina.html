@@ -1,0 +1,118 @@
+<!doctype html>
+<!--
+  Archivo:  prototipo/remision-oficina.html
+  Proyecto: FacturApp (prototipo de diseño, Entregable 05)
+
+  Remisión vista por la Oficina radicadora: puede verla e imprimirla.
+
+  Usa solo css/ui.css (sin frameworks) y datos de ejemplo de database/seed.sql.
+  Se abre con doble clic; los enlaces permiten recorrer todo el prototipo.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Remisión · FacturApp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="icon" href="img/favicon.ico" sizes="any">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="stylesheet" href="css/ui.css">
+<link rel="stylesheet" href="css/impresion.css" media="print">
+</head>
+<body>
+<a class="ui-saltar" href="#contenido">Saltar al contenido</a>
+<div class="ui-app">
+  <aside class="ui-lateral" id="menu-lateral">
+    <a class="ui-marca" href="panel-usuario.html">FacturApp<span>Almacén de repuestos</span></a>
+    <nav aria-label="Menú de la Oficina radicadora">
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="panel-usuario.html">Inicio</a></li>
+      </ul>
+      <p class="ui-menu__grupo">Operación</p>
+      <ul class="ui-menu">
+        <li><a class="ui-menu__enlace" href="solicitudes-oficina.html">Solicitudes</a></li>
+        <li><a class="ui-menu__enlace" href="solicitud-nueva-oficina.html">Nueva solicitud</a></li>
+        <li><a class="ui-menu__enlace" href="remision-oficina.html" aria-current="page">Remisiones</a></li>
+        <li><a class="ui-menu__enlace" href="equipos-oficina.html">Equipos</a></li>
+      </ul>
+    </nav>
+  </aside>
+  <div class="ui-principal">
+    <header class="ui-cabecera">
+      <button class="ui-boton ui-boton--secundario ui-boton-menu" type="button" data-abrir-menu aria-controls="menu-lateral" aria-expanded="false">Menú</button>
+      <div class="ui-cabecera__derecha">
+        <details class="ui-desplegable">
+          <summary><span class="ui-cabecera__nombre">Laura Gómez</span></summary>
+          <ul class="ui-desplegable__lista">
+            <li class="ui-desplegable__info">laura.gomez@facturapp.test<br>Oficina radicadora</li>
+            <li><a class="ui-desplegable__opcion" href="mi-cuenta-oficina.html">Mi cuenta</a></li>
+            <li><a class="ui-desplegable__opcion" href="login.html">Cerrar sesión</a></li>
+          </ul>
+        </details>
+      </div>
+    </header>
+    <main class="ui-contenido" id="contenido">
+      <div class="ui-encabezado no-imprimir">
+        <div>
+          <h1 class="ui-titulo">Remisión</h1>
+          <p class="ui-descripcion">Imprímala para que el contratista firme lo que recibió.</p>
+        </div>
+        <div class="ui-formulario__botones" style="margin-top:0">
+          <button class="ui-boton ui-boton--principal" type="button" data-imprimir>Imprimir</button>
+        </div>
+      </div>
+
+      <p class="ui-aviso ui-aviso--exito" id="aviso-remision" role="status" hidden></p>
+
+      <article class="ui-remision" aria-label="Remisión">
+        <header class="ui-remision__cabecera">
+          <div class="ui-remision__empresa">FacturApp<span>Almacén de repuestos de refrigeración</span></div>
+          <div class="ui-remision__numero"><span>REMISIÓN</span><strong id="rem-numero">REM-000001</strong></div>
+        </header>
+
+        <dl class="ui-remision__datos">
+          <dt>Fecha y hora</dt><dd id="rem-fecha">06/11/2026 8:45 a. m.</dd>
+          <dt>Registrada por</dt><dd id="rem-usuario">Administrador del sistema</dd>
+          <dt>Contratista</dt><dd id="rem-contratista">Refrigeración Andina S.A.S.</dd>
+          <dt>Cédula o NIT</dt><dd class="ui-codigo" id="rem-documento">900.456.789-1</dd>
+        </dl>
+
+        <div class="ui-tabla-caja">
+          <table class="ui-tabla">
+            <thead>
+              <tr><th scope="col">Código</th><th scope="col">Descripción</th><th scope="col">Unidad</th>
+              <th scope="col" class="ui-tabla__num">Cantidad</th></tr>
+            </thead>
+            <tbody id="rem-filas">
+              <tr><td class="ui-codigo">COM-001</td><td>Compresor hermético 1/2 HP R134a</td><td>unidad</td><td class="ui-tabla__num">1</td></tr>
+              <tr><td class="ui-codigo">VAL-001</td><td>Válvula de expansión termostática</td><td>unidad</td><td class="ui-tabla__num">2</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="ui-remision__firmas">
+          <section class="ui-remision__firma" aria-label="Recibido por">
+            <h3>Recibido por</h3>
+            <p class="ui-remision__linea">Nombre</p>
+            <p class="ui-remision__linea">Cédula</p>
+            <p class="ui-remision__linea">Firma</p>
+            <p class="ui-remision__linea">Fecha</p>
+          </section>
+          <section class="ui-remision__firma" aria-label="Entregado por">
+            <h3>Entregado por</h3>
+            <p class="ui-remision__linea">Nombre</p>
+            <p class="ui-remision__linea">Cédula</p>
+            <p class="ui-remision__linea">Firma</p>
+          </section>
+        </div>
+      </article>
+    </main>
+  </div>
+</div>
+<script src="js/prototipo.js"></script>
+<script src="js/remision.js"></script>
+</body>
+</html>

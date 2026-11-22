@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="FacturApp">
+  <!-- Ícono de FacturApp: una factura (recibo) blanca sobre el verde petróleo del sistema. -->
+  <rect width="64" height="64" rx="12" fill="#0E6973"/>
+  <!-- Hoja de la factura con el borde inferior dentado, como un recibo cortado. -->
+  <path d="M18 10H46V52L41.33 48L36.67 52L32 48L27.33 52L22.67 48L18 52Z" fill="#FFFFFF"/>
+  <!-- Renglones de la factura. -->
+  <path d="M24 20H40M24 28H40M24 36H33" stroke="#0E6973" stroke-width="3.5" stroke-linecap="round"/>
+</svg>
