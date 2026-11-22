@@ -101,6 +101,26 @@ Correspondencia con el ejemplo: clients -> contratistas, products -> repuestos, 
 - NO incluye: facturación (precios, costos, impuestos), acceso de contratistas, compras a proveedores, notificaciones, recuperar contraseña por correo, firma electrónica, varias bodegas, agenda de técnicos, integración con otros sistemas, app móvil ni publicación en internet.
 - Regla: el stock baja al registrar cada entrega, no al crear la solicitud.
 
+## Reglas de negocio
+- La fuente única de las reglas es `entregables/02-requisitos.md`, sección 4 (RN-01 a RN-24). Los criterios de aceptación las citan, por ejemplo (RN-10).
+- Pendiente para el modelo de datos (sección 7 de la propuesta): la numeración de remisiones (RN-18) debe usar un contador propio, no el autoincremento, para que una entrega fallida no deje números saltados.
+
+## Reglas de catálogos (resumen; detalle en RN-05 a RN-08)
+- Los registros de catálogos no se eliminan, se desactivan: dejan de aparecer en solicitudes nuevas pero siguen en el historial, entregas y remisiones.
+- No se puede desactivar una categoría con repuestos activos.
+- Nombres repetidos: se comparan sin importar mayúsculas ni espacios al inicio o al final.
+- Repuesto: código y nombre únicos; categoría; unidad de medida (unidad, metro, litro o kilogramo). El stock empieza en 0, no se escribe a mano y solo cambia con entradas al almacén y entregas.
+- Cantidades: siempre mayores que cero; enteras si la unidad es "unidad"; hasta 2 decimales si es metro, litro o kilogramo.
+- Contratista: el dato único es la cédula o NIT (sin importar puntos, guiones ni espacios); se aceptan homónimos.
+- Mensajes al usuario en "usted" (confirmado).
+- Identificadores escritos por el usuario sin caracteres raros (RN-25).
+
+## Decisiones de requisitos no funcionales (detalle en `entregables/02-requisitos.md`, sección 5)
+- La sesión vence a las 2 horas sin actividad.
+- Fechas dd/mm/aaaa, horas en formato de 12 horas (a. m. y p. m.), hora de Colombia, decimales con coma.
+- Una remisión de hasta 15 repuestos cabe en una hoja carta.
+- Preguntas abiertas pendientes: `entregables/02-requisitos.md`, sección 6 (PA-01 a PA-28).
+
 ## Dirección visual (sistema y diapositivas)
 Objetivo: un diseño sobrio, elegante y profesional, propio del mundo de facturApp (almacén y mantenimiento de refrigeración industrial), que NO parezca hecho por una IA.
 Inspiración: fichas técnicas, placas de datos de equipos, remisiones y formatos de almacén. Orden, precisión y números bien alineados.

@@ -67,8 +67,8 @@ Desarrollar un sistema web que registre las solicitudes de repuestos para la rep
 
 1. **Login con roles:** iniciar y cerrar sesión con contraseña cifrada; cada rol ve solo sus pantallas y la API revisa los permisos en cada ruta.
 2. **Gestión de usuarios (Admin):** crear, editar y listar usuarios; activarlos o desactivarlos (un usuario inactivo no puede entrar).
-3. **Contratistas (Admin):** crear, editar y listar.
-4. **Catálogo de repuestos (Admin):** categorías y repuestos con código, nombre y categoría.
+3. **Contratistas (Admin):** crear, editar, listar y desactivar; el dato único es la cédula o NIT.
+4. **Catálogo de repuestos (Admin):** categorías y repuestos con código, nombre, categoría y unidad de medida; se desactivan en lugar de eliminarse.
 5. **Equipos (neveras):** registrar y listar por código.
 6. **Inventario básico:** stock disponible por repuesto; el Admin registra las entradas al almacén; el stock baja automáticamente con cada entrega y no se puede entregar más de lo disponible.
 7. **Solicitudes:** crear una solicitud (equipo, contratista, fecha de entrega y uno o más repuestos con su cantidad), listarlas y ver su detalle.
