@@ -1,0 +1,41 @@
+# =====================================================================
+# Archivo:  backend/requirements.txt
+# Proyecto: FacturApp (backend, API FastAPI)
+#
+# Qué es:
+#   La lista de librerías que necesita el backend. Se instalan todas
+#   juntas, dentro del entorno virtual, con:
+#     .venv\Scripts\python.exe -m pip install -r requirements.txt
+#
+# Por qué cada librería tiene "==versión":
+#   Así todos instalan exactamente las mismas versiones y el sistema
+#   funciona igual en cualquier equipo (RNF-25).
+#
+# No incluye SQLAlchemy: el proyecto usa PyMySQL con SQL directo, sin ORM
+# (decisión registrada en CLAUDE.md).
+# =====================================================================
+
+# FastAPI: el framework con el que se construye la API.
+fastapi==0.165.0
+
+# Uvicorn: el servidor que ejecuta la API. [standard] agrega extras que
+# lo hacen más rápido y permiten recargarlo solo al cambiar el código.
+uvicorn[standard]==0.54.0
+
+# PyMySQL: conecta Python con MySQL o MariaDB.
+pymysql==1.2.4
+
+# pydantic-settings: lee las variables del archivo .env de forma ordenada.
+pydantic-settings==2.16.3
+
+# PyJWT: crea y verifica los tokens JWT del inicio de sesión.
+pyjwt==2.15.1
+
+# bcrypt: cifra las contraseñas antes de guardarlas (RNF-01).
+bcrypt==5.0.0
+
+# pytest: ejecuta las pruebas automáticas.
+pytest==9.2.0
+
+# httpx: lo usa el cliente de pruebas de FastAPI para llamar a la API.
+httpx==0.28.1
