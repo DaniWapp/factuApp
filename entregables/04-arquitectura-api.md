@@ -95,3 +95,115 @@ Si cualquier paso entre el 9 y el 19 falla, el service lanza un error definido e
 | | **`app/core/dependencias.py`**, pasos 5 y 6: token y rol | Protección real, aunque alguien escriba la dirección a mano |
 | Stock | **`app/services/entregas_service.py`**, pasos 11 y 12, con los datos bloqueados | Revisión principal, con un mensaje claro para el usuario |
 | | **CHECK de MySQL**, paso 19 | Última barrera, por si el código tiene un error |
+
+## 3. Lista de endpoints
+
+### 3.1 Convenciones
+
+- **Dirección base:** `http://localhost:8000`. Solo Flask la usa; el navegador nunca llama a la API.
+- **Formato:** todo entra y sale en JSON, con nombres en español y sin tildes (`fecha_entrega`, `stock_almacen`).
+- **Autenticación:** todas las rutas, excepto `POST /auth/login`, exigen el encabezado `Authorization: Bearer <token>`.
+- **Errores:** siempre con la forma `{"detail": "mensaje para el usuario"}`. `detail` es el nombre que usa FastAPI por defecto; el mensaje va en español, con los textos de las historias.
+- **Nada se borra:** no hay rutas DELETE. Desactivar es un `PATCH .../estado`, y retractar, anular, cerrar o reabrir son `POST` que registran el evento (RN-05, RN-26).
+- **Roles:** "Todos" = Admin y Oficina radicadora.
+
+### 3.2 Códigos de respuesta
+
+| Código | Cuándo |
+|---|---|
+| 200 OK | Consulta o cambio correcto |
+| 201 Created | Se creó un registro (solicitud, entrega, entrada...) |
+| 401 Unauthorized | Sin token, token alterado o sesión vencida (RNF-02, RNF-03) |
+| 403 Forbidden | El rol no tiene permiso (RN-02), o el usuario está desactivado al iniciar sesión (RN-01) |
+| 404 Not Found | El registro no existe |
+| 409 Conflict | Choca con una regla de negocio: repetido, sin stock, solicitud cerrada, etc. |
+| 422 Unprocessable Entity | Datos con forma inválida: faltan campos, cantidad ≤ 0, decimales de más (validación de `schemas/`) |
+
+Todas las rutas protegidas pueden responder **401**, y las que no son de "Todos" pueden responder **403**; por eso las tablas siguientes solo nombran los códigos propios de cada ruta.
+
+### 3.3 Autenticación
+
+| Método | Ruta | Rol | Para qué | HU | Fase | Respuestas propias |
+|---|---|---|---|---|:---:|---|
+| POST | `/auth/login` | Público | Iniciar sesión con correo y contraseña; devuelve el token y el rol | HU-01 | 1 | 200, 401 (datos incorrectos), 403 (desactivado) |
+| GET | `/auth/yo` | Todos | Datos del usuario actual y su rol, para armar el menú | HU-03 | 1 | 200 |
+| PUT | `/auth/contrasena` | Todos | Cambiar la propia contraseña, también la temporal | HU-04, HU-05 | 2 | 200, 409 (clave actual incorrecta o igual a la temporal), 422 |
+
+Cerrar sesión (HU-02) no necesita ruta en la API: Flask borra su sesión. El cambio a la vista de Oficina (HU-06) también lo maneja Flask (PA-26).
+
+### 3.4 Usuarios
+
+| Método | Ruta | Rol | Para qué | HU | Fase | Respuestas propias |
+|---|---|---|---|---|:---:|---|
+| GET | `/usuarios` | Admin | Listar usuarios | HU-09 | 1 | 200 |
+| POST | `/usuarios` | Admin | Crear usuario | HU-07 | 1 | 201, 409 (correo repetido), 422 |
+| GET | `/usuarios/{id}` | Admin | Ver un usuario | HU-08 | 1 | 200, 404 |
+| PUT | `/usuarios/{id}` | Admin | Editar un usuario | HU-08 | 1 | 200, 404, 409, 422 |
+| PATCH | `/usuarios/{id}/estado` | Admin | Activar o desactivar | HU-10 | 1 | 200, 404, 409 (desactivarse a sí mismo o al último Admin, RN-32) |
+| POST | `/usuarios/{id}/restaurar-contrasena` | Admin | Asignar una contraseña temporal | HU-11 | 2 | 200, 404 |
+
+### 3.5 Catálogos
+
+| Método | Ruta | Rol | Para qué | HU | Fase | Respuestas propias |
+|---|---|---|---|---|:---:|---|
+| GET | `/categorias` | Todos | Listar categorías | HU-12 | 1 | 200 |
+| POST | `/categorias` | Admin | Crear categoría | HU-12 | 1 | 201, 409 (nombre repetido), 422 |
+| PUT | `/categorias/{id}` | Admin | Editar categoría | HU-12 | 1 | 200, 404, 409, 422 |
+| PATCH | `/categorias/{id}/estado` | Admin | Activar o desactivar | HU-12 | 1 | 200, 404, 409 (tiene repuestos activos, RN-06) |
+| GET | `/repuestos` | Todos | Listar el catálogo **sin datos de stock**, para elegir repuestos en una solicitud | HU-13, HU-17 | 1 | 200 |
+| POST | `/repuestos` | Admin | Crear repuesto (empieza con stock 0) | HU-13 | 1 | 201, 409 (código o nombre repetido), 422 |
+| PUT | `/repuestos/{id}` | Admin | Editar repuesto (sin campo de stock, RN-09) | HU-13 | 1 | 200, 404, 409, 422 |
+| PATCH | `/repuestos/{id}/estado` | Admin | Activar o desactivar | HU-13 | 1 | 200, 404 |
+| GET | `/contratistas` | Todos | Listar contratistas, para elegir uno en una solicitud | HU-14, HU-17 | 1 | 200 |
+| POST | `/contratistas` | Admin | Crear contratista | HU-14 | 1 | 201, 409 (cédula o NIT repetido), 422 |
+| PUT | `/contratistas/{id}` | Admin | Editar contratista | HU-14 | 1 | 200, 404, 409, 422 |
+| PATCH | `/contratistas/{id}/estado` | Admin | Activar o desactivar | HU-14 | 1 | 200, 404 |
+| GET | `/equipos` | Todos | Listar equipos | HU-15 | 1 | 200 |
+| POST | `/equipos` | Todos | Registrar equipo | HU-15 | 1 | 201, 409 (código repetido), 422 |
+| GET | `/equipos/{id}/solicitudes` | Todos | Historial de solicitudes de un equipo | HU-16 | 2 | 200, 404 |
+
+### 3.6 Inventario
+
+| Método | Ruta | Rol | Para qué | HU | Fase | Respuestas propias |
+|---|---|---|---|---|:---:|---|
+| GET | `/inventario` | Admin | Stock en almacén, apartado, disponible y en espera de cada repuesto | HU-20 | 1 | 200 |
+| POST | `/inventario/entradas` | Admin | Registrar una entrada al almacén; aparta para las solicitudes en espera (RN-33) | HU-19 | 1 | 201, 404, 409 (repuesto inactivo), 422 |
+| POST | `/inventario/entradas/{id}/retraccion` | Admin | Retractar una entrada, con motivo | HU-32 | 1 | 200, 404, 409 (ese stock ya se entregó o está apartado, RN-27), 422 |
+| GET | `/inventario/{repuesto_id}/movimientos` | Admin | Historial de movimientos de un repuesto | HU-27 | 2 | 200, 404 |
+
+### 3.7 Solicitudes
+
+| Método | Ruta | Rol | Para qué | HU | Fase | Respuestas propias |
+|---|---|---|---|---|:---:|---|
+| GET | `/solicitudes` | Todos | Listar solicitudes; en la fase 2 acepta filtros (`?estado=`, `?equipo_id=`, `?contratista_id=`, `?desde=`, `?hasta=`, `?buscar=`) | HU-18, HU-25 | 1 | 200 |
+| POST | `/solicitudes` | Todos | Crear solicitud; aparta lo disponible y deja el resto en espera | HU-17 | 1 | 201, 409 (equipo, contratista o repuesto inactivo), 422 |
+| GET | `/solicitudes/{id}` | Todos | Detalle: repuestos (solicitado, entregado, pendiente), remisiones y línea de tiempo | HU-18, HU-22 | 1 | 200, 404 |
+| PUT | `/solicitudes/{id}` | Admin | Editar una solicitud sin entregas vigentes | HU-34 | 1 | 200, 404, 409 (tiene entregas, RN-29), 422 |
+| POST | `/solicitudes/{id}/anulacion` | Admin | Anular, con motivo | HU-34 | 1 | 200, 404, 409 (tiene entregas o está cerrada), 422 |
+| POST | `/solicitudes/{id}/cierre` | Todos | Marcar como reparado o devuelto (devuelto exige motivo; con pendientes exige confirmación) | HU-23 | 1 | 200, 404, 409 (ya cerrada, RN-22), 422 |
+| POST | `/solicitudes/{id}/reapertura` | Admin | Reabrir una solicitud reparada o devuelta, con motivo | HU-35 | 1 | 200, 404, 409 (anulada o abierta, RN-30), 422 |
+| PATCH | `/solicitudes/{id}/contratista` | Admin | Reasignar el contratista | HU-36 | 1 | 200, 404, 409 (contratista inactivo o solicitud cerrada) |
+| POST | `/solicitudes/{id}/reemplazos` | Admin | Reemplazar un repuesto desactivado sin stock | HU-37 | 1 | 201, 404, 409 (el repuesto tiene stock o está activo, RN-34), 422 |
+
+### 3.8 Entregas, remisiones y devoluciones
+
+| Método | Ruta | Rol | Para qué | HU | Fase | Respuestas propias |
+|---|---|---|---|---|:---:|---|
+| POST | `/solicitudes/{id}/entregas` | Admin | Registrar una entrega total o parcial y generar su remisión (ver sección 2) | HU-21 | 1 | 201, 404, 409 (sin stock, más de lo pendiente, solicitud cerrada, contratista inactivo), 422 |
+| POST | `/entregas/{id}/retraccion` | Admin | Retractar una entrega, con motivo | HU-31 | 1 | 200, 404, 409 (ya retractada o solicitud cerrada), 422 |
+| GET | `/entregas/{id}/remision` | Todos | Datos de la remisión para verla e imprimirla | HU-24 | 1 | 200, 404 |
+| GET | `/entregas/{id}/remision.pdf` | Todos | Descargar la remisión en PDF | HU-29 | 2 | 200, 404 |
+| POST | `/solicitudes/{id}/devoluciones` | Admin | Registrar la devolución de repuestos no usados (también en solicitudes cerradas) | HU-33 | 1 | 201, 404, 409 (más de lo entregado, RN-28), 422 |
+
+### 3.9 Inicio y reportes
+
+| Método | Ruta | Rol | Para qué | HU | Fase | Respuestas propias |
+|---|---|---|---|---|:---:|---|
+| GET | `/inicio/resumen` | Todos | Solicitudes por estado y entregas pendientes; al Admin también le muestra stock bajo | HU-26 | 2 | 200 |
+| GET | `/reportes/entregas-por-contratista` | Admin | Reporte por rango de fechas (`?desde=&hasta=`); con `?formato=csv` descarga el archivo | HU-30 | 2 | 200 |
+| GET | `/reportes/repuestos-mas-usados` | Admin | Reporte por rango de fechas; con `?formato=csv` descarga el archivo | HU-30 | 2 | 200 |
+
+### 3.10 Resumen
+
+- **Total:** 45 rutas: 37 de la fase 1 y 8 de la fase 2.
+- La documentación interactiva de todas las rutas la genera FastAPI en `http://localhost:8000/docs`.
