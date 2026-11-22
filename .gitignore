@@ -1,0 +1,12 @@
+# Credenciales y configuración local: nunca se suben a git
+.env
+**/.env
+
+# Entornos virtuales de Python
+.venv/
+venv/
+
+# Archivos generados por Python
+__pycache__/
+*.pyc
+.pytest_cache/
