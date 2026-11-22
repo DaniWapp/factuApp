@@ -8,6 +8,8 @@ Proyecto formativo SENA – ADSO. El prototipo original (basado en el ejemplo de
 - Frontend: Python 3.12 + Flask 3 (Blueprints y create_app), plantillas Jinja2, HTML5, CSS3 propio (sin Bootstrap) y JavaScript (ES modules). Flask es requisito académico.
 - Backend: FastAPI + Uvicorn, Pydantic v2, PyMySQL con SQL directo (sin ORM, sin SQLAlchemy), PyJWT y bcrypt.
 - Base de datos: MySQL 8 o MariaDB. En este equipo se usa el MySQL 8.0.17 de AppServ (`C:\AppServ\MySQL`, con phpMyAdmin); el proyecto debe funcionar también con la MariaDB de XAMPP, así que el SQL debe ser compatible con ambos. Apache no se usa: Flask y FastAPI (Uvicorn) tienen su propio servidor. El modelo se diseña en MySQL Workbench (no instalado en este equipo; mientras tanto, phpMyAdmin).
+- Usuario de base de datos del proyecto: `facturapp` (en `localhost` y `127.0.0.1`, con `mysql_native_password` para que funcione con phpMyAdmin 4.9 y PyMySQL), con permisos solo sobre la base `facturapp`. Sus credenciales están en `backend/.env` (ignorado por git). `root` no tiene contraseña en AppServ y no se usa en el proyecto.
+- phpMyAdmin de AppServ: http://localhost/phpMyAdmin (requiere encender Apache: `C:\AppServ\Apache24\bin\httpd.exe`). Apache solo se usa para phpMyAdmin, no para el proyecto.
 - Pruebas: pytest.
 - Python instalado: 3.12.10.
 
