@@ -154,8 +154,8 @@ Lo marcado con **(fase 2)** se construye después del MVP, según la sección 3.
 | Equipos (neveras) | Lista y formulario; detalle con el historial de solicitudes del equipo **(fase 2)** | Admin y Oficina |
 | Categorías de repuesto | Lista y formulario | Admin |
 | Repuestos (catálogo) | Lista y formulario; cada repuesto tiene como mínimo código y nombre | Admin |
-| Inventario | Stock disponible por repuesto y entradas al almacén | Admin |
-| Solicitudes | Lista, formulario nuevo y detalle con línea de tiempo; filtros de la lista **(fase 2)** | Admin y Oficina, según los permisos |
+| Inventario | Stock por repuesto (en almacén, apartado, disponible y en espera); lista de entradas con su retracción; formulario de entrada al almacén | Admin |
+| Solicitudes | Lista, formulario nuevo y detalle con línea de tiempo; en el detalle, las acciones de entrega, retracción, devolución, cierre, edición, anulación, reapertura, reasignación de contratista y reemplazo de repuesto (detalle en `04-arquitectura-api.md`, sección 4.3); filtros de la lista **(fase 2)** | Admin y Oficina, según los permisos |
 | Remisiones | Remisión de cada entrega de repuestos, para ver e imprimir | Admin y Oficina (la genera el Admin al registrar la entrega) |
 
 ### El módulo central: Solicitudes
@@ -227,8 +227,9 @@ facturApp/
 │   ├── src/
 │   │   ├── __init__.py    create_app y registro de Blueprints (solo aquí)
 │   │   ├── app.py         Punto de arranque del frontend
+│   │   ├── auth.py        Decoradores login_required y admin_required
 │   │   ├── controllers/   Un Blueprint por módulo: reciben la petición y muestran la pantalla
-│   │   ├── services/      Cliente que llama a la API
+│   │   ├── services/      api_cliente.py: el único archivo que habla con la API
 │   │   ├── templates/     layout.html y una carpeta de plantillas por módulo
 │   │   └── static/        CSS, JavaScript e imágenes
 │   ├── .env.example       Variables del frontend sin valores reales

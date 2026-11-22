@@ -484,7 +484,7 @@ Decisiones y casos que faltan por confirmar. Al responder cada pregunta se actua
 | PA-22 | Al crear una solicitud, ¿se debe apartar el stock para que otra solicitud no lo use? **Respondida:** sí, se aparta. | RN-13, HU-17, HU-20 |
 | PA-23 | ¿Qué pasa si la fecha de entrega ya pasó y la solicitud sigue pendiente: se marca como atrasada o se avisa a alguien? | RN-14, HU-18 |
 | PA-24 | ¿Puede haber más de un Admin? ¿Puede un Admin desactivarse a sí mismo o desactivar al último Admin activo? **Respondida:** puede haber varios Admin; un Admin no puede desactivarse a sí mismo ni desactivar al último Admin activo. | RN-32, HU-10 |
-| PA-25 | Si el Admin desactiva a un usuario que tiene la sesión abierta, ¿lo saca del sistema de inmediato o al vencer la sesión? | RN-01, RNF-03, HU-10 |
+| PA-25 | Si el Admin desactiva a un usuario que tiene la sesión abierta, ¿lo saca del sistema de inmediato o al vencer la sesión? **Respondida:** de inmediato; en su siguiente acción la API responde 401 `USUARIO_DESACTIVADO` y Flask cierra la sesión (`04-arquitectura-api.md`, sección 5.3). | RN-01, RNF-03, HU-10 |
 | PA-26 | Cuando el Admin cambia a la vista de Oficina radicadora, ¿puede hacer acciones de Admin desde esa vista o queda limitado como la Oficina? | RN-02, HU-06 |
 | PA-27 | ¿Qué datos se guardan de un equipo además del código (marca, modelo, serie, ubicación)? ¿La Oficina radicadora puede editarlos o solo registrarlos? | RN-25, HU-15 |
 | PA-28 | La contraseña del Admin inicial que crea `seed.sql`, ¿debe cambiarse obligatoriamente? Hoy el cambio de contraseña es de la fase 2. | RNF-30, HU-04, HU-05 |
@@ -494,3 +494,5 @@ Decisiones y casos que faltan por confirmar. Al responder cada pregunta se actua
 | PA-32 | ¿Está bien que solo el Admin pueda reabrir una solicitud cerrada, y que una solicitud anulada no se pueda reabrir? **Respondida:** sí. | RN-30, HU-35 |
 | PA-33 | Si el Admin desactiva un repuesto que todavía está pendiente en una solicitud abierta, ¿se puede terminar de entregar, o hay que cambiarlo por otro repuesto en la solicitud? **Respondida:** lo que está en el almacén se entrega; lo que no tiene stock se reemplaza por otro repuesto. | RN-34, HU-37 |
 | PA-34 | Cuando llega mercancía, ¿está bien que el sistema la aparte solo para las solicitudes en espera más antiguas, o el Admin debe elegir a qué solicitud se aparta? **Respondida:** automáticamente, de la más antigua a la más reciente. | RN-33, HU-19 |
+| PA-35 | Al editar una solicitud sin entregas, si se quita un repuesto, ¿se borra su fila del detalle o se deja con cantidad reemplazada o anulada? La regla general es que nada se borra. | RN-05, RN-29, HU-34 |
+| PA-36 | Cuando el Admin crea un usuario y le escribe una contraseña inicial, ¿esa contraseña debe ser temporal (el usuario la cambia al entrar)? Hoy el cambio de contraseña es de la fase 2. | RN-04, HU-07 |

@@ -62,7 +62,7 @@ backend/
 ### En la API (FastAPI)
 
 4. **`app/main.py` → `app/routers/entregas.py`:** FastAPI encuentra la ruta `POST /api/solicitudes/{solicitud_id}/entregas`.
-5. **`app/core/dependencias.py` y `app/core/seguridad.py` — permiso 1, quién es:** se verifica la firma y la vigencia del token y se obtiene el usuario. Si el token no es válido o venció, responde **401** (RNF-02).
+5. **`app/core/dependencias.py` y `app/core/seguridad.py` — permiso 1, quién es:** se verifica la firma y la vigencia del token y se consulta en la base de datos que el usuario siga activo y cuál es su rol (sección 5.2). Si el token no es válido o venció, responde **401** (RNF-02); si el usuario fue desactivado, responde **401** con el código `USUARIO_DESACTIVADO` (RN-01).
 6. **`app/core/dependencias.py` (`requiere_rol("admin")`) — permiso 2, qué puede hacer:** solo el Admin registra entregas. Si es la Oficina radicadora, responde **403** (RN-02).
 7. **`app/schemas/entregas.py` (`EntregaCrear`):** Pydantic valida que haya al menos un repuesto, que las cantidades sean mayores que cero, con máximo 2 decimales, y que no se repita un repuesto. Si algo falla, responde **422** (RN-11, RN-15).
 8. **`app/routers/entregas.py`:** el router llama a `registrar_entrega(...)` de `app/services/entregas_service.py`, con los datos y el usuario.
@@ -109,15 +109,7 @@ Si cualquier paso entre el 9 y el 19 falla, el service lanza un error definido e
 
 ### 3.2 Códigos de respuesta
 
-| Código | Cuándo |
-|---|---|
-| 200 OK | Consulta o cambio correcto |
-| 201 Created | Se creó un registro (solicitud, entrega, entrada...) |
-| 401 Unauthorized | Sin token, token alterado, sesión vencida o usuario desactivado (RNF-02, RNF-03, RN-01) |
-| 403 Forbidden | El rol no tiene permiso (RN-02) |
-| 404 Not Found | El registro no existe |
-| 409 Conflict | Choca con una regla de negocio: repetido, sin stock, solicitud cerrada, etc. |
-| 422 Unprocessable Entity | Datos con forma inválida: faltan campos, cantidad ≤ 0, decimales de más (validación de `schemas/`) |
+El significado de cada código (200, 201, 400, 401, 403, 404, 409 y 422), con ejemplos de FacturApp, está en la **sección 7.2**.
 
 Todas las rutas protegidas pueden responder **401**, y las que no son de "Todos" pueden responder **403**; por eso las tablas siguientes solo nombran los códigos propios de cada ruta.
 
@@ -148,14 +140,17 @@ Cerrar sesión (HU-02) no necesita ruta en la API: Flask borra su sesión. El ca
 |---|---|---|---|---|:---:|---|
 | GET | `/api/categorias` | Todos | Listar categorías | HU-12 | 1 | 200 |
 | POST | `/api/categorias` | Admin | Crear categoría | HU-12 | 1 | 201, 409 (nombre repetido), 422 |
+| GET | `/api/categorias/{id}` | Admin | Ver una categoría, para el formulario de edición | HU-12 | 1 | 200, 404 |
 | PUT | `/api/categorias/{id}` | Admin | Editar categoría | HU-12 | 1 | 200, 404, 409, 422 |
 | PATCH | `/api/categorias/{id}/estado` | Admin | Activar o desactivar | HU-12 | 1 | 200, 404, 409 (tiene repuestos activos, RN-06) |
 | GET | `/api/repuestos` | Todos | Listar el catálogo **sin datos de stock**, para elegir repuestos en una solicitud | HU-13, HU-17 | 1 | 200 |
 | POST | `/api/repuestos` | Admin | Crear repuesto (empieza con stock 0) | HU-13 | 1 | 201, 409 (código o nombre repetido), 422 |
+| GET | `/api/repuestos/{id}` | Admin | Ver un repuesto, para el formulario de edición | HU-13 | 1 | 200, 404 |
 | PUT | `/api/repuestos/{id}` | Admin | Editar repuesto (sin campo de stock, RN-09) | HU-13 | 1 | 200, 404, 409, 422 |
 | PATCH | `/api/repuestos/{id}/estado` | Admin | Activar o desactivar | HU-13 | 1 | 200, 404 |
 | GET | `/api/contratistas` | Todos | Listar contratistas, para elegir uno en una solicitud | HU-14, HU-17 | 1 | 200 |
 | POST | `/api/contratistas` | Admin | Crear contratista | HU-14 | 1 | 201, 409 (cédula o NIT repetido), 422 |
+| GET | `/api/contratistas/{id}` | Admin | Ver un contratista, para el formulario de edición | HU-14 | 1 | 200, 404 |
 | PUT | `/api/contratistas/{id}` | Admin | Editar contratista | HU-14 | 1 | 200, 404, 409, 422 |
 | PATCH | `/api/contratistas/{id}/estado` | Admin | Activar o desactivar | HU-14 | 1 | 200, 404 |
 | GET | `/api/equipos` | Todos | Listar equipos | HU-15 | 1 | 200 |
@@ -168,6 +163,7 @@ Cerrar sesión (HU-02) no necesita ruta en la API: Flask borra su sesión. El ca
 |---|---|---|---|---|:---:|---|
 | GET | `/api/inventario` | Admin | Stock en almacén, apartado, disponible y en espera de cada repuesto | HU-20 | 1 | 200 |
 | POST | `/api/inventario/entradas` | Admin | Registrar una entrada al almacén; aparta para las solicitudes en espera (RN-33) | HU-19 | 1 | 201, 404, 409 (repuesto inactivo), 422 |
+| GET | `/api/inventario/entradas` | Admin | Listar las entradas al almacén (vigentes y retractadas), para elegir cuál retractar; acepta `?repuesto_id=` | HU-19, HU-32 | 1 | 200 |
 | POST | `/api/inventario/entradas/{id}/retraccion` | Admin | Retractar una entrada, con motivo | HU-32 | 1 | 200, 404, 409 (ese stock ya se entregó o está apartado, RN-27), 422 |
 | GET | `/api/inventario/{repuesto_id}/movimientos` | Admin | Historial de movimientos de un repuesto | HU-27 | 2 | 200, 404 |
 
@@ -205,7 +201,7 @@ Cerrar sesión (HU-02) no necesita ruta en la API: Flask borra su sesión. El ca
 
 ### 3.10 Resumen
 
-- **Total:** 45 rutas: 37 de la fase 1 y 8 de la fase 2.
+- **Total:** 49 rutas: 41 de la fase 1 y 8 de la fase 2.
 - La documentación interactiva de todas las rutas la genera FastAPI en `http://localhost:8000/docs`.
 
 ## 4. Capas del frontend
@@ -276,6 +272,35 @@ frontend/
 10. **`frontend/src/templates/repuestos/lista.html`:** extiende `layout.html`, que arma el menú según el rol. Recorre la lista y crea una fila por repuesto con código, nombre, categoría, unidad de medida y estado; si la lista está vacía, muestra un mensaje en lugar de la tabla.
 11. **Flask:** devuelve la página HTML al navegador con código **200**.
 12. **Navegador:** descarga el CSS y el JavaScript de `static/` y muestra la tabla de repuestos.
+
+### 4.3 Páginas de la fase 1
+
+Cada página es una ruta de Flask (puerto 5050) que usa uno o más endpoints de la API (sección 6). Las acciones marcadas como "en el detalle" son botones dentro del detalle de la solicitud que abren un formulario corto o una ventana de confirmación (RNF-09); cada botón solo aparece para el rol que puede usarlo.
+
+| Página (ruta de Flask) | Rol | Qué muestra o hace | Endpoints | HU |
+|---|---|---|---|---|
+| `/login` | Público | Formulario de inicio de sesión | `POST /api/auth/login` | HU-01 |
+| `/logout` | Todos | Borra la sesión y vuelve al login | — | HU-02 |
+| `/inicio` | Todos | Página de inicio con las opciones del rol | `GET /api/auth/yo` | HU-03 |
+| `/usuarios`, `/usuarios/nuevo`, `/usuarios/{id}/editar` | Admin | Lista, creación, edición y botón activar o desactivar | `/api/usuarios` | HU-07 a HU-10 |
+| `/categorias`, `/categorias/nueva`, `/categorias/{id}/editar` | Admin | Lista, creación, edición y botón activar o desactivar | `/api/categorias` | HU-12 |
+| `/repuestos`, `/repuestos/nuevo`, `/repuestos/{id}/editar` | Admin | Lista, creación, edición y botón activar o desactivar | `/api/repuestos` | HU-13 |
+| `/contratistas`, `/contratistas/nuevo`, `/contratistas/{id}/editar` | Admin | Lista, creación, edición y botón activar o desactivar | `/api/contratistas` | HU-14 |
+| `/equipos`, `/equipos/nuevo` | Todos | Lista y registro de equipos | `/api/equipos` | HU-15 |
+| `/inventario` | Admin | Stock en almacén, apartado, disponible y en espera | `GET /api/inventario` | HU-20 |
+| `/inventario/entradas`, `/inventario/entradas/nueva` | Admin | Lista de entradas con botón "Retractar entrada", y formulario de entrada | `/api/inventario/entradas` | HU-19, HU-32 |
+| `/solicitudes` | Todos | Lista de solicitudes | `GET /api/solicitudes` | HU-18 |
+| `/solicitudes/nueva` | Todos | Formulario de solicitud con filas de repuestos | `GET` de equipos, contratistas y repuestos activos; `POST /api/solicitudes` | HU-17 |
+| `/solicitudes/{id}` | Todos | Detalle: datos, repuestos (solicitado, entregado, pendiente), remisiones y línea de tiempo | `GET /api/solicitudes/{id}` | HU-18, HU-22 |
+| En el detalle: "Registrar entrega" | Admin | Cantidades a entregar por repuesto | `POST /api/solicitudes/{id}/entregas` | HU-21 |
+| En el detalle: "Retractar entrega" (junto a cada remisión) | Admin | Motivo de la retracción | `POST /api/entregas/{id}/retraccion` | HU-31 |
+| En el detalle: "Registrar devolución" | Admin | Repuesto y cantidad devuelta | `POST /api/solicitudes/{id}/devoluciones` | HU-33 |
+| En el detalle: "Marcar como reparado" o "Marcar como devuelto" | Todos | Motivo (si es devuelto) y confirmación si hay pendientes | `POST /api/solicitudes/{id}/cierre` | HU-23 |
+| `/solicitudes/{id}/editar` y en el detalle: "Anular solicitud" | Admin | Edición de la solicitud o motivo de la anulación | `PUT /api/solicitudes/{id}`, `POST /api/solicitudes/{id}/anulacion` | HU-34 |
+| En el detalle: "Reabrir solicitud" | Admin | Motivo de la reapertura | `POST /api/solicitudes/{id}/reapertura` | HU-35 |
+| En el detalle: "Reasignar contratista" | Admin | Lista de contratistas activos | `PATCH /api/solicitudes/{id}/contratista` | HU-36 |
+| En el detalle: "Reemplazar repuesto" | Admin | Repuesto nuevo para la fila sin stock | `POST /api/solicitudes/{id}/reemplazos` | HU-37 |
+| `/remisiones/{id}` | Todos | Remisión lista para imprimir, con espacio para la firma | `GET /api/entregas/{id}/remision` | HU-24 |
 
 ## 5. Flujo de autenticación
 
@@ -404,6 +429,7 @@ Además de los seis módulos pedidos, se incluyen **equipos, inventario y solici
 |---|---|---|---|---|---|---|
 | GET | `/api/categorias` | Todos | `?activo=` (opcional) | 200: lista de `id`, `nombre`, `activo` | — | HU-12 |
 | POST | `/api/categorias` | Admin | `nombre` | 201: la categoría creada | 409 (`NOMBRE_REPETIDO`), 422 | HU-12 |
+| GET | `/api/categorias/{id}` | Admin | — | 200: `id`, `nombre`, `activo` | 404 (`NO_ENCONTRADO`) | HU-12 |
 | PUT | `/api/categorias/{id}` | Admin | `nombre` | 200: la categoría actualizada | 404, 409 (`NOMBRE_REPETIDO`), 422 | HU-12 |
 | PATCH | `/api/categorias/{id}/estado` | Admin | `activo` | 200: la categoría con su nuevo estado | 404, 409 (`CATEGORIA_CON_REPUESTOS`) | HU-12 |
 
@@ -413,6 +439,7 @@ Además de los seis módulos pedidos, se incluyen **equipos, inventario y solici
 |---|---|---|---|---|---|---|
 | GET | `/api/repuestos` | Todos | `?activo=` (opcional) | 200: lista de `id`, `codigo`, `nombre`, `categoria`, `unidad_medida`, `activo` (sin stock) | — | HU-13, HU-17 |
 | POST | `/api/repuestos` | Admin | `codigo`, `nombre`, `categoria_id`, `unidad_medida` | 201: el repuesto creado, con stock 0 | 409 (`CODIGO_REPETIDO`, `NOMBRE_REPETIDO`), 422 (`CARACTERES_NO_PERMITIDOS`) | HU-13 |
+| GET | `/api/repuestos/{id}` | Admin | — | 200: `id`, `codigo`, `nombre`, `categoria_id`, `unidad_medida`, `activo` | 404 (`NO_ENCONTRADO`) | HU-13 |
 | PUT | `/api/repuestos/{id}` | Admin | `codigo`, `nombre`, `categoria_id`, `unidad_medida` | 200: el repuesto actualizado | 404, 409, 422 | HU-13 |
 | PATCH | `/api/repuestos/{id}/estado` | Admin | `activo` | 200: el repuesto con su nuevo estado | 404 | HU-13 |
 
@@ -422,6 +449,7 @@ Además de los seis módulos pedidos, se incluyen **equipos, inventario y solici
 |---|---|---|---|---|---|---|
 | GET | `/api/contratistas` | Todos | `?activo=` (opcional) | 200: lista de `id`, `documento`, `nombre`, `telefono`, `activo` | — | HU-14, HU-17 |
 | POST | `/api/contratistas` | Admin | `documento`, `nombre`, `telefono` | 201: el contratista creado | 409 (`DOCUMENTO_REPETIDO`), 422 (`CARACTERES_NO_PERMITIDOS`) | HU-14 |
+| GET | `/api/contratistas/{id}` | Admin | — | 200: `id`, `documento`, `nombre`, `telefono`, `activo` | 404 (`NO_ENCONTRADO`) | HU-14 |
 | PUT | `/api/contratistas/{id}` | Admin | `documento`, `nombre`, `telefono` | 200: el contratista actualizado | 404, 409 (`DOCUMENTO_REPETIDO`), 422 | HU-14 |
 | PATCH | `/api/contratistas/{id}/estado` | Admin | `activo` | 200: el contratista con su nuevo estado | 404 | HU-14 |
 
@@ -437,6 +465,7 @@ Además de los seis módulos pedidos, se incluyen **equipos, inventario y solici
 | Método | Ruta | Rol | Recibe | Devuelve | Errores | HU |
 |---|---|---|---|---|---|---|
 | GET | `/api/inventario` | Admin | — | 200: por repuesto, `stock_almacen`, `stock_apartado`, `disponible` y `en_espera` | — | HU-20 |
+| GET | `/api/inventario/entradas` | Admin | `?repuesto_id=` (opcional) | 200: lista de entradas con `id`, repuesto, `cantidad`, `observacion`, `registrado_por`, `registrado_en`, `retractada` y `motivo_retraccion` | — | HU-19, HU-32 |
 | POST | `/api/inventario/entradas` | Admin | `repuesto_id`, `cantidad`, `observacion` | 201: la entrada, el stock actual y lo apartado para solicitudes en espera | 404, 409 (`REPUESTO_INACTIVO`), 422 (`CANTIDAD_INVALIDA`) | HU-19 |
 | POST | `/api/inventario/entradas/{id}/retraccion` | Admin | `motivo` | 200: la entrada retractada y el stock actual | 404, 409 (`STOCK_YA_USADO`, `YA_RETRACTADA`), 422 (`MOTIVO_OBLIGATORIO`) | HU-32 |
 
@@ -517,7 +546,7 @@ FastAPI responde por defecto con otro formato (`{"detail": ...}`); en `app/main.
 | 200 OK | La petición salió bien y se devuelven datos | `GET /api/inventario` devuelve el stock de los 6 repuestos. |
 | 201 Created | Se creó un registro nuevo | `POST /api/solicitudes/2/entregas` crea la remisión REM-000003. |
 | 400 Bad Request | La petición está mal armada y la API no la entiende | Flask envía un JSON roto por un error de programación (`PETICION_INVALIDA`). |
-| 401 Unauthorized | No se sabe quién es el usuario, o ya no puede entrar | Token vencido después de 2 horas sin actividad (`SESION_VENCIDA`), contraseña incorrecta (`CREDENCIALES_INVALIDAS`) o usuario desactivado (`USUARIO_DESACTIVADO`). |
+| 401 Unauthorized | No se sabe quién es el usuario, o ya no puede entrar | Token que superó sus 8 horas de vigencia (`SESION_VENCIDA`), contraseña incorrecta (`CREDENCIALES_INVALIDAS`) o usuario desactivado (`USUARIO_DESACTIVADO`). Las 2 horas sin actividad (RNF-03) las controla Flask: cierra su sesión sin llamar a la API. |
 | 403 Forbidden | Se sabe quién es, pero su rol no tiene permiso | La Oficina radicadora pide `GET /api/inventario` (`SIN_PERMISO`). |
 | 404 Not Found | El registro pedido no existe | `GET /api/solicitudes/999` cuando esa solicitud no existe (`NO_ENCONTRADO`). |
 | 409 Conflict | Los datos son válidos, pero chocan con una regla de negocio o con el estado actual | Entregar 3 motores cuando solo hay 1 en almacén (`STOCK_INSUFICIENTE`, RN-10), o crear un repuesto con un código que ya existe (`CODIGO_REPETIDO`). |
