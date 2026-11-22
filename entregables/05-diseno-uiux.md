@@ -137,6 +137,18 @@ Los colores se definen **una sola vez** como variables CSS en `:root` de `ui.css
 
 Todos los textos cumplen al menos 4,5:1 y los bordes de campo 3:1 (WCAG 2.1 AA, RNF-12).
 
+**Barras oscuras (barra lateral y cabecera).** Separan la navegación del contenido de trabajo.
+
+| Variable CSS | Color | Uso | Contraste |
+|---|---|---|---|
+| `--oscuro` | `#13282D` | Fondo de la barra lateral | — |
+| `--oscuro-cabecera` | `#183238` | Fondo de la cabecera | — |
+| `--oscuro-activo` / `--oscuro-hover` | `#244047` / `#1C363C` | Opción activa del menú y opción al pasar el mouse | — |
+| `--oscuro-texto` | `#E6EEF0` | Opciones del menú y textos de la cabecera | 13,04:1 sobre `--oscuro` |
+| `--oscuro-texto-2` | `#9DB3B9` | Títulos de grupo del menú (en mayúsculas y espaciados) | 7:1 |
+| `--oscuro-acento` | `#6FCBD2` | Barra de la opción activa, foco del teclado e interruptor encendido sobre oscuro | 8,14:1 |
+| `--oscuro-borde` | `#2E4A51` | Líneas finas sobre oscuro | Decorativo |
+
 **Estados y su color.** El color nunca va solo: siempre acompaña al texto del estado (RNF-14).
 
 | Color | Estados |
@@ -196,7 +208,7 @@ El foco del teclado es visible en todos los elementos con los que se interactúa
 | **Tabla** | Fondo `--superficie`, filas separadas por líneas de 1 px, sin colores alternos. Encabezado en `--texto-2`, 12 px (600), con línea `--borde-campo` debajo. Códigos en Plex Mono; números a la derecha. Acciones como enlaces al final de la fila. |
 | **Estado en una tabla** | Punto de 8 px del color del estado seguido de su texto. |
 | **Ventana de confirmación** | Superficie blanca con sombra suave, título corto, el mensaje y dos acciones: botón principal y "Cancelar" (RNF-09). |
-| **Menú** | Columna o barra con las opciones del rol; la opción activa con fondo `--acento-suave` y texto `--acento`. |
+| **Menú** | Barra lateral oscura. Los títulos de grupo ("Operación", "Catálogos") van pequeños, en mayúsculas y en `--oscuro-texto-2`; las opciones, en `--oscuro-texto` y con sangría. La opción activa lleva fondo `--oscuro-activo`, texto blanco y una barra de 3 px en `--oscuro-acento` a la izquierda. |
 
 ### 3.5 Prototipo navegable
 

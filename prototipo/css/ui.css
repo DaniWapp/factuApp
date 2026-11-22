@@ -127,6 +127,24 @@
   --foco-grosor: 3px;
   /* Sombra: solo para lo que flota (diálogos y menús desplegables). */
   --sombra-flotante: 0 8px 24px rgba(24, 34, 41, 0.18);
+
+  /* --- Colores de las barras oscuras (barra lateral y cabecera) --- */
+
+  /* Fondo de la barra lateral: petróleo muy oscuro. */
+  --oscuro: #13282D;
+  /* Fondo de la cabecera: un poco más claro que la barra lateral. */
+  --oscuro-cabecera: #183238;
+  /* Fondo de la opción activa y de las opciones al pasar el mouse. */
+  --oscuro-activo: #244047;
+  --oscuro-hover: #1C363C;
+  /* Texto principal sobre oscuro. 13,04:1 sobre --oscuro. */
+  --oscuro-texto: #E6EEF0;
+  /* Texto secundario sobre oscuro: títulos de grupo del menú. 7:1. */
+  --oscuro-texto-2: #9DB3B9;
+  /* Acento claro sobre oscuro: marca de la opción activa y foco. 8,14:1. */
+  --oscuro-acento: #6FCBD2;
+  /* Líneas finas sobre oscuro. */
+  --oscuro-borde: #2E4A51;
 }
 
 
@@ -570,35 +588,50 @@ a {
   min-height: 100vh;
 }
 
-/* Barra lateral: superficie blanca separada por una línea fina. */
+/* Barra lateral: fondo oscuro para separarla del contenido. */
 .ui-lateral {
-  background: var(--superficie);
-  border-right: var(--linea) solid var(--borde);
+  background: var(--oscuro);
+  color: var(--oscuro-texto);
   padding: var(--espacio-4) var(--espacio-3);
 }
 
-/* Nombre del sistema arriba de la barra lateral. */
+/* Nombre del sistema arriba de la barra lateral, separado por una línea. */
 .ui-marca {
   display: block;
-  margin: 0 var(--espacio-2) var(--espacio-6);
+  margin: 0 var(--espacio-2) var(--espacio-4);
+  padding-bottom: var(--espacio-4);
+  border-bottom: var(--linea) solid var(--oscuro-borde);
   font-weight: var(--peso-fuerte);
   font-size: var(--tam-subtitulo);
-  color: var(--texto);
+  color: var(--oscuro-texto);
   text-decoration: none;
 }
 .ui-marca span {
   display: block;
   font-size: var(--tam-pequeno);
   font-weight: var(--peso-normal);
+  color: var(--oscuro-texto-2);
+}
+
+/* En la pantalla de inicio de sesión (fondo claro), la marca usa los colores normales. */
+.ui-acceso .ui-marca {
+  color: var(--texto);
+  border-bottom-color: var(--borde);
+}
+.ui-acceso .ui-marca span {
   color: var(--texto-2);
 }
 
-/* Título de un grupo del menú ("Catálogos", "Administración"). */
+/* Título de un grupo del menú ("Catálogos", "Administración"):
+   pequeño, en mayúsculas, espaciado y más apagado que las opciones,
+   para que se distinga a simple vista de los enlaces. */
 .ui-menu__grupo {
-  margin: var(--espacio-4) var(--espacio-2) var(--espacio-1);
+  margin: var(--espacio-6) var(--espacio-2) var(--espacio-2);
   font-size: var(--tam-pequeno);
   font-weight: var(--peso-fuerte);
-  color: var(--texto-2);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--oscuro-texto-2);
 }
 
 /* Lista de opciones del menú, sin viñetas. */
@@ -610,22 +643,31 @@ a {
   gap: 2px;
 }
 
-/* Cada opción del menú. */
+/* Cada opción del menú: texto claro, con sangría respecto al título del grupo. */
 .ui-menu__enlace {
   display: block;
-  padding: var(--espacio-2);
-  border-radius: var(--radio-2);
-  color: var(--texto);
+  padding: var(--espacio-2) var(--espacio-2) var(--espacio-2) var(--espacio-3);
+  border-left: 3px solid transparent;
+  border-radius: 0 var(--radio-2) var(--radio-2) 0;
+  color: var(--oscuro-texto);
   text-decoration: none;
 }
 .ui-menu__enlace:hover {
-  background: var(--fondo);
+  background: var(--oscuro-hover);
 }
-/* Opción de la página actual: fondo suave y texto del acento. */
+/* Opción de la página actual: fondo más claro, texto blanco y una
+   barra del acento claro a la izquierda. */
 .ui-menu__enlace[aria-current="page"] {
-  background: var(--acento-suave);
-  color: var(--acento);
+  background: var(--oscuro-activo);
+  border-left-color: var(--oscuro-acento);
+  color: #FFFFFF;
   font-weight: var(--peso-medio);
+}
+
+/* Sobre las barras oscuras, el foco usa el acento claro para que se vea. */
+.ui-lateral :focus-visible,
+.ui-cabecera :focus-visible {
+  outline-color: var(--oscuro-acento);
 }
 
 /* Columna derecha: cabecera arriba y contenido debajo. */
@@ -635,15 +677,26 @@ a {
   flex-direction: column;
 }
 
-/* Cabecera: barra blanca con una línea fina debajo. */
+/* Cabecera: barra oscura, un poco más clara que la barra lateral. */
 .ui-cabecera {
   display: flex;
   align-items: center;
   gap: var(--espacio-4);
   padding: var(--espacio-2) var(--espacio-6);
-  background: var(--superficie);
-  border-bottom: var(--linea) solid var(--borde);
+  background: var(--oscuro-cabecera);
+  color: var(--oscuro-texto);
+  border-bottom: var(--linea) solid var(--oscuro-borde);
   min-height: 56px;
+}
+
+/* Botón "Menú" sobre la cabecera oscura: sin relleno y con borde claro. */
+.ui-cabecera .ui-boton--secundario {
+  background: transparent;
+  color: var(--oscuro-texto);
+  border-color: var(--oscuro-texto-2);
+}
+.ui-cabecera .ui-boton--secundario:hover {
+  border-color: var(--oscuro-texto);
 }
 
 /* Empuja el usuario y sus controles hacia la derecha. */
@@ -774,6 +827,25 @@ a {
   background: #FFFFFF;
 }
 
+/* Interruptor sobre la cabecera oscura: texto y riel claros. */
+.ui-cabecera .ui-interruptor {
+  color: var(--oscuro-texto);
+}
+.ui-cabecera .ui-interruptor__riel {
+  background: transparent;
+  border-color: var(--oscuro-texto-2);
+}
+.ui-cabecera .ui-interruptor__riel::after {
+  background: var(--oscuro-texto-2);
+}
+.ui-cabecera .ui-interruptor[aria-checked="true"] .ui-interruptor__riel {
+  background: var(--oscuro-acento);
+  border-color: var(--oscuro-acento);
+}
+.ui-cabecera .ui-interruptor[aria-checked="true"] .ui-interruptor__riel::after {
+  background: var(--oscuro);
+}
+
 
 /* ---------------------------------------------------------------------
    13. Menú desplegable
@@ -836,6 +908,22 @@ a {
 }
 .ui-desplegable__opcion:hover {
   background: var(--fondo);
+}
+
+/* Botón del menú del usuario sobre la cabecera oscura. */
+.ui-cabecera .ui-desplegable > summary {
+  color: var(--oscuro-texto);
+  border-color: var(--oscuro-borde);
+}
+.ui-cabecera .ui-desplegable > summary:hover {
+  background: var(--oscuro-hover);
+}
+.ui-cabecera .ui-desplegable > summary::after {
+  border-color: var(--oscuro-texto-2);
+}
+/* La lista que flota es blanca: dentro de ella, el foco vuelve al acento normal. */
+.ui-desplegable__lista :focus-visible {
+  outline-color: var(--acento);
 }
 
 /* Datos del usuario arriba de la lista, separados por una línea. */
