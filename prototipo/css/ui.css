@@ -1,0 +1,528 @@
+/* =====================================================================
+   Archivo:  prototipo/css/ui.css
+   Proyecto: FacturApp
+
+   Qué es:
+     El sistema de diseño de FacturApp: los colores, las tipografías,
+     los tamaños, los espacios y los componentes que usarán todas las
+     pantallas. Sigue la "Dirección visual" de CLAUDE.md: aspecto de
+     ficha técnica y formato de almacén, neutros fríos con un solo
+     color de acento (verde petróleo, opción B), líneas finas en vez
+     de tarjetas, bordes casi rectos y sombras solo en lo que flota.
+
+   Cómo se usa:
+     1. Se enlaza en el <head> de cada página:
+          <link rel="stylesheet" href="css/ui.css">
+     2. Se usan las clases que empiezan por "ui-", por ejemplo:
+          <button class="ui-boton ui-boton--principal">Guardar</button>
+
+   Conceptos para principiantes:
+     - Variable CSS: un valor con nombre (por ejemplo --acento) que se
+       escribe una sola vez en :root y se usa con var(--acento). Si un
+       color cambia, se cambia solo aquí.
+     - :root: el elemento raíz de la página; lo que se define ahí sirve
+       en todas partes.
+     - Prefijo "ui-": marca las clases del sistema de diseño para no
+       confundirlas con otras.
+     - Modificador "--": una variante de un componente, por ejemplo
+       ui-boton--peligro es un botón de tipo peligro.
+     - :focus-visible: el estilo que aparece cuando se llega a un
+       elemento con el teclado (tecla Tab). Es obligatorio (RNF-13).
+
+   En el sistema real este archivo pasará a frontend/src/static/css/.
+   ===================================================================== */
+
+
+/* ---------------------------------------------------------------------
+   1. Variables
+   --------------------------------------------------------------------- */
+:root {
+  /* --- Colores: paleta opción B, verde petróleo (contraste AA comprobado) --- */
+
+  /* Color de acento: solo para la acción principal, el foco y la opción activa. 6,39:1 sobre blanco. */
+  --acento: #0E6973;
+  /* Acento al pasar el mouse sobre la acción principal. */
+  --acento-hover: #0A535B;
+  /* Fondo muy suave del acento: opción activa del menú. */
+  --acento-suave: #E2F0F1;
+
+  /* Fondo de la página: gris claro con un toque verde azulado. */
+  --fondo: #F3F6F7;
+  /* Superficie: blanco de tablas, formularios, diálogos y remisión. */
+  --superficie: #FFFFFF;
+
+  /* Texto principal. 14,88:1 sobre el fondo. */
+  --texto: #182229;
+  /* Texto secundario: etiquetas, ayudas, encabezados de tabla, estados neutros. 5,79:1. */
+  --texto-2: #54626C;
+
+  /* Borde fino decorativo: separa filas y bloques. */
+  --borde: #D5DDE1;
+  /* Borde de campos y línea bajo los encabezados de tabla. 3,64:1 (cumple 3:1 de componentes). */
+  --borde-campo: #7A8892;
+
+  /* Éxito: estados correctos ("Completa", "Activo"). 5,31:1; su fondo suave para avisos. */
+  --exito: #2D7A3A;
+  --exito-suave: #E8F3EA;
+  /* Advertencia: estados que piden atención ("Parcial", "En espera"). 6,17:1. */
+  --advertencia: #8F5300;
+  --advertencia-suave: #FCEFDD;
+  /* Error: errores y problemas ("Sin stock", "Retractada"). 6,69:1. */
+  --error: #A8321F;
+  --error-suave: #FAEAE6;
+  /* Error al pasar el mouse sobre un botón de peligro. */
+  --error-hover: #8A2919;
+
+  /* --- Tipografía --- */
+
+  /* Fuente de textos: IBM Plex Sans; si no está, la del sistema. */
+  --fuente-texto: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  /* Fuente de datos técnicos: códigos, números de remisión y cantidades. */
+  --fuente-mono: "IBM Plex Mono", Consolas, "Courier New", monospace;
+
+  /* Pesos de la letra: normal, media y seminegrita. */
+  --peso-normal: 400;
+  --peso-medio: 500;
+  --peso-fuerte: 600;
+
+  /* --- Tamaños de texto --- */
+
+  /* Notas pequeñas y encabezados de tabla. */
+  --tam-pequeno: 12px;
+  /* Ayudas de los campos y textos secundarios. */
+  --tam-ayuda: 13px;
+  /* Texto normal de la interfaz. */
+  --tam-texto: 15px;
+  /* Subtítulos de sección. */
+  --tam-subtitulo: 18px;
+  /* Título de cada página. */
+  --tam-titulo: 24px;
+  /* Altura de línea: espacio entre renglones. */
+  --interlineado: 1.5;
+
+  /* --- Espaciado: siempre múltiplos de 4 px --- */
+
+  /* 4 px: separación mínima, por ejemplo entre etiqueta y campo. */
+  --espacio-1: 4px;
+  /* 8 px: separación entre elementos pequeños. */
+  --espacio-2: 8px;
+  /* 12 px: relleno horizontal de campos y celdas. */
+  --espacio-3: 12px;
+  /* 16 px: separación entre campos y relleno de botones. */
+  --espacio-4: 16px;
+  /* 24 px: separación entre bloques. */
+  --espacio-6: 24px;
+  /* 32 px: separación entre secciones. */
+  --espacio-8: 32px;
+
+  /* --- Bordes y sombras --- */
+
+  /* Radio pequeño: insignias y elementos chicos. */
+  --radio-1: 2px;
+  /* Radio normal: botones, campos, avisos y diálogos (casi rectos). */
+  --radio-2: 4px;
+  /* Grosor de las líneas finas. */
+  --linea: 1px;
+  /* Grosor del contorno de foco del teclado. */
+  --foco-grosor: 3px;
+  /* Sombra: solo para lo que flota (diálogos y menús desplegables). */
+  --sombra-flotante: 0 8px 24px rgba(24, 34, 41, 0.18);
+}
+
+
+/* ---------------------------------------------------------------------
+   2. Base
+   Estilos generales de la página: fondo, letra y cifras tabulares.
+   --------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: var(--fuente-texto);
+  font-size: var(--tam-texto);
+  line-height: var(--interlineado);
+}
+
+/* Código, número o cantidad: letra monoespaciada con cifras tabulares,
+   para que los números ocupen el mismo ancho y queden alineados. */
+.ui-codigo {
+  font-family: var(--fuente-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Foco visible en todos los elementos con los que se interactúa (RNF-13). */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+  outline: var(--foco-grosor) solid var(--acento);
+  outline-offset: 2px;
+}
+
+/* Enlaces: en el color de acento y subrayados. */
+a {
+  color: var(--acento);
+  text-underline-offset: 3px;
+}
+
+
+/* ---------------------------------------------------------------------
+   3. Botón
+   .ui-boton es la base; se combina con un modificador:
+     --principal  la acción más importante de la pantalla (una sola)
+     --secundario una acción alternativa, con borde y sin relleno
+     --peligro    una acción que no se puede deshacer (retractar, anular)
+   --------------------------------------------------------------------- */
+.ui-boton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-2);
+  font-family: var(--fuente-texto);
+  font-size: var(--tam-texto);
+  font-weight: var(--peso-medio);
+  line-height: 1.2;
+  padding: var(--espacio-2) var(--espacio-4);
+  border: var(--linea) solid transparent;
+  border-radius: var(--radio-2);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+/* Principal: relleno con el acento y texto blanco. */
+.ui-boton--principal {
+  background: var(--acento);
+  color: #FFFFFF;
+}
+.ui-boton--principal:hover {
+  background: var(--acento-hover);
+}
+
+/* Secundario: fondo blanco con borde y texto del acento. */
+.ui-boton--secundario {
+  background: var(--superficie);
+  color: var(--acento);
+  border-color: var(--borde-campo);
+}
+.ui-boton--secundario:hover {
+  border-color: var(--acento);
+}
+
+/* Peligro: relleno rojo, para acciones irreversibles. */
+.ui-boton--peligro {
+  background: var(--error);
+  color: #FFFFFF;
+}
+.ui-boton--peligro:hover {
+  background: var(--error-hover);
+}
+/* El foco del botón de peligro usa su propio color. */
+.ui-boton--peligro:focus-visible {
+  outline-color: var(--error);
+}
+
+/* Botón deshabilitado: se ve apagado y no responde. */
+.ui-boton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+/* ---------------------------------------------------------------------
+   4. Campo de formulario
+   Estructura:
+     <div class="ui-campo">
+       <label class="ui-campo__etiqueta" for="codigo">Código *</label>
+       <input class="ui-campo__control" id="codigo">
+       <p class="ui-campo__ayuda">Solo letras, números y guiones.</p>
+       <p class="ui-campo__error">Escriba el código.</p>
+     </div>
+   Con error, se agrega la clase ui-campo--error al contenedor.
+   --------------------------------------------------------------------- */
+.ui-campo {
+  display: grid;
+  gap: var(--espacio-1);
+  max-width: 480px;
+  margin-bottom: var(--espacio-4);
+}
+
+/* Etiqueta: siempre visible, encima del campo (RNF-11). */
+.ui-campo__etiqueta {
+  font-weight: var(--peso-medio);
+}
+
+/* El control: caja de texto, lista o área de texto. */
+.ui-campo__control {
+  width: 100%;
+  font-family: var(--fuente-texto);
+  font-size: var(--tam-texto);
+  color: var(--texto);
+  background: var(--superficie);
+  border: var(--linea) solid var(--borde-campo);
+  border-radius: var(--radio-2);
+  padding: var(--espacio-2) var(--espacio-3);
+}
+
+/* Campos de códigos y cantidades: letra monoespaciada con cifras tabulares. */
+.ui-campo__control.ui-codigo {
+  font-family: var(--fuente-mono);
+}
+
+/* Ayuda: texto pequeño y gris debajo del campo. */
+.ui-campo__ayuda {
+  margin: 0;
+  font-size: var(--tam-ayuda);
+  color: var(--texto-2);
+}
+
+/* Mensaje de error: oculto hasta que el campo tiene error. */
+.ui-campo__error {
+  display: none;
+  margin: 0;
+  font-size: var(--tam-ayuda);
+  color: var(--error);
+}
+
+/* Campo con error: borde rojo más grueso y mensaje visible. */
+.ui-campo--error .ui-campo__control {
+  border-color: var(--error);
+  border-width: 2px;
+}
+.ui-campo--error .ui-campo__error {
+  display: block;
+}
+
+
+/* ---------------------------------------------------------------------
+   5. Tabla
+   Líneas finas entre filas, sin colores alternos ni tarjetas.
+   .ui-tabla-caja permite desplazar una tabla ancha dentro de su
+   recuadro en pantallas pequeñas (RNF-16).
+   --------------------------------------------------------------------- */
+.ui-tabla-caja {
+  overflow-x: auto;
+  background: var(--superficie);
+  border: var(--linea) solid var(--borde);
+  border-radius: var(--radio-2);
+}
+
+.ui-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--tam-texto);
+}
+
+.ui-tabla th,
+.ui-tabla td {
+  padding: var(--espacio-2) var(--espacio-3);
+  text-align: left;
+  vertical-align: top;
+  border-bottom: var(--linea) solid var(--borde);
+}
+
+/* Encabezado: pequeño, gris y con una línea más fuerte debajo. */
+.ui-tabla th {
+  font-size: var(--tam-pequeno);
+  font-weight: var(--peso-fuerte);
+  color: var(--texto-2);
+  border-bottom-color: var(--borde-campo);
+}
+
+/* La última fila no lleva línea inferior. */
+.ui-tabla tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Columna numérica: alineada a la derecha y con cifras tabulares. */
+.ui-tabla .ui-tabla__num {
+  text-align: right;
+  font-family: var(--fuente-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Columna de acciones: enlaces de texto al final de la fila. */
+.ui-tabla .ui-tabla__acciones {
+  text-align: right;
+  white-space: nowrap;
+}
+
+
+/* ---------------------------------------------------------------------
+   6. Tarjeta
+   Un bloque sobrio con borde fino y SIN sombra. Usarla poco: para
+   agrupar los datos de la solicitud o un formulario. La regla general
+   es separar con espacio y líneas finas, no con tarjetas.
+   --------------------------------------------------------------------- */
+.ui-tarjeta {
+  background: var(--superficie);
+  border: var(--linea) solid var(--borde);
+  border-radius: var(--radio-2);
+  padding: var(--espacio-6);
+}
+
+/* Título de la tarjeta con una línea fina debajo. */
+.ui-tarjeta__titulo {
+  margin: 0 0 var(--espacio-4);
+  padding-bottom: var(--espacio-2);
+  font-size: var(--tam-subtitulo);
+  font-weight: var(--peso-fuerte);
+  border-bottom: var(--linea) solid var(--borde);
+}
+
+
+/* ---------------------------------------------------------------------
+   7. Insignia
+   Muestra un estado: un punto pequeño de color seguido del texto.
+   El color nunca va solo, siempre con su texto (RNF-14).
+     --exito       Completa, Reparado, Activo, Disponible
+     --advertencia Parcial, En espera, Stock bajo
+     --error       Sin stock, Retractada
+     --neutra      Pendiente, Abierta, Devuelto, Anulada, Inactivo
+   --------------------------------------------------------------------- */
+.ui-insignia {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--tam-ayuda);
+  font-weight: var(--peso-medio);
+  white-space: nowrap;
+}
+
+/* El punto toma el color del texto (currentColor). */
+.ui-insignia::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.ui-insignia--exito { color: var(--exito); }
+.ui-insignia--advertencia { color: var(--advertencia); }
+.ui-insignia--error { color: var(--error); }
+.ui-insignia--neutra { color: var(--texto-2); }
+
+
+/* ---------------------------------------------------------------------
+   8. Aviso
+   Mensaje después de una acción: texto del color del estado sobre su
+   fondo suave, con un borde izquierdo fino. Sin íconos ni emojis.
+   La primera palabra va en <strong>: "Entrega registrada."
+   --------------------------------------------------------------------- */
+.ui-aviso {
+  margin: 0 0 var(--espacio-4);
+  padding: var(--espacio-2) var(--espacio-3);
+  border-left: 3px solid currentColor;
+  border-radius: 0 var(--radio-2) var(--radio-2) 0;
+}
+
+.ui-aviso strong {
+  font-weight: var(--peso-fuerte);
+}
+
+.ui-aviso--exito {
+  color: var(--exito);
+  background: var(--exito-suave);
+}
+.ui-aviso--advertencia {
+  color: var(--advertencia);
+  background: var(--advertencia-suave);
+}
+.ui-aviso--error {
+  color: var(--error);
+  background: var(--error-suave);
+}
+
+
+/* ---------------------------------------------------------------------
+   9. Diálogo
+   Ventana de confirmación (RNF-09). Se arma con la etiqueta <dialog>
+   del navegador, que ya maneja el foco y la tecla Esc. Es lo único
+   que lleva sombra, porque flota sobre la página.
+     <dialog class="ui-dialogo">
+       <h2 class="ui-dialogo__titulo">¿Registrar la entrega?</h2>
+       <p>Se generará la remisión REM-000003.</p>
+       <div class="ui-dialogo__acciones">
+         <button class="ui-boton ui-boton--secundario">Cancelar</button>
+         <button class="ui-boton ui-boton--principal">Confirmar</button>
+       </div>
+     </dialog>
+   --------------------------------------------------------------------- */
+.ui-dialogo {
+  width: min(480px, calc(100vw - 32px));
+  padding: var(--espacio-6);
+  color: var(--texto);
+  background: var(--superficie);
+  border: var(--linea) solid var(--borde);
+  border-radius: var(--radio-2);
+  box-shadow: var(--sombra-flotante);
+}
+
+/* Fondo oscuro detrás del diálogo abierto. */
+.ui-dialogo::backdrop {
+  background: rgba(24, 34, 41, 0.45);
+}
+
+.ui-dialogo__titulo {
+  margin: 0 0 var(--espacio-3);
+  font-size: var(--tam-subtitulo);
+  font-weight: var(--peso-fuerte);
+}
+
+/* Botones del diálogo, alineados a la derecha. */
+.ui-dialogo__acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--espacio-3);
+  margin-top: var(--espacio-6);
+}
+
+
+/* ---------------------------------------------------------------------
+   10. Estado vacío
+   Lo que se muestra cuando una lista no tiene datos, en lugar de una
+   tabla vacía. Texto corto y, si aplica, la acción para empezar.
+   Sin ilustraciones.
+     <div class="ui-vacio">
+       <p class="ui-vacio__titulo">No hay repuestos registrados.</p>
+       <p>Cree el primero para poder usarlo en las solicitudes.</p>
+       <a class="ui-boton ui-boton--principal" href="#">Nuevo repuesto</a>
+     </div>
+   --------------------------------------------------------------------- */
+.ui-vacio {
+  padding: var(--espacio-8) var(--espacio-6);
+  color: var(--texto-2);
+  background: var(--superficie);
+  border: var(--linea) dashed var(--borde-campo);
+  border-radius: var(--radio-2);
+}
+
+.ui-vacio__titulo {
+  margin: 0 0 var(--espacio-1);
+  font-weight: var(--peso-fuerte);
+  color: var(--texto);
+}
+
+.ui-vacio p {
+  margin: 0 0 var(--espacio-4);
+}
+
+
+/* ---------------------------------------------------------------------
+   11. Movimiento reducido
+   Si la persona pidió en su sistema menos animaciones, se quitan.
+   --------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

@@ -112,13 +112,13 @@ flowchart TD
 - **Recuadro "Solo Admin":** pantallas que la Oficina radicadora no ve en su menú. Si escribe la dirección a mano, vuelve a Inicio con el mensaje "No tiene permiso para ver esta página." (HU-03).
 - **Desde cualquier pantalla:** si la sesión vence o el usuario es desactivado, vuelve a "Iniciar sesión" con el mensaje que corresponde (HU-02, `04-arquitectura-api.md`, sección 5.3).
 
-## 3. Guía visual
+## 3. Sistema de diseño
 
-Sigue la "Dirección visual" de `CLAUDE.md`. La paleta elegida es la **opción B, verde petróleo**, comparada con la opción A en `prototipo/paletas.html`.
+Sigue la "Dirección visual" de `CLAUDE.md`. La paleta elegida es la **opción B, verde petróleo**, comparada con la opción A en `prototipo/paletas.html`. Todo el sistema está implementado en **`prototipo/css/ui.css`**, que en el sistema real pasará a `frontend/src/static/css/`.
 
 ### 3.1 Paleta
 
-Los colores se definen **una sola vez** como variables CSS en el archivo de estilos del frontend; las pantallas solo usan las variables.
+Los colores se definen **una sola vez** como variables CSS en `:root` de `ui.css`; las pantallas solo usan las variables.
 
 | Variable CSS | Color | Uso | Contraste |
 |---|---|---|---|
@@ -153,7 +153,7 @@ Todos los textos cumplen al menos 4,5:1 y los bordes de campo 3:1 (WCAG 2.1 AA, 
 | Textos, títulos, botones y etiquetas | IBM Plex Sans (400, 500 y 600) | Segoe UI, system-ui |
 | Códigos, números de solicitud y remisión, documentos y cantidades | IBM Plex Mono (400 y 500) | Consolas |
 
-- **Escala:** título de página 24 px (600), subtítulo 18 px (600), texto 15 px (400), etiquetas y encabezados de tabla 12 a 13 px (500 o 600).
+- **Escala** (variables `--tam-*`): título de página 24 px (600), subtítulo 18 px (600), texto 15 px (400), ayudas 13 px y encabezados de tabla 12 px (600).
 - **Números:** siempre con cifras tabulares (`font-variant-numeric: tabular-nums`) y alineados a la derecha en las tablas.
 - **Fuentes guardadas en el proyecto** (`frontend/src/static/fuentes/`), no cargadas desde internet, para que el sistema funcione sin conexión.
 
@@ -166,6 +166,24 @@ Todos los textos cumplen al menos 4,5:1 y los bordes de campo 3:1 (WCAG 2.1 AA, 
 - **Alineación:** todo a la izquierda, sobre una grilla; nada centrado, salvo la pantalla de inicio de sesión.
 
 ### 3.4 Componentes
+
+Todas las clases del sistema empiezan por `ui-`. Las variantes se escriben con `--` (por ejemplo, `ui-boton--peligro`) y las partes de un componente con `__` (por ejemplo, `ui-campo__error`).
+
+| Componente | Clases | Para qué |
+|---|---|---|
+| Botón | `ui-boton` + `--principal`, `--secundario` o `--peligro` | Principal: la acción más importante (una por pantalla). Secundario: acción alternativa con borde. Peligro: acciones irreversibles como retractar o anular. |
+| Campo de formulario | `ui-campo`, `__etiqueta`, `__control`, `__ayuda`, `__error`; `ui-campo--error` | Etiqueta siempre visible, ayuda y mensaje de error que aparece solo con `ui-campo--error`. |
+| Tabla | `ui-tabla-caja`, `ui-tabla`, `ui-tabla__num`, `ui-tabla__acciones` | Listados con líneas finas; números a la derecha con cifras tabulares; acciones como enlaces al final. |
+| Tarjeta | `ui-tarjeta`, `__titulo` | Bloque sobrio con borde fino y sin sombra; se usa poco (datos de la solicitud, formularios). |
+| Insignia | `ui-insignia` + `--exito`, `--advertencia`, `--error` o `--neutra` | Estado con un punto de color y su texto. |
+| Aviso | `ui-aviso` + `--exito`, `--advertencia` o `--error` | Mensaje después de una acción, con borde izquierdo fino. |
+| Diálogo | `ui-dialogo`, `__titulo`, `__acciones` (sobre `<dialog>`) | Ventana de confirmación (RNF-09); lo único con sombra. |
+| Estado vacío | `ui-vacio`, `__titulo` | Lo que se muestra cuando una lista no tiene datos, con la acción para empezar. |
+| Código o número | `ui-codigo` | Letra IBM Plex Mono con cifras tabulares. |
+
+El foco del teclado es visible en todos los elementos con los que se interactúa: contorno de 3 px del acento, separado 2 px (RNF-13).
+
+**Detalle visual de cada componente:**
 
 | Componente | Cómo se ve |
 |---|---|
