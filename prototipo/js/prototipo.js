@@ -614,4 +614,58 @@
   } catch (error) {
     // Si el navegador no deja usar sessionStorage, no se muestra el aviso.
   }
+
+  /* -------------------------------------------------------------------
+     14. Solicitudes creadas en el prototipo
+     "Nueva solicitud" (solicitud.js) guarda cada solicitud creada en
+     sessionStorage. Aquí se agregan al inicio de la tabla de solicitudes
+     (la más reciente primero), con entrega "Pendiente" y estado "Abierta".
+     Duran mientras la pestaña del navegador esté abierta.
+     ------------------------------------------------------------------- */
+  var tablaSolicitudes = document.getElementById("tabla-solicitudes");
+  if (tablaSolicitudes) {
+    var creadas = [];
+    try {
+      creadas = JSON.parse(sessionStorage.getItem("facturapp-solicitudes") || "[]");
+    } catch (error) {
+      creadas = [];
+    }
+    var cuerpoSolicitudes = tablaSolicitudes.querySelector("tbody");
+
+    // Crea una celda con texto (textContent: no interpreta HTML) y una clase opcional.
+    function celda(texto, clase) {
+      var td = document.createElement("td");
+      td.textContent = texto;
+      if (clase) td.className = clase;
+      return td;
+    }
+    // Crea una celda con una insignia de estado.
+    function celdaInsignia(texto, tipo) {
+      var td = document.createElement("td");
+      var span = document.createElement("span");
+      span.className = "ui-insignia ui-insignia--" + tipo;
+      span.textContent = texto;
+      td.appendChild(span);
+      return td;
+    }
+
+    creadas.forEach(function (solicitud) {
+      var fila = document.createElement("tr");
+      fila.appendChild(celda(solicitud.numero, "ui-codigo"));
+      fila.appendChild(celda(solicitud.fecha, "ui-codigo"));
+      fila.appendChild(celda(solicitud.equipo, "ui-codigo"));
+      fila.appendChild(celda(solicitud.contratista));
+      fila.appendChild(celdaInsignia("Pendiente", "neutra"));
+      fila.appendChild(celdaInsignia("Abierta", "neutra"));
+      var acciones = celda("", "ui-tabla__acciones");
+      var nota = document.createElement("span");
+      nota.className = "ui-campo__ayuda";
+      nota.textContent = "Creada en esta prueba";
+      acciones.appendChild(nota);
+      fila.appendChild(acciones);
+      // insertBefore con firstChild: la más reciente queda arriba.
+      cuerpoSolicitudes.insertBefore(fila, cuerpoSolicitudes.firstChild);
+    });
+    if (creadas.length) etiquetarTablas();
+  }
 })();

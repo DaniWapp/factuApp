@@ -167,13 +167,39 @@
       if (primero) primero.focus();
       return;
     }
+    var mensaje = formulario.dataset.mensaje;
     try {
-      sessionStorage.setItem("facturapp-aviso", formulario.dataset.mensaje);
+      // Solicitud nueva: se guarda para que aparezca en la lista de solicitudes.
+      if (formulario.dataset.modo === "nueva") {
+        mensaje = guardarSolicitudNueva();
+      }
+      sessionStorage.setItem("facturapp-aviso", mensaje);
     } catch (error) {
-      // Sin sessionStorage la lista se abre sin aviso.
+      // Sin sessionStorage la lista se abre sin aviso y sin la fila nueva.
     }
     window.location.href = formulario.dataset.destino;
   });
+
+  // Guarda la solicitud nueva en sessionStorage y devuelve el texto del aviso.
+  // Los datos de ejemplo llegan hasta SOL-000003, así que las nuevas empiezan
+  // en SOL-000004 y siguen en orden (SOL-000005, SOL-000006...).
+  // En el sistema real, el número lo asigna la API con el contador SOL (RN-18).
+  function guardarSolicitudNueva() {
+    var lista = JSON.parse(sessionStorage.getItem("facturapp-solicitudes") || "[]");
+    var numero = "SOL-" + String(4 + lista.length).padStart(6, "0");
+    var equipo = document.getElementById("equipo");
+    var contratista = document.getElementById("contratista");
+    var fecha = new Date();
+    lista.push({
+      numero: numero,
+      fecha: String(fecha.getDate()).padStart(2, "0") + "/" + String(fecha.getMonth() + 1).padStart(2, "0") + "/" + fecha.getFullYear(),
+      // El texto de la opción es "NEV-0001 · Nevera ..."; se toma solo el código.
+      equipo: equipo.options[equipo.selectedIndex].text.split(" · ")[0],
+      contratista: contratista.options[contratista.selectedIndex].text
+    });
+    sessionStorage.setItem("facturapp-solicitudes", JSON.stringify(lista));
+    return "<strong>Solicitud " + numero + " creada.</strong>";
+  }
 
   // Filas iniciales: las de la solicitud que se edita, o una vacía si es nueva.
   var iniciales = [];
