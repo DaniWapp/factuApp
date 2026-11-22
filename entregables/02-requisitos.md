@@ -117,7 +117,7 @@ Los textos entre comillas son los **mensajes exactos** que verá el usuario en p
 1. **Dado** que inicié sesión, **cuando** escribo mi contraseña actual correcta y una contraseña nueva válida dos veces, **entonces** la contraseña cambia y veo el mensaje "Contraseña actualizada.".
 2. **Dado** que estoy cambiando mi contraseña, **cuando** escribo mal mi contraseña actual, **entonces** la contraseña no cambia y veo el mensaje "La contraseña actual no es correcta.".
 3. **Dado** que estoy cambiando mi contraseña, **cuando** la contraseña nueva y su confirmación no son iguales, **entonces** la contraseña no cambia y veo el mensaje "Las contraseñas nuevas no coinciden.".
-4. **Dado** que estoy cambiando mi contraseña, **cuando** la contraseña nueva tiene menos de 8 caracteres, **entonces** la contraseña no cambia y veo el mensaje "La contraseña nueva debe tener al menos 8 caracteres.". (RN-03)
+4. **Dado** que estoy cambiando mi contraseña, **cuando** la contraseña nueva tiene menos de 8 caracteres o no tiene letras y números, **entonces** la contraseña no cambia y veo el mensaje "La contraseña debe tener al menos 8 caracteres." o "La contraseña debe tener letras y números.", según el caso. (RN-03)
 
 #### HU-05. Cambiar la contraseña temporal al entrar (Todos, fase 2)
 
@@ -374,7 +374,7 @@ Son las reglas que el sistema **siempre** debe cumplir, sin importar desde qué 
 |---|---|:---:|
 | RN-01 | Solo un usuario activo puede iniciar sesión. | 1 |
 | RN-02 | Cada acción solo la puede hacer un rol que tenga permiso (tabla de la sección 4 de `01-propuesta.md`), aunque se escriba la dirección a mano. | 1 |
-| RN-03 | Una contraseña nueva debe tener al menos 8 caracteres. | 2 |
+| RN-03 | Toda contraseña debe tener al menos 8 caracteres, con letras y números. | 1 |
 | RN-04 | Quien entra con una contraseña temporal no puede usar ninguna otra función hasta cambiarla, y la nueva debe ser diferente a la temporal. | 2 |
 | RN-05 | Los registros de los catálogos no se eliminan, se desactivan: un registro inactivo no se puede elegir en operaciones nuevas, pero se conserva en las anteriores. | 1 |
 | RN-06 | No se puede desactivar una categoría que tenga repuestos activos. | 1 |
@@ -458,7 +458,7 @@ Decisiones y casos que faltan por confirmar. Al responder cada pregunta se actua
 |---|---|---|
 | PA-01 | ¿Los usuarios entran con su correo (y no con un nombre de usuario)? | HU-01 |
 | PA-02 | ¿Está bien que el login muestre el mismo mensaje para un correo que no existe y para una contraseña incorrecta, para no revelar qué correos están registrados? | HU-01 |
-| PA-03 | ¿La contraseña debe tener mínimo 8 caracteres? ¿Se exige algo más, como números o mayúsculas? | RN-03, HU-04 |
+| PA-03 | ¿La contraseña debe tener mínimo 8 caracteres? ¿Se exige algo más, como números o mayúsculas? **Respondida:** mínimo 8 caracteres, con letras y números. | RN-03, HU-04 |
 | PA-04 | ¿Las unidades de medida son solo unidad, metro, litro y kilogramo? ¿Falta alguna, como libra o galón? | RN-12, HU-13 |
 | PA-05 | ¿Los nombres de los estados son correctos? Entrega: "Pendiente", "Parcial" y "Completa". Solicitud: "Abierta", "Reparado" y "Devuelto". | RN-21, RN-22, HU-21, HU-22, HU-23 |
 | PA-06 | ¿Está bien el formato de los números: SOL-000001 para solicitudes y REM-000001 para remisiones? ¿La numeración empieza de nuevo cada año? | RN-18, HU-17, HU-21 |

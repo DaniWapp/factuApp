@@ -303,7 +303,11 @@
       }
 
       marcar(actual, actual.value === "" ? "Escriba su contraseña actual." : "");
-      marcar(nueva, nueva.value.length < 8 ? "La contraseña nueva debe tener al menos 8 caracteres." : "");
+      // Regla RN-03: al menos 8 caracteres, con letras y números.
+      var tieneLetra = /\p{L}/u.test(nueva.value);
+      var tieneNumero = /\d/.test(nueva.value);
+      marcar(nueva, nueva.value.length < 8 ? "La contraseña debe tener al menos 8 caracteres." :
+        (!tieneLetra || !tieneNumero) ? "La contraseña debe tener letras y números." : "");
       marcar(confirmacion, confirmacion.value !== nueva.value ? "Las contraseñas nuevas no coinciden." : "");
 
       var aviso = document.getElementById("aviso-pagina");

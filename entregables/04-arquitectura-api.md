@@ -546,7 +546,7 @@ FastAPI responde por defecto con otro formato (`{"detail": ...}`); en `app/main.
 | 200 OK | La petición salió bien y se devuelven datos | `GET /api/inventario` devuelve el stock de los 6 repuestos. |
 | 201 Created | Se creó un registro nuevo | `POST /api/solicitudes/2/entregas` crea la remisión REM-000003. |
 | 400 Bad Request | La petición está mal armada y la API no la entiende | Flask envía un JSON roto por un error de programación (`PETICION_INVALIDA`). |
-| 401 Unauthorized | No se sabe quién es el usuario, o ya no puede entrar | Token que superó sus 8 horas de vigencia (`SESION_VENCIDA`), contraseña incorrecta (`CREDENCIALES_INVALIDAS`) o usuario desactivado (`USUARIO_DESACTIVADO`). Las 2 horas sin actividad (RNF-03) las controla Flask: cierra su sesión sin llamar a la API. |
+| 401 Unauthorized | No se sabe quién es el usuario, o ya no puede entrar | Token que superó sus 2 horas (120 minutos) de vigencia (`SESION_VENCIDA`), contraseña incorrecta (`CREDENCIALES_INVALIDAS`) o usuario desactivado (`USUARIO_DESACTIVADO`). Las 2 horas sin actividad (RNF-03) las controla Flask: cierra su sesión sin llamar a la API. |
 | 403 Forbidden | Se sabe quién es, pero su rol no tiene permiso | La Oficina radicadora pide `GET /api/inventario` (`SIN_PERMISO`). |
 | 404 Not Found | El registro pedido no existe | `GET /api/solicitudes/999` cuando esa solicitud no existe (`NO_ENCONTRADO`). |
 | 409 Conflict | Los datos son válidos, pero chocan con una regla de negocio o con el estado actual | Entregar 3 motores cuando solo hay 1 en almacén (`STOCK_INSUFICIENTE`, RN-10), o crear un repuesto con un código que ya existe (`CODIGO_REPETIDO`). |
@@ -579,7 +579,7 @@ DB_PASSWORD=cambia-esto
 # Tokens JWT
 JWT_CLAVE_SECRETA=cambia-esto-por-una-clave-larga-y-aleatoria
 JWT_ALGORITMO=HS256
-JWT_MINUTOS_VIGENCIA=480
+JWT_MINUTOS_VIGENCIA=120
 
 # API
 API_PUERTO=8000
@@ -593,7 +593,7 @@ MODO_DEPURACION=false
 | `DB_USER`, `DB_PASSWORD` | Usuario y contraseña de MySQL; nunca `root`. |
 | `JWT_CLAVE_SECRETA` | Clave con la que la API firma los tokens; si alguien la conoce, podría fabricar tokens falsos. |
 | `JWT_ALGORITMO` | Algoritmo de firma del token. |
-| `JWT_MINUTOS_VIGENCIA` | Tiempo máximo de vida de un token (8 horas, una jornada). El cierre por 2 horas sin actividad (RNF-03) lo controla Flask. |
+| `JWT_MINUTOS_VIGENCIA` | Tiempo máximo de vida de un token: 120 minutos (2 horas). El cierre por 2 horas sin actividad (RNF-03) lo controla Flask. |
 | `API_PUERTO` | Puerto de la API. |
 | `ZONA_HORARIA` | Hora de Colombia para fechas y horas (RNF-32). |
 | `MODO_DEPURACION` | Muestra detalles técnicos de los errores solo en desarrollo (problema 19 del diagnóstico). |

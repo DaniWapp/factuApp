@@ -43,7 +43,7 @@ class Configuracion(BaseSettings):
     # Tokens JWT
     jwt_clave_secreta: str
     jwt_algoritmo: str = "HS256"
-    jwt_minutos_vigencia: int = 480
+    jwt_minutos_vigencia: int = 120
 
     # API
     api_puerto: int = 8000
