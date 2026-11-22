@@ -207,3 +207,72 @@ Cerrar sesión (HU-02) no necesita ruta en la API: Flask borra su sesión. El ca
 
 - **Total:** 45 rutas: 37 de la fase 1 y 8 de la fase 2.
 - La documentación interactiva de todas las rutas la genera FastAPI en `http://localhost:8000/docs`.
+
+## 4. Capas del frontend
+
+### 4.1 Carpetas
+
+La aplicación Flask sigue el patrón del prototipo: `create_app` y un Blueprint por módulo.
+
+```
+frontend/
+├── src/
+│   ├── __init__.py            create_app: crea la aplicación, lee el .env y registra los Blueprints (solo aquí)
+│   ├── app.py                 Punto de arranque del frontend
+│   ├── auth.py                Decoradores login_required y admin_required, que protegen las rutas de Flask
+│   ├── controllers/           Un Blueprint por módulo: recibe la petición del navegador y responde con una página
+│   │   ├── auth_controller.py        Iniciar y cerrar sesión
+│   │   ├── inicio_controller.py      Página de inicio
+│   │   ├── usuarios_controller.py
+│   │   ├── categorias_controller.py
+│   │   ├── repuestos_controller.py
+│   │   ├── contratistas_controller.py
+│   │   ├── equipos_controller.py
+│   │   ├── inventario_controller.py
+│   │   ├── solicitudes_controller.py Solicitudes, entregas, devoluciones y correcciones
+│   │   └── remisiones_controller.py  Ver e imprimir remisiones
+│   ├── services/
+│   │   └── api_cliente.py     El único archivo que habla con la API: agrega el token y traduce las respuestas
+│   ├── templates/             Plantillas Jinja2: layout.html y una carpeta por módulo
+│   │   ├── layout.html        Estructura común: menú según el rol y mensajes
+│   │   └── repuestos/         lista.html y formulario.html (igual en cada módulo)
+│   └── static/                Archivos que el navegador descarga tal cual
+│       ├── css/               CSS propio (sin Bootstrap)
+│       ├── js/                JavaScript en módulos (ES modules)
+│       └── img/               Imágenes y logo
+├── .env                       Dirección de la API y clave de la sesión (no se sube a git)
+├── .env.example               Las mismas variables, sin valores reales
+└── requirements.txt           Librerías del frontend con su versión exacta
+```
+
+| Capa | Responsabilidad |
+|---|---|
+| `__init__.py` y `app.py` | Crean y arrancan la aplicación Flask y registran todos los Blueprints en un solo lugar. |
+| `auth.py` | Revisa antes de cada página si hay sesión (`login_required`) y si el rol es Admin (`admin_required`); si no, redirige con un mensaje. |
+| `controllers/` | Cada Blueprint recibe las peticiones de su módulo, pide los datos a `api_cliente.py` y devuelve la página que corresponde. |
+| `services/api_cliente.py` | Es el único que habla con la API: arma la dirección, agrega el token de la sesión y convierte cada código de respuesta en datos o en un error claro. |
+| `templates/` | Arman el HTML que ve el usuario a partir de los datos que les pasa el controller. |
+| `static/` | Guarda el CSS, el JavaScript y las imágenes que el navegador descarga sin procesar. |
+
+**Regla de capas:** ninguna plantilla ni controller llama a la API directamente: todo pasa por `api_cliente.py`. Así, si cambia la dirección de la API o la forma de enviar el token, solo se cambia un archivo.
+
+**`auth.py` no reemplaza a la API:** ocultar una página en Flask es una comodidad para el usuario; la protección real la hace la API (`core/dependencias.py`, sección 2), que revisa el token y el rol en cada petición.
+
+### 4.2 Recorrido: el Admin abre la página de repuestos
+
+1. **Navegador:** el Admin hace clic en "Repuestos" en el menú, y el navegador pide `GET http://localhost:5000/repuestos`.
+2. **`frontend/src/__init__.py`:** Flask encuentra la ruta `/repuestos`, que pertenece al Blueprint registrado en `controllers/repuestos_controller.py`.
+3. **`frontend/src/auth.py` (`@login_required`):** revisa que la sesión tenga un token. Si no lo tiene, redirige a la pantalla de inicio de sesión.
+4. **`frontend/src/auth.py` (`@admin_required`):** revisa que el rol guardado en la sesión sea Admin, porque gestionar repuestos es del Admin (HU-13). Si es la Oficina radicadora, la redirige a su inicio con el mensaje "No tiene permiso para ver esta página." (HU-03).
+5. **`frontend/src/controllers/repuestos_controller.py`:** la función de la ruta pide la lista de repuestos a `api_cliente.py`.
+6. **`frontend/src/services/api_cliente.py`:** lee la dirección de la API del `.env`, toma el token de la sesión y envía `GET http://localhost:8000/repuestos` con el encabezado `Authorization: Bearer <token>`.
+7. **En la API:** `core/dependencias.py` verifica el token, `routers/repuestos.py` llama al service, y `repositories/repuestos_repo.py` hace el `SELECT`. La API responde **200** con la lista en JSON (sin datos de stock; el stock está en la página de Inventario).
+8. **`frontend/src/services/api_cliente.py`:** según el código que recibe:
+   - **200:** devuelve la lista al controller.
+   - **401:** la sesión venció; avisa al controller, que borra la sesión y lleva al login con el mensaje "Su sesión expiró. Inicie sesión de nuevo." (HU-02).
+   - **403:** avisa al controller, que lleva al inicio con "No tiene permiso para ver esta página.".
+   - **La API no responde:** avisa al controller, que muestra un mensaje de error de conexión.
+9. **`frontend/src/controllers/repuestos_controller.py`:** llama a `render_template("repuestos/lista.html", repuestos=lista)`.
+10. **`frontend/src/templates/repuestos/lista.html`:** extiende `layout.html`, que arma el menú según el rol. Recorre la lista y crea una fila por repuesto con código, nombre, categoría, unidad de medida y estado; si la lista está vacía, muestra un mensaje en lugar de la tabla.
+11. **Flask:** devuelve la página HTML al navegador con código **200**.
+12. **Navegador:** descarga el CSS y el JavaScript de `static/` y muestra la tabla de repuestos.

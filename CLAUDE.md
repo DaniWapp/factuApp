@@ -30,8 +30,9 @@ facturApp/
 │   └── src/
 │       ├── __init__.py   (create_app + registro de Blueprints; solo aquí)
 │       ├── app.py
+│       ├── auth.py       (decoradores login_required y admin_required; comodidad, la protección real es la API)
 │       ├── controllers/  (un archivo por módulo)
-│       ├── services/     (cliente que llama a la API)
+│       ├── services/     (api_cliente.py: el único archivo que habla con la API)
 │       ├── templates/    (layout.html + una carpeta por módulo)
 │       └── static/       (css, js, imágenes)
 ├── backend/         (API FastAPI)
@@ -167,7 +168,7 @@ Diapositivas:
 - Entregable 00 (método con IA): en curso.
 - Entregable 02 (requisitos): terminado (`entregables/02-requisitos.md`, etiqueta v0.2-requisitos). Quedan por escribir los grupos Gestión de usuarios (HU-07 a HU-11) y Equipos (HU-15 y HU-16), y siguen abiertas las preguntas de la sección 6.
 - Entregable 03 (modelo de datos): terminado (`entregables/03-modelo-datos.md`, `database/schema.sql`, `database/seed.sql`, etiqueta v0.3-modelo-datos). La base de datos se llama `facturapp`: 14 tablas, diagrama entidad-relación, diccionario de datos y relaciones.
-- Entregable 04 (arquitectura y API): en curso (`entregables/04-arquitectura-api.md`). Escritas: 1 (Capas del backend: core, db, schemas, routers, services, repositories), 2 (Recorrido de "crear entrega") y 3 (Lista de endpoints: 45 rutas, 37 de fase 1; sin rutas DELETE; GET /repuestos no muestra stock, el stock solo en GET /inventario para Admin).
+- Entregable 04 (arquitectura y API): en curso (`entregables/04-arquitectura-api.md`). Escritas: 1 (Capas del backend: core, db, schemas, routers, services, repositories), 2 (Recorrido de "crear entrega") y 3 (Lista de endpoints: 45 rutas, 37 de fase 1; sin rutas DELETE; GET /repuestos no muestra stock, el stock solo en GET /inventario para Admin) y 4 (Capas del frontend y recorrido de abrir la página de repuestos). El frontend se mantiene en `frontend/src/` con `controllers/` y `services/api_cliente.py` (decidido por el usuario; no usar `frontend/app/` ni `blueprints/`).
 - Pendiente de decidir antes del Entregable 06: la sesión de Flask por defecto guarda el token en una cookie firmada pero no cifrada, así que el token sí llega al navegador (aunque con HttpOnly). El usuario decidió dejarlo así por ahora; recordárselo antes de programar el login. Valores provisionales hasta responder PA-06, PA-11 y PA-27. 
 - `database/schema.sql`: creado y probado en MySQL 8.0.17 de AppServ (14 tablas, 14 PK, 10 UNIQUE, 27 FK, 19 CHECK; se puede ejecutar varias veces). `detalle_solicitud.cantidad_reemplazada` guarda lo pasado a otro repuesto en HU-37 sin tocar lo solicitado. Lo que la base no protege y debe cuidar el backend está en `03-modelo-datos.md`, sección 5. Falta probarlo en MariaDB (XAMPP). 
 - `database/seed.sql`: creado y probado (3 usuarios con hash de ejemplo, 3 categorías, 6 repuestos, 3 contratistas, 3 equipos, 2 solicitudes, 2 entregas: REM-000001 completa y REM-000002 parcial). El stock cuadra con los movimientos. Las contraseñas reales se crearán desde el backend (Entregable 06). La base `facturapp` de AppServ tiene cargados estos datos.
