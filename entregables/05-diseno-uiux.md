@@ -111,3 +111,79 @@ flowchart TD
 - **Flechas punteadas:** abren una ventana dentro del detalle de la solicitud.
 - **Recuadro "Solo Admin":** pantallas que la Oficina radicadora no ve en su menú. Si escribe la dirección a mano, vuelve a Inicio con el mensaje "No tiene permiso para ver esta página." (HU-03).
 - **Desde cualquier pantalla:** si la sesión vence o el usuario es desactivado, vuelve a "Iniciar sesión" con el mensaje que corresponde (HU-02, `04-arquitectura-api.md`, sección 5.3).
+
+## 3. Guía visual
+
+Sigue la "Dirección visual" de `CLAUDE.md`. La paleta elegida es la **opción B, verde petróleo**, comparada con la opción A en `prototipo/paletas.html`.
+
+### 3.1 Paleta
+
+Los colores se definen **una sola vez** como variables CSS en el archivo de estilos del frontend; las pantallas solo usan las variables.
+
+| Variable CSS | Color | Uso | Contraste |
+|---|---|---|---|
+| `--acento` | `#0E6973` | Acción principal, foco del teclado y opción activa del menú. Nada más. | 6,39:1 sobre blanco |
+| `--acento-hover` | `#0A535B` | Acción principal al pasar el mouse | 8,75:1 |
+| `--acento-suave` | `#E2F0F1` | Fondo de la opción activa del menú | — |
+| `--fondo` | `#F3F6F7` | Fondo de la página | — |
+| `--superficie` | `#FFFFFF` | Tablas, formularios y remisión | — |
+| `--texto` | `#182229` | Texto principal | 14,88:1 sobre el fondo |
+| `--texto-2` | `#54626C` | Etiquetas, ayudas, encabezados de tabla y estados neutros | 5,79:1 sobre el fondo |
+| `--borde` | `#D5DDE1` | Líneas finas que separan filas y bloques | Decorativo |
+| `--borde-campo` | `#7A8892` | Borde de campos y línea bajo el encabezado de tabla | 3,64:1 sobre blanco |
+| `--exito` / `--exito-suave` | `#2D7A3A` / `#E8F3EA` | Estados correctos y avisos de éxito | 5,31:1 y 4,66:1 |
+| `--advertencia` / `--advertencia-suave` | `#8F5300` / `#FCEFDD` | Estados que piden atención | 6,17:1 y 5,44:1 |
+| `--error` / `--error-suave` | `#A8321F` / `#FAEAE6` | Errores y estados de problema | 6,69:1 y 5,72:1 |
+
+Todos los textos cumplen al menos 4,5:1 y los bordes de campo 3:1 (WCAG 2.1 AA, RNF-12).
+
+**Estados y su color.** El color nunca va solo: siempre acompaña al texto del estado (RNF-14).
+
+| Color | Estados |
+|---|---|
+| Éxito | Completa, Reparado, Activo, Disponible |
+| Advertencia | Parcial, En espera, Stock bajo (fase 2) |
+| Error | Sin stock, Retractada |
+| Neutro (`--texto-2`) | Pendiente, Abierta, Devuelto, Anulada, Inactivo |
+
+### 3.2 Tipografías
+
+| Uso | Fuente | Respaldo |
+|---|---|---|
+| Textos, títulos, botones y etiquetas | IBM Plex Sans (400, 500 y 600) | Segoe UI, system-ui |
+| Códigos, números de solicitud y remisión, documentos y cantidades | IBM Plex Mono (400 y 500) | Consolas |
+
+- **Escala:** título de página 24 px (600), subtítulo 18 px (600), texto 15 px (400), etiquetas y encabezados de tabla 12 a 13 px (500 o 600).
+- **Números:** siempre con cifras tabulares (`font-variant-numeric: tabular-nums`) y alineados a la derecha en las tablas.
+- **Fuentes guardadas en el proyecto** (`frontend/src/static/fuentes/`), no cargadas desde internet, para que el sistema funcione sin conexión.
+
+### 3.3 Espacios, bordes y sombras
+
+- **Espacios:** solo múltiplos de 4 px: 4, 8, 12, 16, 24 y 32.
+- **Bordes redondeados:** 4 px en campos, botones y recuadros; 2 px en elementos pequeños.
+- **Líneas:** de 1 px con `--borde`; el campo con error lleva 2 px con `--error`.
+- **Sombras:** solo en lo que flota (menús desplegables y ventanas de confirmación).
+- **Alineación:** todo a la izquierda, sobre una grilla; nada centrado, salvo la pantalla de inicio de sesión.
+
+### 3.4 Componentes
+
+| Componente | Cómo se ve |
+|---|---|
+| **Botón principal** | Fondo `--acento`, texto blanco 15 px (500), bordes de 4 px. Uno solo por pantalla. |
+| **Acción secundaria** | Enlace de texto subrayado en `--acento` ("Cancelar", "Editar", "Desactivar"). |
+| **Foco del teclado** | Contorno de 3 px en `--acento`, separado 2 px del elemento (RNF-13). |
+| **Campo de texto** | Etiqueta arriba (500), conectada con `for` e `id` (RNF-11); borde `--borde-campo`; ayuda en `--texto-2` debajo. Los campos de códigos y cantidades usan IBM Plex Mono. |
+| **Campo con error** | Borde de 2 px en `--error` y el mensaje de la historia de usuario debajo, en `--error`. Lo escrito no se borra (RNF-08). |
+| **Aviso** | Texto en el color del estado sobre su fondo suave, con un borde izquierdo de 3 px. Primera palabra en negrita ("Entrega registrada."). Sin íconos ni emojis. |
+| **Tabla** | Fondo `--superficie`, filas separadas por líneas de 1 px, sin colores alternos. Encabezado en `--texto-2`, 12 px (600), con línea `--borde-campo` debajo. Códigos en Plex Mono; números a la derecha. Acciones como enlaces al final de la fila. |
+| **Estado en una tabla** | Punto de 8 px del color del estado seguido de su texto. |
+| **Ventana de confirmación** | Superficie blanca con sombra suave, título corto, el mensaje y dos acciones: botón principal y "Cancelar" (RNF-09). |
+| **Menú** | Columna o barra con las opciones del rol; la opción activa con fondo `--acento-suave` y texto `--acento`. |
+
+### 3.5 Remisión impresa
+
+- Tamaño carta, en blanco y negro: al imprimir, el acento y los fondos se cambian por negro y blanco.
+- Sin menú ni botones (`@media print`).
+- Número de remisión grande en IBM Plex Mono, arriba a la derecha.
+- Datos en una grilla de etiqueta y valor, tabla de repuestos con cantidades a la derecha y espacio de firma al final (HU-24, RNF-17).
+- Si está retractada, la palabra "RETRACTADA" en un recuadro de borde fino, con el motivo, la fecha y el usuario; sin marcas de agua.
