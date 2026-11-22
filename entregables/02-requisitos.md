@@ -31,6 +31,10 @@ Ejemplo: *Dado que una solicitud pide 4 válvulas y ya se entregaron 2, cuando e
 
 El alcance de cada fase está en `01-propuesta.md`, sección 3.
 
+### Confirmaciones
+
+Toda acción que guarda, cambia o desactiva datos pide confirmación antes de ejecutarse (RNF-09). Para no repetirlo, los criterios de aceptación no lo mencionan en cada caso.
+
 ## 2. Resumen de historias
 
 | ID | Grupo | Título corto | Rol | Fase |
@@ -65,8 +69,15 @@ El alcance de cada fase está en `01-propuesta.md`, sección 3.
 | HU-28 | Entregas | Recibir alerta de stock mínimo | Admin | 2 |
 | HU-29 | Entregas | Descargar remisión en PDF | Todos | 2 |
 | HU-30 | Entregas | Generar y exportar reportes | Admin | 2 |
+| HU-31 | Entregas | Retractar una entrega | Admin | 1 |
+| HU-32 | Entregas | Corregir una entrada al almacén | Admin | 1 |
+| HU-33 | Entregas | Registrar devolución de repuestos no usados | Admin | 1 |
+| HU-34 | Entregas | Editar o anular una solicitud | Admin | 1 |
+| HU-35 | Entregas | Reabrir una solicitud cerrada | Admin | 1 |
+| HU-36 | Entregas | Reasignar el contratista de una solicitud | Admin | 1 |
+| HU-37 | Entregas | Reemplazar un repuesto desactivado en una solicitud | Admin | 1 |
 
-**Total:** 30 historias, 19 de la fase 1 y 11 de la fase 2.
+**Total:** 37 historias, 26 de la fase 1 y 11 de la fase 2.
 
 ## 3. Historias de usuario
 
@@ -162,24 +173,30 @@ El dato único del contratista es su **cédula o NIT**. Se aceptan contratistas 
 
 ### Grupo: Entregas
 
-**Reglas de este grupo:** RN-09 a RN-24 (sección 4).
+**Reglas de este grupo:** RN-09 a RN-24, RN-26 a RN-31, RN-33 y RN-34 (sección 4).
 
 **Conceptos de este grupo:**
 
 - Una **solicitud** pide repuestos para un equipo y un contratista. Una **entrega** es cada vez que el Admin entrega repuestos de esa solicitud, toda la cantidad o una parte. Cada entrega genera **una remisión**.
 - **Estados provisionales** (se confirmarán en la etapa de trazabilidad):
   - Entrega de la solicitud: "Pendiente", "Parcial" y "Completa".
-  - Solicitud: "Abierta", "Reparado" y "Devuelto".
+  - Solicitud: "Abierta", "Reparado", "Devuelto" y "Anulada".
+- **Stock de un repuesto:**
+  - **En almacén:** lo que hay físicamente.
+  - **Apartado:** lo que está reservado para solicitudes abiertas y falta por entregar.
+  - **Disponible:** en almacén menos apartado; es lo que se puede apartar para solicitudes nuevas.
+  - **En espera:** lo que una solicitud pidió pero no se pudo apartar por falta de stock; se aparta cuando llega mercancía.
 - **Formato provisional de los números:** solicitudes "SOL-000001" y remisiones "REM-000001".
 
 #### HU-17. Crear solicitud de repuestos (Todos, fase 1)
 
 **Como** Oficina radicadora o Admin, **quiero** registrar una solicitud con el equipo, el contratista, la fecha de entrega y los repuestos que necesita, **para** dejar de llevarla en el Excel compartido.
 
-1. **Dado** que estoy en el formulario de nueva solicitud, **cuando** selecciono el equipo y el contratista, escribo la fecha de entrega y agrego al menos un repuesto con su cantidad, **entonces** la solicitud se guarda en estado "Abierta" con entrega "Pendiente", el sistema le asigna el siguiente número (por ejemplo, SOL-000045), el stock no cambia y veo el mensaje "Solicitud SOL-000045 creada.". (RN-13)
+1. **Dado** que estoy en el formulario de nueva solicitud, **cuando** selecciono el equipo y el contratista, escribo la fecha de entrega y agrego al menos un repuesto con su cantidad, **entonces** la solicitud se guarda en estado "Abierta" con entrega "Pendiente", el sistema le asigna el siguiente número (por ejemplo, SOL-000045), las cantidades pedidas quedan apartadas en el inventario y veo el mensaje "Solicitud SOL-000045 creada.". (RN-13)
 2. **Dado** que estoy en el formulario de nueva solicitud, **cuando** dejo sin seleccionar el equipo o el contratista, **entonces** no se guarda y veo el mensaje "Seleccione el equipo y el contratista.". (RN-14)
 3. **Dado** que estoy en el formulario de nueva solicitud, **cuando** intento guardar sin repuestos, **entonces** no se guarda y veo el mensaje "Agregue al menos un repuesto.". Si agrego el mismo repuesto dos veces, veo el mensaje "El repuesto VAL-001 ya está en la solicitud. Cambie la cantidad en la fila existente.". (RN-15)
 4. **Dado** que estoy en el formulario de nueva solicitud, **cuando** escribo una fecha de entrega anterior a hoy, **entonces** no se guarda y veo el mensaje "La fecha de entrega no puede ser anterior a hoy.". (RN-14)
+5. **Dado** que una solicitud pide 5 válvulas y solo hay 3 disponibles, **cuando** la guardo, **entonces** la solicitud se crea igual, se apartan 3, las otras 2 quedan "En espera" de mercancía y veo el mensaje "Solicitud SOL-000046 creada. VAL-001: 3 apartadas y 2 en espera de mercancía.". (RN-13, RN-33)
 
 #### HU-18. Listar solicitudes y ver detalle con línea de tiempo (Todos, fase 1)
 
@@ -197,12 +214,13 @@ El dato único del contratista es su **cédula o NIT**. Se aceptan contratistas 
 1. **Dado** que llega mercancía, **cuando** selecciono el repuesto, escribo la cantidad y, si quiero, una observación, **entonces** el stock sube en esa cantidad, se guardan solos la fecha, la hora y mi usuario, y veo el mensaje "Entrada registrada. Stock actual: [stock].". (RN-09, RN-20)
 2. **Dado** que estoy registrando una entrada, **cuando** la cantidad no cumple las reglas del repuesto, **entonces** no se guarda y veo el mensaje que corresponde según HU-13 (criterios 4 y 5). (RN-11, RN-12)
 3. **Dado** que un repuesto está desactivado, **cuando** busco repuestos para registrar una entrada, **entonces** ese repuesto no aparece en la lista. (RN-05)
+4. **Dado** que hay solicitudes con válvulas "En espera", **cuando** registro una entrada de válvulas, **entonces** el sistema aparta esa mercancía para las solicitudes en espera, de la más antigua a la más reciente, y lo que sobre queda disponible. (RN-33)
 
 #### HU-20. Consultar stock disponible (Admin, fase 1)
 
 **Como** Admin, **quiero** ver el stock disponible de cada repuesto, **para** saber qué puedo entregar.
 
-1. **Dado** que hay repuestos activos, **cuando** abro "Inventario", **entonces** veo el código, el nombre, la categoría, la unidad de medida y el stock disponible de cada repuesto, con los números alineados a la derecha.
+1. **Dado** que hay repuestos activos, **cuando** abro "Inventario", **entonces** veo el código, el nombre, la categoría, la unidad de medida y, de cada repuesto, el stock en almacén, lo apartado, el stock disponible y lo que está en espera, con los números alineados a la derecha. (RN-13, RN-33)
 2. **Dado** que un repuesto tiene stock 0, **cuando** abro "Inventario", **entonces** ese repuesto aparece marcado como "Sin stock".
 3. **Dado** que inicié sesión como Oficina radicadora, **cuando** intento abrir "Inventario", **entonces** vuelvo a mi página de inicio y veo el mensaje "No tiene permiso para ver esta página.". (RN-02)
 
@@ -232,8 +250,8 @@ El dato único del contratista es su **cédula o NIT**. Se aceptan contratistas 
 
 1. **Dado** que una solicitud está "Abierta", **cuando** presiono "Marcar como reparado", **entonces** la solicitud pasa a "Reparado", la acción queda en la línea de tiempo con fecha, hora y usuario, y veo el mensaje "Solicitud marcada como reparada.". (RN-20)
 2. **Dado** que una solicitud está "Abierta", **cuando** presiono "Marcar como devuelto" sin escribir el motivo, **entonces** no cambia y veo el mensaje "Escriba el motivo de la devolución.". (RN-23)
-3. **Dado** que una solicitud tiene repuestos pendientes, **cuando** intento marcarla como reparada o devuelta, **entonces** veo la advertencia "La solicitud tiene repuestos pendientes por entregar. ¿Desea cerrarla de todas formas?" y solo cambia si confirmo.
-4. **Dado** que una solicitud está en "Reparado" o "Devuelto", **cuando** intento registrar otra entrega o cambiar su estado, **entonces** no se permite y veo el mensaje "La solicitud está cerrada. No se pueden registrar más cambios.". (RN-22)
+3. **Dado** que una solicitud tiene repuestos pendientes, **cuando** intento marcarla como reparada o devuelta, **entonces** veo la advertencia "La solicitud tiene repuestos pendientes por entregar. ¿Desea cerrarla de todas formas?" y solo cambia si confirmo. Al cerrarla, lo pendiente deja de estar apartado. (RN-13)
+4. **Dado** que una solicitud está en "Reparado", "Devuelto" o "Anulada", **cuando** intento registrar otra entrega o cambiar su estado, **entonces** no se permite y veo el mensaje "La solicitud está cerrada. No se pueden registrar más cambios.". Para corregirla, el Admin puede reabrirla (HU-35). (RN-22)
 
 #### HU-24. Ver e imprimir remisión (Todos, fase 1)
 
@@ -242,7 +260,7 @@ El dato único del contratista es su **cédula o NIT**. Se aceptan contratistas 
 1. **Dado** que una solicitud tiene entregas, **cuando** abro una de sus remisiones, **entonces** veo el número de remisión, la fecha y hora, el número de solicitud, el equipo, el contratista con su cédula o NIT, el usuario que entregó y la tabla de repuestos con código, nombre, unidad y cantidad entregada.
 2. **Dado** que estoy viendo una remisión, **cuando** presiono "Imprimir", **entonces** se abre la ventana de impresión del navegador y la hoja sale en tamaño carta, sin el menú ni los botones del sistema.
 3. **Dado** que imprimo una remisión, **cuando** reviso la hoja, **entonces** al final tiene espacio para la firma de quien recibe, con las líneas "Recibido por", "Cédula", "Firma" y "Fecha", y otro espacio para "Entregado por".
-4. **Dado** que una remisión corresponde a una entrega parcial, **cuando** la abro, **entonces** solo muestra las cantidades de esa entrega. Una remisión generada no se puede editar ni eliminar. (RN-19)
+4. **Dado** que una remisión corresponde a una entrega parcial, **cuando** la abro, **entonces** solo muestra las cantidades de esa entrega. Una remisión generada no se puede editar ni eliminar; si su entrega se retracta, queda marcada como "Retractada" (HU-31). (RN-19)
 
 #### HU-25. Filtrar y buscar solicitudes (Todos, fase 2)
 
@@ -287,6 +305,67 @@ El dato único del contratista es su **cédula o NIT**. Se aceptan contratistas 
 2. **Dado** que estoy viendo un reporte, **cuando** presiono "Exportar", **entonces** se descarga un archivo CSV que se puede abrir en Excel.
 3. **Dado** que no hay entregas en el rango elegido, **cuando** genero el reporte, **entonces** veo el mensaje "No hay entregas en el rango de fechas elegido.".
 
+#### HU-31. Retractar una entrega (Admin, fase 1)
+
+**Como** Admin, **quiero** retractar una entrega que registré por error, **para** que el stock, lo pendiente y la remisión queden correctos.
+
+1. **Dado** que la entrega con remisión REM-000124 registró 4 válvulas por error, **cuando** presiono "Retractar entrega", escribo el motivo y confirmo, **entonces** el stock en almacén sube en 4, esas 4 válvulas vuelven a quedar pendientes y apartadas, el estado de la entrega se recalcula y veo el mensaje "Entrega retractada. La remisión REM-000124 quedó marcada como retractada.". (RN-09, RN-13, RN-21, RN-26)
+2. **Dado** que voy a retractar una entrega, **cuando** confirmo sin escribir el motivo, **entonces** no se retracta y veo el mensaje "Escriba el motivo de la retracción.". (RN-26)
+3. **Dado** que una entrega fue retractada, **cuando** abro su remisión, **entonces** la veo con la marca "RETRACTADA", el motivo, la fecha, la hora y el usuario que la retractó; su número no se reutiliza y no se puede retractar de nuevo. (RN-18, RN-19, RN-20)
+4. **Dado** que la solicitud está cerrada, **cuando** intento retractar una de sus entregas, **entonces** no se permite y veo el mensaje "La solicitud está cerrada. No se pueden registrar más cambios.". La Oficina radicadora no ve el botón "Retractar entrega". (RN-02, RN-22)
+
+#### HU-32. Corregir una entrada al almacén (Admin, fase 1)
+
+**Como** Admin, **quiero** retractar una entrada al almacén que registré por error, **para** que el stock vuelva a ser real.
+
+1. **Dado** que registré por error una entrada de 10 válvulas (eran 1), **cuando** presiono "Retractar entrada", escribo el motivo y confirmo, **entonces** el stock en almacén baja en 10, la entrada queda marcada como "Retractada" en el historial y veo el mensaje "Entrada retractada. Stock actual: [stock].". Después registro la entrada correcta (HU-19). (RN-09, RN-26)
+2. **Dado** que voy a retractar una entrada, **cuando** confirmo sin escribir el motivo, **entonces** no se retracta y veo el mensaje "Escriba el motivo de la retracción.". (RN-26)
+3. **Dado** que parte de esa entrada ya se entregó o está apartada, **cuando** intento retractarla, **entonces** no se retracta y veo el mensaje "No se puede retractar la entrada: ese stock ya fue entregado o está apartado.". (RN-10, RN-27)
+
+#### HU-33. Registrar devolución de repuestos no usados (Admin, fase 1)
+
+**Como** Admin, **quiero** registrar los repuestos que el contratista devuelve sin usar, **para** que vuelvan al stock.
+
+1. **Dado** que en la solicitud SOL-000045 se entregaron 4 válvulas y el contratista devuelve 1 sin usar, **cuando** registro la devolución de 1 válvula, **entonces** el stock en almacén sube en 1, la devolución queda en la línea de tiempo con fecha, hora y usuario, lo pendiente no cambia y veo el mensaje "Devolución registrada. Stock actual: [stock].". Se puede registrar aunque la solicitud esté cerrada. (RN-09, RN-20, RN-22)
+2. **Dado** que de un repuesto se entregaron 4 y ya se devolvió 1, **cuando** intento devolver 5, **entonces** no se guarda y veo el mensaje "No puede devolver más de lo entregado. Entregado sin devolver de VAL-001: 3.". (RN-28)
+3. **Dado** que estoy registrando una devolución, **cuando** la cantidad no cumple las reglas del repuesto, **entonces** no se guarda y veo el mensaje que corresponde según HU-13 (criterios 4 y 5). (RN-11, RN-12)
+
+#### HU-34. Editar o anular una solicitud (Admin, fase 1)
+
+**Como** Admin, **quiero** corregir o anular una solicitud que se creó por error, **para** que no quede información equivocada ni repuestos apartados sin razón.
+
+1. **Dado** que una solicitud no tiene entregas vigentes, **cuando** cambio su equipo, contratista, fecha de entrega o repuestos y guardo, **entonces** lo apartado se ajusta, el cambio queda en la línea de tiempo y veo el mensaje "Solicitud SOL-000045 actualizada.". (RN-13, RN-20, RN-29)
+2. **Dado** que una solicitud tiene entregas vigentes (sin retractar), **cuando** intento editarla o anularla, **entonces** no se permite y veo el mensaje "La solicitud ya tiene entregas. Retracte las entregas antes de editarla o anularla.". (RN-29)
+3. **Dado** que una solicitud no tiene entregas vigentes, **cuando** presiono "Anular solicitud", escribo el motivo y confirmo, **entonces** pasa a "Anulada", lo apartado se libera y veo el mensaje "Solicitud SOL-000045 anulada.". (RN-13, RN-22, RN-29)
+4. **Dado** que voy a anular una solicitud, **cuando** confirmo sin escribir el motivo, **entonces** no se anula y veo el mensaje "Escriba el motivo de la anulación.". La Oficina radicadora no ve los botones "Editar solicitud" ni "Anular solicitud". (RN-02, RN-29)
+
+#### HU-35. Reabrir una solicitud cerrada (Admin, fase 1)
+
+**Como** Admin, **quiero** reabrir una solicitud que se cerró por error, **para** poder seguir registrando entregas o corregirla.
+
+1. **Dado** que una solicitud está en "Reparado" o "Devuelto", **cuando** presiono "Reabrir solicitud", escribo el motivo y confirmo, **entonces** vuelve a "Abierta", lo pendiente vuelve a quedar apartado, la acción queda en la línea de tiempo y veo el mensaje "Solicitud SOL-000045 reabierta.". (RN-13, RN-20, RN-30)
+2. **Dado** que voy a reabrir una solicitud, **cuando** confirmo sin escribir el motivo, **entonces** no se reabre y veo el mensaje "Escriba el motivo para reabrir la solicitud.". (RN-30)
+3. **Dado** que una solicitud está "Anulada", **cuando** abro su detalle, **entonces** no aparece el botón "Reabrir solicitud". (RN-30)
+4. **Dado** que inicié sesión como Oficina radicadora, **cuando** abro una solicitud cerrada, **entonces** no aparece el botón "Reabrir solicitud". (RN-02, RN-30)
+
+#### HU-36. Reasignar el contratista de una solicitud (Admin, fase 1)
+
+**Como** Admin, **quiero** cambiar el contratista de una solicitud abierta, **para** terminar de entregar los repuestos pendientes cuando el contratista original fue desactivado.
+
+1. **Dado** que la solicitud SOL-000045 tiene 2 válvulas pendientes y su contratista "Indufrial" fue desactivado, **cuando** intento registrar una entrega, **entonces** no se permite y veo el mensaje "El contratista de esta solicitud está desactivado. Reasigne un contratista activo antes de registrar la entrega.". (RN-31)
+2. **Dado** que estoy en una solicitud abierta, **cuando** presiono "Reasignar contratista", elijo un contratista activo y confirmo, **entonces** la solicitud queda con el nuevo contratista, la línea de tiempo muestra el contratista anterior y el nuevo con fecha, hora y usuario, y veo el mensaje "Contratista reasignado.". (RN-20, RN-31)
+3. **Dado** que una solicitud tuvo entregas con el contratista anterior, **cuando** se reasigna, **entonces** las remisiones anteriores conservan el contratista que recibió en su momento; solo las entregas nuevas salen con el nuevo contratista. (RN-19)
+4. **Dado** que estoy reasignando el contratista, **cuando** busco en la lista, **entonces** solo aparecen contratistas activos. La Oficina radicadora no ve el botón "Reasignar contratista". (RN-02, RN-05)
+
+#### HU-37. Reemplazar un repuesto desactivado en una solicitud (Admin, fase 1)
+
+**Como** Admin, **quiero** cambiar por otro un repuesto desactivado que todavía falta por entregar y no tiene stock, **para** que la solicitud no quede esperando algo que nunca va a llegar.
+
+1. **Dado** que la solicitud SOL-000045 tiene 2 válvulas VAL-001 pendientes apartadas y VAL-001 fue desactivado, **cuando** registro la entrega de esas 2 válvulas, **entonces** se entregan normalmente, porque sí existen en el almacén. (RN-34)
+2. **Dado** que VAL-001 fue desactivado y la solicitud tiene 2 unidades en espera sin stock, **cuando** intento registrar la entrega, **entonces** esas 2 unidades no se pueden entregar y veo el mensaje "El repuesto VAL-001 está desactivado y no tiene stock. Reemplácelo por otro repuesto en la solicitud.". (RN-34)
+3. **Dado** ese mismo caso, **cuando** presiono "Reemplazar repuesto", elijo un repuesto activo y confirmo, **entonces** las 2 unidades en espera de VAL-001 salen de la solicitud, el repuesto nuevo entra con esa cantidad (apartada o en espera, según el stock), la línea de tiempo muestra el repuesto anterior y el nuevo, y veo el mensaje "Repuesto reemplazado.". (RN-13, RN-20, RN-33, RN-34)
+4. **Dado** que VAL-001 ya tenía entregas en la solicitud, **cuando** se reemplaza, **entonces** las entregas y remisiones anteriores de VAL-001 no cambian. La Oficina radicadora no ve el botón "Reemplazar repuesto". (RN-02, RN-19)
+
 ## 4. Reglas de negocio
 
 Son las reglas que el sistema **siempre** debe cumplir, sin importar desde qué pantalla se haga la acción. La API las revisa aunque alguien intente saltarse la pantalla. Los criterios de aceptación que dependen de una regla la citan al final, por ejemplo (RN-10).
@@ -301,23 +380,32 @@ Son las reglas que el sistema **siempre** debe cumplir, sin importar desde qué 
 | RN-06 | No se puede desactivar una categoría que tenga repuestos activos. | 1 |
 | RN-07 | No se repiten el nombre de una categoría ni el código o el nombre de un repuesto, sin importar mayúsculas ni espacios al inicio o al final. | 1 |
 | RN-08 | No se repite la cédula o NIT de un contratista, sin importar puntos, guiones ni espacios; el nombre sí puede repetirse. | 1 |
-| RN-09 | El stock no se escribe a mano: solo sube con una entrada al almacén y solo baja con una entrega. | 1 |
+| RN-09 | El stock no se escribe a mano: solo cambia con entradas al almacén, entregas, devoluciones de repuestos no usados y retracciones de entregas o de entradas. | 1 |
 | RN-10 | El stock de un repuesto nunca queda negativo. | 1 |
 | RN-11 | Toda cantidad (en solicitudes, entradas y entregas) debe ser mayor que cero. | 1 |
 | RN-12 | Las cantidades son enteras si el repuesto se maneja en unidades, y pueden tener hasta 2 decimales si se maneja en metros, litros o kilogramos. | 1 |
-| RN-13 | Crear una solicitud no cambia el stock. | 1 |
+| RN-13 | Al crear una solicitud, las cantidades pedidas quedan apartadas (o en espera, según RN-33): siguen en el almacén, pero no están disponibles para otras solicitudes. Lo apartado se libera al entregar, al anular la solicitud o al cerrarla con pendientes, y vuelve a apartarse si una entrega se retracta o la solicitud se reabre. | 1 |
 | RN-14 | Toda solicitud tiene equipo y contratista, y su fecha de entrega no puede ser anterior al día en que se crea. | 1 |
 | RN-15 | Toda solicitud y toda entrega tienen al menos un repuesto con cantidad, y una solicitud no repite el mismo repuesto. | 1 |
 | RN-16 | De cada repuesto no se puede entregar más de lo que falta por entregar en la solicitud. | 1 |
 | RN-17 | Una entrega se guarda completa o no se guarda: si algo falla, no cambia el stock y no se genera remisión. | 1 |
 | RN-18 | Cada entrega genera una sola remisión, con un número consecutivo que no se repite, no se salta y no se reutiliza. | 1 |
-| RN-19 | Una remisión generada no se puede editar ni eliminar. | 1 |
+| RN-19 | Una remisión generada no se puede editar ni eliminar; si su entrega se retracta, queda marcada como "Retractada" y conserva su número. | 1 |
 | RN-20 | La fecha, la hora y el usuario de cada acción los guarda el sistema solo y no se pueden editar. | 1 |
-| RN-21 | El estado de la entrega lo calcula el sistema: "Pendiente" si no hay nada entregado, "Parcial" si falta algo y "Completa" si no falta nada. | 1 |
-| RN-22 | Una solicitud en "Reparado" o "Devuelto" está cerrada: no acepta más entregas ni cambios de estado. | 1 |
+| RN-21 | El estado de la entrega lo calcula el sistema: "Pendiente" si no hay nada entregado, "Parcial" si falta algo y "Completa" si no falta nada. Las entregas retractadas no cuentan. | 1 |
+| RN-22 | Una solicitud en "Reparado", "Devuelto" o "Anulada" está cerrada: no acepta entregas, retracciones ni cambios de estado. Solo acepta devoluciones de repuestos no usados, y el Admin puede reabrirla según RN-30. | 1 |
 | RN-23 | Para marcar una solicitud como "Devuelto" es obligatorio escribir el motivo. | 1 |
 | RN-24 | El stock mínimo de un repuesto no puede ser negativo. | 2 |
 | RN-25 | Los identificadores que escribe el usuario no aceptan caracteres raros: los códigos de repuesto y de equipo solo llevan letras sin tildes, números y guiones; la cédula o NIT solo lleva números, puntos y guiones. Si no cumple, no se guarda y aparece el mensaje "El código solo puede tener letras sin tildes, números y guiones." o "La cédula o NIT solo puede tener números, puntos y guiones.". | 1 |
+| RN-26 | Solo el Admin retracta entregas o entradas, siempre con un motivo escrito. Nada se borra: lo retractado queda en el historial con su motivo, fecha, hora y usuario. | 1 |
+| RN-27 | Una entrada solo se puede retractar si el stock en almacén no queda negativo ni por debajo de lo apartado. | 1 |
+| RN-28 | De un repuesto no se puede devolver más de lo entregado en la solicitud menos lo que ya se devolvió. | 1 |
+| RN-29 | Una solicitud solo se puede editar o anular si no tiene entregas vigentes (sin retractar); para anularla es obligatorio escribir el motivo. | 1 |
+| RN-30 | Solo el Admin puede reabrir una solicitud en "Reparado" o "Devuelto", con un motivo escrito; una solicitud "Anulada" no se reabre. | 1 |
+| RN-31 | Una solicitud abierta cuyo contratista fue desactivado no acepta entregas hasta que el Admin le reasigne un contratista activo; las remisiones anteriores conservan el contratista original. | 1 |
+| RN-32 | Un Admin no puede desactivarse a sí mismo, y nadie puede desactivar al último Admin activo. | 1 |
+| RN-33 | Si no hay stock disponible suficiente, la solicitud se crea igual: se aparta lo que haya y el resto queda "En espera"; cuando entra mercancía, se aparta primero para las solicitudes en espera más antiguas. | 1 |
+| RN-34 | De un repuesto desactivado se puede entregar lo que ya está apartado en el almacén; lo que falta y no tiene stock no se puede entregar y el Admin debe reemplazarlo por un repuesto activo. | 1 |
 
 ## 5. Requisitos no funcionales
 
@@ -333,7 +421,7 @@ Describen **cómo** debe ser el sistema, no qué hace. Cada uno se puede comprob
 | RNF-06 | Seguridad | El repositorio no contiene archivos `.env` ni credenciales: solo `.env.example` con nombres de variables y sin valores reales. |
 | RNF-07 | Usabilidad | Toda acción de guardar muestra en la misma pantalla un mensaje de éxito o de error, con los textos definidos en las historias. |
 | RNF-08 | Usabilidad | Cuando un formulario tiene un error, los datos que el usuario ya escribió no se borran. |
-| RNF-09 | Usabilidad | Las acciones que no se pueden deshacer (registrar entrega, cerrar solicitud, desactivar) piden confirmación antes de guardarse. |
+| RNF-09 | Usabilidad | Toda acción que guarda, cambia o desactiva datos pide confirmación ("Confirmar" / "Cancelar") antes de ejecutarse; si el usuario cancela, no cambia nada. No piden confirmación iniciar sesión, buscar, filtrar ni moverse entre pantallas. |
 | RNF-10 | Usabilidad | Cualquier pantalla del sistema se abre con máximo 2 clics desde el menú. |
 | RNF-11 | Accesibilidad | Todo campo de formulario tiene una etiqueta conectada (`<label for>` con su `id`) y toda tabla separa encabezado y datos (`<thead>` y `<tbody>`). |
 | RNF-12 | Accesibilidad | El texto tiene un contraste mínimo de 4,5:1 con su fondo (nivel AA de WCAG 2.1). |
@@ -385,18 +473,24 @@ Decisiones y casos que faltan por confirmar. Al responder cada pregunta se actua
 
 | ID | Pregunta | Depende de |
 |---|---|---|
-| PA-14 | Si el Admin se equivoca al registrar una entrega, ¿cómo se corrige, si la remisión no se puede editar ni anular? | RN-09, RN-19, HU-21 |
-| PA-15 | Si el Admin se equivoca al registrar una entrada al almacén, ¿cómo se corrige el stock? | RN-09, HU-19 |
-| PA-16 | Si el contratista devuelve repuestos que no usó, ¿vuelven al stock? ¿Cómo se registra? | RN-09, HU-21 |
-| PA-17 | ¿Se puede editar o anular una solicitud que se creó por error, antes de que tenga entregas? | RN-22, HU-17 |
-| PA-18 | ¿Quién puede editar una solicitud: solo quien la creó, cualquier Oficina radicadora o solo el Admin? | RN-02, HU-17 |
-| PA-19 | Si una solicitud se cerró por error, ¿se puede volver a abrir? ¿Quién puede hacerlo? | RN-22, HU-23 |
+| PA-14 | Si el Admin se equivoca al registrar una entrega, ¿cómo se corrige, si la remisión no se puede editar ni anular? **Respondida:** el Admin retracta la entrega con un motivo obligatorio. | RN-26, HU-31 |
+| PA-15 | Si el Admin se equivoca al registrar una entrada al almacén, ¿cómo se corrige el stock? **Respondida:** el Admin retracta la entrada con un motivo y registra la correcta. | RN-26, RN-27, HU-32 |
+| PA-16 | Si el contratista devuelve repuestos que no usó, ¿vuelven al stock? ¿Cómo se registra? **Respondida:** se registra una devolución que sube el stock. | RN-28, HU-33 |
+| PA-17 | ¿Se puede editar o anular una solicitud que se creó por error, antes de que tenga entregas? **Respondida:** sí, mientras no tenga entregas vigentes; anular exige motivo. | RN-29, HU-34 |
+| PA-18 | ¿Quién puede editar o anular una solicitud: solo quien la creó, cualquier Oficina radicadora o solo el Admin? **Respondida:** solo el Admin. | RN-02, HU-34 |
+| PA-19 | Si una solicitud se cerró por error, ¿se puede volver a abrir? ¿Quién puede hacerlo? **Respondida:** sí; se propuso que solo el Admin, con motivo (confirmar en PA-32). | RN-30, HU-35 |
 | PA-20 | ¿Un mismo equipo puede tener dos solicitudes abiertas al mismo tiempo? | RN-14, HU-17 |
-| PA-21 | Si un contratista o un repuesto se desactiva mientras tiene solicitudes abiertas, ¿se le pueden seguir entregando los repuestos pendientes? | RN-05, HU-21 |
-| PA-22 | Al crear una solicitud, ¿se debe apartar el stock para que otra solicitud no lo use? Hoy el stock solo baja al entregar. | RN-13, HU-17, HU-21 |
+| PA-21 | Si el Admin desactiva un repuesto o un contratista (deja de usarse), pero una solicitud abierta todavía tiene repuestos pendientes con ese repuesto o ese contratista, ¿se pueden terminar de entregar o la solicitud queda bloqueada? **Respondida para el contratista:** el Admin le reasigna un contratista activo. El caso del repuesto sigue en PA-33. | RN-31, HU-36 |
+| PA-22 | Al crear una solicitud, ¿se debe apartar el stock para que otra solicitud no lo use? **Respondida:** sí, se aparta. | RN-13, HU-17, HU-20 |
 | PA-23 | ¿Qué pasa si la fecha de entrega ya pasó y la solicitud sigue pendiente: se marca como atrasada o se avisa a alguien? | RN-14, HU-18 |
-| PA-24 | ¿Puede haber más de un Admin? ¿Puede un Admin desactivarse a sí mismo o desactivar al último Admin activo? | RN-01, HU-07, HU-10 |
+| PA-24 | ¿Puede haber más de un Admin? ¿Puede un Admin desactivarse a sí mismo o desactivar al último Admin activo? **Respondida:** puede haber varios Admin; un Admin no puede desactivarse a sí mismo ni desactivar al último Admin activo. | RN-32, HU-10 |
 | PA-25 | Si el Admin desactiva a un usuario que tiene la sesión abierta, ¿lo saca del sistema de inmediato o al vencer la sesión? | RN-01, RNF-03, HU-10 |
 | PA-26 | Cuando el Admin cambia a la vista de Oficina radicadora, ¿puede hacer acciones de Admin desde esa vista o queda limitado como la Oficina? | RN-02, HU-06 |
 | PA-27 | ¿Qué datos se guardan de un equipo además del código (marca, modelo, serie, ubicación)? ¿La Oficina radicadora puede editarlos o solo registrarlos? | RN-25, HU-15 |
 | PA-28 | La contraseña del Admin inicial que crea `seed.sql`, ¿debe cambiarse obligatoriamente? Hoy el cambio de contraseña es de la fase 2. | RNF-30, HU-04, HU-05 |
+| PA-29 | Ahora que el stock se aparta al crear la solicitud: si no hay stock disponible suficiente, ¿se puede crear la solicitud igual (y queda esperando mercancía) o el sistema no la deja crear? **Respondida:** se crea y lo que falta queda "En espera". | RN-33, HU-17 |
+| PA-30 | ¿Está bien que una devolución de repuestos no usados se pueda registrar aunque la solicitud ya esté cerrada? **Respondida:** sí. | RN-22, HU-33 |
+| PA-31 | ¿Las funciones nuevas para corregir errores (HU-31 a HU-35) van en la fase 1? **Respondida:** sí. | HU-31 a HU-36 |
+| PA-32 | ¿Está bien que solo el Admin pueda reabrir una solicitud cerrada, y que una solicitud anulada no se pueda reabrir? **Respondida:** sí. | RN-30, HU-35 |
+| PA-33 | Si el Admin desactiva un repuesto que todavía está pendiente en una solicitud abierta, ¿se puede terminar de entregar, o hay que cambiarlo por otro repuesto en la solicitud? **Respondida:** lo que está en el almacén se entrega; lo que no tiene stock se reemplaza por otro repuesto. | RN-34, HU-37 |
+| PA-34 | Cuando llega mercancía, ¿está bien que el sistema la aparte solo para las solicitudes en espera más antiguas, o el Admin debe elegir a qué solicitud se aparta? **Respondida:** automáticamente, de la más antigua a la más reciente. | RN-33, HU-19 |

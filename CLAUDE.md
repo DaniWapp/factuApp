@@ -99,7 +99,11 @@ Correspondencia con el ejemplo: clients -> contratistas, products -> repuestos, 
 - Fase 1 (MVP): login con roles; usuarios (crear, editar, activar/desactivar); contratistas; catálogo de categorías y repuestos; equipos; inventario básico con entradas; solicitudes; entregas totales o parciales; estado reparado/devuelto; historial de cambios; remisión por entrega impresa desde el navegador; schema.sql, seed.sql, .env.example, README y pruebas pytest de login, permisos y entregas.
 - Fase 2 (mejoras): cambiar la propia contraseña y restaurar con contraseña temporal; cambio de vista del Admin; inicio con resumen; filtros y búsqueda; historial por equipo; historial de movimientos y alerta de stock mínimo; remisión en PDF; reportes con exportación; más pruebas.
 - NO incluye: facturación (precios, costos, impuestos), acceso de contratistas, compras a proveedores, notificaciones, recuperar contraseña por correo, firma electrónica, varias bodegas, agenda de técnicos, integración con otros sistemas, app móvil ni publicación en internet.
-- Regla: el stock baja al registrar cada entrega, no al crear la solicitud.
+- Regla: el stock en almacén baja al registrar cada entrega; al crear la solicitud las cantidades quedan apartadas (stock en almacén, apartado y disponible). Ver RN-13.
+- Si no hay stock disponible suficiente, la solicitud se crea y lo que falta queda "En espera"; la mercancía nueva se aparta primero para las solicitudes en espera más antiguas (RN-33).
+- Correcciones (HU-31 a HU-37, fase 1, todas solo Admin): retractar entregas y entradas (motivo obligatorio, nada se borra), devolución de repuestos no usados (también en solicitudes cerradas), editar o anular solicitudes sin entregas vigentes, reabrir solicitudes cerradas (las anuladas no se reabren), reasignar contratista si el original fue desactivado, reemplazar un repuesto desactivado que no tiene stock (lo apartado sí se entrega, RN-34).
+- Usuarios: puede haber varios Admin; un Admin no puede desactivarse a sí mismo ni al último Admin activo (RN-32).
+- Toda acción que guarda, cambia o desactiva datos pide confirmación (RNF-09).
 
 ## Reglas de negocio
 - La fuente única de las reglas es `entregables/02-requisitos.md`, sección 4 (RN-01 a RN-24). Los criterios de aceptación las citan, por ejemplo (RN-10).
@@ -119,7 +123,7 @@ Correspondencia con el ejemplo: clients -> contratistas, products -> repuestos, 
 - La sesión vence a las 2 horas sin actividad.
 - Fechas dd/mm/aaaa, horas en formato de 12 horas (a. m. y p. m.), hora de Colombia, decimales con coma.
 - Una remisión de hasta 15 repuestos cabe en una hoja carta.
-- Preguntas abiertas pendientes: `entregables/02-requisitos.md`, sección 6 (PA-01 a PA-28).
+- Preguntas abiertas pendientes: `entregables/02-requisitos.md`, sección 6 (PA-01 a PA-34).
 
 ## Dirección visual (sistema y diapositivas)
 Objetivo: un diseño sobrio, elegante y profesional, propio del mundo de facturApp (almacén y mantenimiento de refrigeración industrial), que NO parezca hecho por una IA.
@@ -154,6 +158,7 @@ Diapositivas:
 ## Estado actual
 - Situación actual del cliente: las solicitudes se llevan en un Excel compartido.
 - Entregable 00 (método con IA): en curso.
+- Entregable 02 (requisitos): terminado (`entregables/02-requisitos.md`, etiqueta v0.2-requisitos). Quedan por escribir los grupos Gestión de usuarios (HU-07 a HU-11) y Equipos (HU-15 y HU-16), y siguen abiertas las preguntas de la sección 6.
 - Diseño de la propuesta:
   - Etapa 1 (arquitectura y carpetas): aprobada.
   - Etapa 2 (módulos y pantallas): aprobada.
