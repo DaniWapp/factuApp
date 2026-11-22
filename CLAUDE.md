@@ -7,14 +7,14 @@ Proyecto formativo SENA – ADSO. El prototipo original (basado en el ejemplo de
 ## Stack (obligatorio)
 - Frontend: Python 3.12 + Flask 3 (Blueprints y create_app), plantillas Jinja2, HTML5, CSS3 propio (sin Bootstrap) y JavaScript (ES modules). Flask es requisito académico.
 - Backend: FastAPI + Uvicorn, Pydantic v2, PyMySQL con SQL directo (sin ORM, sin SQLAlchemy), PyJWT y bcrypt.
-- Base de datos: MariaDB de XAMPP (compatible con MySQL). El modelo se diseña en MySQL Workbench.
+- Base de datos: MySQL 8 o MariaDB. En este equipo se usa el MySQL 8.0.17 de AppServ (`C:\AppServ\MySQL`, con phpMyAdmin); el proyecto debe funcionar también con la MariaDB de XAMPP, así que el SQL debe ser compatible con ambos. Apache no se usa: Flask y FastAPI (Uvicorn) tienen su propio servidor. El modelo se diseña en MySQL Workbench (no instalado en este equipo; mientras tanto, phpMyAdmin).
 - Pruebas: pytest.
 - Python instalado: 3.12.10.
 
 ## Arquitectura
-Navegador -> Flask (frontend, puerto 5000) -> API FastAPI (JSON, puerto 8000) -> MariaDB (puerto 3306).
+Navegador -> Flask (frontend, puerto 5000) -> API FastAPI (JSON, puerto 8000) -> MySQL o MariaDB (puerto 3306).
 - El navegador solo habla con Flask. Flask guarda el token en su sesión y llama a la API desde el servidor.
-- Flask nunca accede a la base de datos. Solo FastAPI habla con MariaDB.
+- Flask nunca accede a la base de datos. Solo FastAPI habla con la base de datos.
 - Frontend y backend se tratan como si vivieran en servidores separados: cada uno tiene su propio entorno virtual, su `requirements.txt`, su `.env` y su `.env.example`. El frontend solo conoce la URL de la API desde su `.env`.
 
 ## Documentos de referencia

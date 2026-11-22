@@ -409,7 +409,7 @@ Son las reglas que el sistema **siempre** debe cumplir, sin importar desde qué 
 
 ## 5. Requisitos no funcionales
 
-Describen **cómo** debe ser el sistema, no qué hace. Cada uno se puede comprobar con un número o una condición concreta. Las medidas de rendimiento se toman en el equipo local con XAMPP.
+Describen **cómo** debe ser el sistema, no qué hace. Cada uno se puede comprobar con un número o una condición concreta. Las medidas de rendimiento se toman en el equipo local de desarrollo.
 
 | ID | Tipo | Requisito |
 |---|---|---|
@@ -430,7 +430,7 @@ Describen **cómo** debe ser el sistema, no qué hace. Cada uno se puede comprob
 | RNF-15 | Compatibilidad | El sistema funciona en las dos últimas versiones de Chrome, Edge y Firefox. |
 | RNF-16 | Compatibilidad | Las pantallas se pueden usar desde 360 px de ancho (celular) sin desplazamiento horizontal de la página; las tablas anchas se desplazan dentro de su propio recuadro. |
 | RNF-17 | Compatibilidad | Una remisión de hasta 15 repuestos se imprime completa, con el espacio de firma, en una sola hoja tamaño carta. |
-| RNF-18 | Compatibilidad | `schema.sql` y `seed.sql` se ejecutan sin errores en la MariaDB de XAMPP y usan solo SQL compatible con MySQL. |
+| RNF-18 | Compatibilidad | `schema.sql` y `seed.sql` se ejecutan sin errores tanto en MySQL 8 (AppServ) como en MariaDB (XAMPP): usan solo SQL compatible con ambos. |
 | RNF-19 | Rendimiento | Los listados cargan en menos de 2 segundos con 1.000 registros. |
 | RNF-20 | Rendimiento | Registrar una entrega de 10 repuestos responde en menos de 2 segundos. |
 | RNF-21 | Rendimiento | Una remisión se abre en pantalla en menos de 2 segundos. |
@@ -439,7 +439,7 @@ Describen **cómo** debe ser el sistema, no qué hace. Cada uno se puede comprob
 | RNF-24 | Mantenibilidad | El comando `pytest` corre las pruebas de login, permisos y entregas, y termina sin fallos. |
 | RNF-25 | Mantenibilidad | Cada `requirements.txt` fija la versión exacta de cada librería (por ejemplo, `fastapi==x.y.z`). |
 | RNF-26 | Mantenibilidad | Los nombres de tablas, variables y funciones están en español, sin tildes ni ñ (por ejemplo, `contrasena`, `fecha_entrega`). |
-| RNF-27 | Instalación | Una persona con XAMPP y Python 3.12 instala y ejecuta el sistema siguiendo solo el README, en menos de 30 minutos. |
+| RNF-27 | Instalación | Una persona con MySQL 8 o MariaDB (AppServ o XAMPP) y Python 3.12 instala y ejecuta el sistema siguiendo solo el README, en menos de 30 minutos. |
 | RNF-28 | Instalación | La base de datos se crea solo con `schema.sql` y `seed.sql`, importándolos desde phpMyAdmin o MySQL Workbench. |
 | RNF-29 | Instalación | Frontend y backend se instalan cada uno en su propio entorno virtual con `pip install -r requirements.txt` y se inician con un solo comando cada uno. |
 | RNF-30 | Instalación | `seed.sql` crea un usuario Admin inicial y datos de prueba; el README indica sus credenciales, que son solo para pruebas. |

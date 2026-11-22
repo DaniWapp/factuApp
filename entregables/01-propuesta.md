@@ -11,7 +11,7 @@ Se revisó el prototipo guardado en `_backup/original/ADSO-25T4-FacturApp-main.z
 | Estructura Flask | `create_app`, 5 Blueprints (home, clients, categories, products, users) y un `layout.html` común | Carpeta `static/`, archivo `requirements.txt` e instrucciones para ejecutar |
 | Pantallas | Formulario y lista de contratistas, repuestos, categorías y usuarios | Pantallas de login, equipos, solicitudes, inventario y remisiones |
 | Formularios | Campos visibles con estilos de Bootstrap | Envío de datos, validación y mensajes de éxito o error |
-| Datos | Filas de ejemplo escritas a mano en las tablas | Base de datos (MariaDB) con `schema.sql` y `seed.sql` |
+| Datos | Filas de ejemplo escritas a mano en las tablas | Base de datos (MySQL o MariaDB) con `schema.sql` y `seed.sql` |
 | Backend | Nada | API FastAPI que guarde y consulte los datos |
 | Seguridad | Nada | Login, roles (Admin y Oficina radicadora), contraseñas cifradas y archivo `.env` |
 | Trazabilidad | Nada | Estados de la entrega de repuestos y de la solicitud, con historial |
@@ -103,7 +103,7 @@ Desarrollar un sistema web que registre las solicitudes de repuestos para la rep
 7. **Varias bodegas o sedes:** hay un solo inventario.
 8. **Agenda de técnicos o mantenimiento preventivo.**
 9. **Integración con otros sistemas** (ERP, SAP, etc.).
-10. **App móvil y publicación en internet:** el sistema corre en el equipo local con XAMPP.
+10. **App móvil y publicación en internet:** el sistema corre en el equipo local, con MySQL de AppServ o MariaDB de XAMPP.
 
 ### Reglas de alcance
 
@@ -179,13 +179,15 @@ Lo marcado con **(fase 2)** se construye después del MVP, según la sección 3.
 ### Cómo se conectan las partes
 
 ```
-Navegador -> Flask (frontend, puerto 5000) -> API FastAPI (JSON, puerto 8000) -> MariaDB (puerto 3306)
+Navegador -> Flask (frontend, puerto 5000) -> API FastAPI (JSON, puerto 8000) -> MySQL o MariaDB (puerto 3306)
 ```
 
 1. **El navegador solo habla con Flask.** El usuario nunca ve ni llama directamente a la API.
 2. **Flask muestra las pantallas.** Recibe los formularios, se los envía a la API y guarda en su sesión el token del usuario que inició sesión.
 3. **FastAPI aplica las reglas del negocio.** Valida los datos, revisa los permisos de cada rol, cambia los estados y guarda el historial.
-4. **Solo FastAPI habla con la base de datos.** Flask nunca se conecta a MariaDB.
+4. **Solo FastAPI habla con la base de datos.** Flask nunca se conecta a la base de datos.
+
+**No se usa Apache:** Flask y FastAPI traen su propio servidor (el servidor de desarrollo de Flask y Uvicorn).
 
 Frontend y backend se trabajan **como si vivieran en servidores separados**: cada uno tiene su propio entorno virtual, su `requirements.txt`, su `.env` y su `.env.example`. El frontend solo conoce la dirección de la API, que lee de su `.env`.
 
@@ -197,7 +199,7 @@ Frontend y backend se trabajan **como si vivieran en servidores separados**: cad
 | Backend | FastAPI, Uvicorn, Pydantic v2 | Separa las reglas del negocio de las pantallas, valida los datos automáticamente y genera la documentación de la API en `/docs`. |
 | Acceso a datos | PyMySQL con SQL directo | Se escriben las consultas a mano, lo que ayuda a aprender SQL y a ver exactamente qué se ejecuta. |
 | Seguridad | PyJWT y bcrypt | El token (JWT) identifica al usuario en cada llamada a la API y bcrypt guarda las contraseñas cifradas. |
-| Base de datos | MariaDB de XAMPP, modelo en MySQL Workbench | Ya está instalada en el equipo y es compatible con MySQL. |
+| Base de datos | MySQL 8 (de AppServ) o MariaDB (de XAMPP), modelo en MySQL Workbench | El MySQL de AppServ ya está instalado en el equipo de desarrollo; el SQL se escribe compatible con ambos para que funcione también en XAMPP. |
 | Pruebas | pytest | Permite comprobar que la API funciona sin probar todo a mano. |
 
 ### Qué problemas del diagnóstico resuelve esta arquitectura
@@ -205,7 +207,7 @@ Frontend y backend se trabajan **como si vivieran en servidores separados**: cad
 | Problema (sección 1) | Cómo se resuelve |
 |---|---|
 | 1. `create_app` repetido | Solo existirá en `frontend/src/__init__.py`. |
-| 2, 3 y 4. Formularios que no envían y datos escritos a mano | Los formularios enviarán los datos a Flask, Flask a la API y la API los guardará en MariaDB; las listas se llenarán desde la base de datos. |
+| 2, 3 y 4. Formularios que no envían y datos escritos a mano | Los formularios enviarán los datos a Flask, Flask a la API y la API los guardará en la base de datos; las listas se llenarán desde la base de datos. |
 | 5. Sin base de datos ni API | Se agregan `backend/` y `database/`. |
 | 6. Sin login ni roles | La API emite un token con el rol del usuario y revisa los permisos en cada ruta. |
 | 7 y 8. Mezcla de idiomas y nombres que no coinciden | Todo en español y con nombres del negocio: `clients` pasa a contratistas y `products` a repuestos. |
@@ -234,7 +236,7 @@ facturApp/
 ├── backend/               API FastAPI organizada en capas
 │   ├── app/
 │   │   ├── main.py        Punto de arranque de la API
-│   │   ├── database.py    Conexión a MariaDB con PyMySQL
+│   │   ├── database.py    Conexión a MySQL o MariaDB con PyMySQL
 │   │   ├── routers/       Capa de rutas: recibe la petición y responde en JSON
 │   │   ├── schemas/       Capa de validación: forma de los datos con Pydantic
 │   │   ├── services/      Capa de reglas del negocio: permisos, estados e historial
