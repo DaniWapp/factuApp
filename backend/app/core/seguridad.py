@@ -23,6 +23,7 @@ Conceptos:
     - "exp" (expiration): la fecha y hora en que el token vence.
 """
 
+import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -59,6 +60,26 @@ def validar_contrasena(contrasena: str) -> str | None:
     if len(contrasena.encode("utf-8")) > LARGO_MAXIMO_BYTES:
         return "La contraseña es demasiado larga (máximo 72 caracteres)."
     return None
+
+
+def generar_contrasena_temporal() -> str:
+    """Genera una contraseña temporal aleatoria que cumple RN-03.
+
+    Formato: 3 grupos de 4 caracteres separados por guion (por ejemplo,
+    "k7Qm-3Rwa-Xp2c"), fácil de dictar. No usa caracteres que se
+    confunden (0 y O, 1, l e I). Siempre tiene letras y números.
+
+    Concepto: el módulo "secrets" genera valores aleatorios seguros,
+    pensados para contraseñas (a diferencia de "random").
+    """
+    letras = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ"
+    numeros = "23456789"
+    todos = letras + numeros
+    while True:
+        grupos = ["".join(secrets.choice(todos) for _ in range(4)) for _ in range(3)]
+        contrasena = "-".join(grupos)
+        if validar_contrasena(contrasena) is None:  # garantiza letras y números
+            return contrasena
 
 
 def cifrar_contrasena(contrasena: str) -> str:

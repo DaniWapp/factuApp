@@ -79,7 +79,7 @@
       <button class="ui-boton ui-boton--texto" type="button" data-volver-admin>Volver a la vista de Admin</button>
     </p>
       <h1 class="ui-titulo">Nuevo usuario</h1>
-      <p class="ui-descripcion">La persona entrará con su correo y la contraseña inicial que usted le asigne.</p>
+      <p class="ui-descripcion">La persona entrará con su correo y una contraseña temporal que genera el sistema.</p>
       <p class="ui-nota">Los campos marcados con * son obligatorios.</p>
       <form action="usuarios.html" method="get" novalidate>
         <div class="ui-campo">
@@ -97,12 +97,7 @@
           <select class="ui-campo__control" id="rol" name="rol"><option>Admin</option><option selected>Oficina radicadora</option></select>
           <p class="ui-campo__error" id="error-rol"></p>
         </div>
-        <div class="ui-campo">
-          <label class="ui-campo__etiqueta" for="clave">Contraseña inicial *</label>
-          <input class="ui-campo__control" id="clave" name="clave" type="password" autocomplete="new-password" aria-describedby="ayuda-clave">
-          <p class="ui-campo__ayuda" id="ayuda-clave">Es temporal: la persona deberá cambiarla la primera vez que entre. Mínimo 8 caracteres, con letras y números.</p>
-          <p class="ui-campo__error" id="error-clave"></p>
-        </div>
+        <p class="ui-aviso ui-aviso--advertencia"><strong>Contraseña temporal.</strong> Al guardar, el sistema genera una contraseña temporal y la muestra una sola vez. La persona deberá cambiarla la primera vez que entre.</p>
         <div class="ui-formulario__botones">
           <a class="ui-boton ui-boton--secundario" href="usuarios.html">Cancelar</a>
           <button class="ui-boton ui-boton--principal" type="submit">Guardar</button>

@@ -418,10 +418,11 @@ Además de los seis módulos pedidos, se incluyen **equipos, inventario y solici
 | Método | Ruta | Rol | Recibe | Devuelve | Errores | HU |
 |---|---|---|---|---|---|---|
 | GET | `/api/usuarios` | Admin | — | 200: lista de `id`, `nombre`, `correo`, `rol`, `activo` | — | HU-09 |
-| POST | `/api/usuarios` | Admin | `nombre`, `correo`, `rol`, `contrasena` (inicial y temporal: se guarda con `debe_cambiar_contrasena = 1`, PA-36) | 201: el usuario creado (sin contraseña) | 409 (`CORREO_REPETIDO`), 422 | HU-07 |
+| POST | `/api/usuarios` | Admin | `nombre`, `correo`, `rol` | 201: `usuario` y `contrasena_temporal` (generada por la API, se muestra una sola vez; el usuario queda con `debe_cambiar_contrasena = 1`, PA-36) | 409 (`CORREO_REPETIDO`), 422 | HU-07 |
 | GET | `/api/usuarios/{id}` | Admin | — | 200: el usuario | 404 (`NO_ENCONTRADO`) | HU-08 |
-| PUT | `/api/usuarios/{id}` | Admin | `nombre`, `correo`, `rol` | 200: el usuario actualizado | 404, 409 (`CORREO_REPETIDO`), 422 | HU-08 |
+| PUT | `/api/usuarios/{id}` | Admin | `nombre`, `correo`, `rol` | 200: el usuario actualizado | 404, 409 (`CORREO_REPETIDO`, `NO_PUEDE_CAMBIAR_SU_ROL`, `ULTIMO_ADMIN`), 422 | HU-08 |
 | PATCH | `/api/usuarios/{id}/estado` | Admin | `activo` (true o false) | 200: el usuario con su nuevo estado | 404, 409 (`NO_PUEDE_DESACTIVARSE`, `ULTIMO_ADMIN`) | HU-10 |
+| POST | `/api/usuarios/{id}/restaurar-contrasena` | Admin | — | 200: `contrasena_temporal` (una sola vez) | 404 | HU-11 |
 
 ### 6.3 categorias
 
@@ -495,7 +496,6 @@ Además de los seis módulos pedidos, se incluyen **equipos, inventario y solici
 ### 6.10 Endpoints de la fase 2
 
 - `PUT /api/auth/contrasena`: cambiar la propia contraseña o la temporal (HU-04, HU-05).
-- `POST /api/usuarios/{id}/restaurar-contrasena`: asignar una contraseña temporal (HU-11).
 - `GET /api/equipos/{id}/solicitudes`: historial de un equipo (HU-16).
 - `GET /api/inventario/{repuesto_id}/movimientos`: movimientos de un repuesto (HU-27).
 - Filtros de `GET /api/solicitudes`: `?estado=`, `?equipo_id=`, `?contratista_id=`, `?desde=`, `?hasta=`, `?buscar=` (HU-25).

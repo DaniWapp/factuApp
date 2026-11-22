@@ -23,6 +23,57 @@ from app.repositories.tablas import Usuario, desde_fila
 COLUMNAS = "id, nombre, correo, contrasena_hash, rol, activo, debe_cambiar_contrasena, creado_en"
 
 
+def listar(conexion: Any) -> list[Usuario]:
+    """Devuelve todos los usuarios, ordenados por nombre."""
+    with conexion.cursor() as cursor:
+        cursor.execute(f"SELECT {COLUMNAS} FROM usuarios ORDER BY nombre")
+        return [desde_fila(Usuario, fila) for fila in cursor.fetchall()]
+
+
+def buscar_por_id(conexion: Any, usuario_id: int, bloquear: bool = False) -> Usuario | None:
+    """Busca un usuario por su id. Devuelve None si no existe.
+
+    bloquear=True agrega FOR UPDATE: la fila queda reservada hasta el
+    final de la transacción, para que nadie la cambie al mismo tiempo.
+    """
+    sql = f"SELECT {COLUMNAS} FROM usuarios WHERE id = %s" + (" FOR UPDATE" if bloquear else "")
+    with conexion.cursor() as cursor:
+        cursor.execute(sql, (usuario_id,))
+        fila = cursor.fetchone()
+    return desde_fila(Usuario, fila) if fila else None
+
+
+def contar_admins_activos(conexion: Any) -> int:
+    """Cuenta los Admin activos, bloqueando sus filas (FOR UPDATE).
+
+    El bloqueo evita que dos Admin se desactiven entre sí al mismo
+    tiempo y el sistema quede sin ningún Admin (RN-32).
+    """
+    with conexion.cursor() as cursor:
+        cursor.execute("SELECT id FROM usuarios WHERE rol = 'admin' AND activo = 1 FOR UPDATE")
+        return len(cursor.fetchall())
+
+
+def actualizar_datos(conexion: Any, usuario_id: int, nombre: str, correo: str, rol: str) -> None:
+    """Cambia el nombre, el correo y el rol de un usuario."""
+    with conexion.cursor() as cursor:
+        cursor.execute("UPDATE usuarios SET nombre = %s, correo = %s, rol = %s WHERE id = %s",
+                       (nombre, correo, rol, usuario_id))
+
+
+def cambiar_estado(conexion: Any, usuario_id: int, activo: bool) -> None:
+    """Activa o desactiva un usuario."""
+    with conexion.cursor() as cursor:
+        cursor.execute("UPDATE usuarios SET activo = %s WHERE id = %s", (int(activo), usuario_id))
+
+
+def cambiar_contrasena(conexion: Any, usuario_id: int, contrasena_hash: str, temporal: bool) -> None:
+    """Guarda un hash de contraseña nuevo e indica si es temporal (debe cambiarla al entrar)."""
+    with conexion.cursor() as cursor:
+        cursor.execute("UPDATE usuarios SET contrasena_hash = %s, debe_cambiar_contrasena = %s WHERE id = %s",
+                       (contrasena_hash, int(temporal), usuario_id))
+
+
 def buscar_por_correo(conexion: Any, correo: str) -> Usuario | None:
     """Busca un usuario por su correo. Devuelve None si no existe."""
     with conexion.cursor() as cursor:

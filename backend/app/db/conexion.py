@@ -76,3 +76,18 @@ def transaccion() -> Iterator[pymysql.connections.Connection]:
         raise
     finally:
         conexion.close()
+
+
+def obtener_conexion() -> Iterator[pymysql.connections.Connection]:
+    """Dependencia de FastAPI: entrega a cada petición su propia transacción.
+
+    Las rutas la piden con Depends(obtener_conexion). Si la petición
+    termina bien, se guarda todo (COMMIT); si se lanza un error, no se
+    guarda nada (ROLLBACK).
+
+    Concepto "dependencia": algo que FastAPI prepara antes de ejecutar la
+    ruta y le entrega como parámetro. En las pruebas se reemplaza por una
+    conexión que deshace todo al final, para no cambiar la base real.
+    """
+    with transaccion() as conexion:
+        yield conexion
