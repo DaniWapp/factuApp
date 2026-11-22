@@ -58,11 +58,20 @@ body {
   color: #000000 !important;
 }
 
-/* Líneas de la tabla en negro para que se vean al imprimir. */
+/* Al imprimir, la tabla siempre se ve como tabla (nunca en bloques). */
 .ui-tabla-caja {
   border: 0;
-  overflow: visible;
+  container-type: normal;
 }
+.ui-tabla { display: table !important; }
+.ui-tabla thead { display: table-header-group !important; position: static !important; width: auto !important; height: auto !important; clip: auto !important; }
+.ui-tabla tbody { display: table-row-group !important; }
+.ui-tabla tr { display: table-row !important; padding: 0 !important; }
+.ui-tabla td { display: table-cell !important; padding: 4pt 6pt !important; }
+.ui-tabla td::before { display: none !important; }
+.ui-tabla .ui-tabla__num { text-align: right !important; }
+
+/* Líneas de la tabla en negro para que se vean al imprimir. */
 .ui-tabla th,
 .ui-tabla td {
   border-bottom: 0.5pt solid #000000;

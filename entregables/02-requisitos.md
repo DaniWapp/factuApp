@@ -428,7 +428,7 @@ Describen **cómo** debe ser el sistema, no qué hace. Cada uno se puede comprob
 | RNF-13 | Accesibilidad | Todas las acciones se pueden hacer solo con el teclado (Tab, Enter, Esc), y el elemento con foco siempre se ve resaltado. |
 | RNF-14 | Accesibilidad | Ningún estado se indica solo con color: siempre va acompañado de su texto (por ejemplo, "Parcial" o "Sin stock"). |
 | RNF-15 | Compatibilidad | El sistema funciona en las dos últimas versiones de Chrome, Edge y Firefox. |
-| RNF-16 | Compatibilidad | Las pantallas se pueden usar desde 360 px de ancho (celular) sin desplazamiento horizontal de la página; las tablas anchas se desplazan dentro de su propio recuadro. |
+| RNF-16 | Compatibilidad | Las pantallas se pueden usar desde 320 px de ancho (celular) y **nunca hay desplazamiento horizontal**, ni en la página ni dentro de las tablas: en espacios de 800 px o menos, cada fila de una tabla se muestra como un bloque con el nombre de cada columna junto a su dato. |
 | RNF-17 | Compatibilidad | Una remisión de hasta 15 repuestos se imprime completa, con el espacio de firma, en una sola hoja tamaño carta. |
 | RNF-18 | Compatibilidad | `schema.sql` y `seed.sql` se ejecutan sin errores tanto en MySQL 8 (AppServ) como en MariaDB (XAMPP): usan solo SQL compatible con ambos. |
 | RNF-19 | Rendimiento | Los listados cargan en menos de 2 segundos con 1.000 registros. |

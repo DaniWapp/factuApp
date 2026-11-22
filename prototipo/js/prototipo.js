@@ -13,6 +13,7 @@
        7. Las acciones Activar y Desactivar de la tabla de usuarios.
        8. El buscador de las tablas.
        9. El formulario para cambiar la contraseña.
+      10. Las etiquetas de las tablas para verlas en el celular.
 
    Cómo se usa:
      Se carga al final de cada página:
@@ -311,4 +312,35 @@
       }
     });
   }
+
+  /* -------------------------------------------------------------------
+     10. Etiquetas de las tablas para el celular
+     En pantallas angostas cada fila de una tabla se muestra como un
+     bloque, y cada dato lleva a su izquierda el nombre de su columna
+     (ver ui.css, sección 5). Ese nombre se toma del encabezado <th> y
+     se copia en el atributo data-etiqueta de cada celda, para no tener
+     que escribirlo a mano en cada <td>.
+     Se deja disponible como window.etiquetarTablas para que otros
+     archivos (entrega.js, remision.js) lo llamen después de agregar filas.
+     ------------------------------------------------------------------- */
+  function etiquetarTablas() {
+    document.querySelectorAll(".ui-tabla").forEach(function (tabla) {
+      var titulos = [];
+      tabla.querySelectorAll("thead th").forEach(function (th) {
+        titulos.push(th.textContent.trim());
+      });
+      tabla.querySelectorAll("tbody tr").forEach(function (fila) {
+        // children son las celdas de la fila, en orden.
+        Array.prototype.forEach.call(fila.children, function (celda, posicion) {
+          var titulo = titulos[posicion];
+          if (titulo && !celda.hasAttribute("data-etiqueta")) {
+            celda.setAttribute("data-etiqueta", titulo);
+          }
+        });
+      });
+    });
+  }
+
+  etiquetarTablas();
+  window.etiquetarTablas = etiquetarTablas;
 })();

@@ -121,6 +121,8 @@
     });
 
     cuerpoTabla.appendChild(fila);
+    // Pone el nombre de cada columna en las celdas nuevas, para la vista de celular.
+    if (window.etiquetarTablas) window.etiquetarTablas();
     actualizarOpciones();
     select.focus();
   }

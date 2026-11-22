@@ -334,11 +334,21 @@ a {
 /* ---------------------------------------------------------------------
    5. Tabla
    Líneas finas entre filas, sin colores alternos ni tarjetas.
-   .ui-tabla-caja permite desplazar una tabla ancha dentro de su
-   recuadro en pantallas pequeñas (RNF-16).
+
+   REGLA: nunca hay desplazamiento horizontal (RNF-16). Por eso:
+     - Los textos de las celdas pueden partirse en varias líneas.
+     - Cuando el espacio de la tabla mide 800 px o menos (en el celular,
+       por ejemplo), cada fila se convierte en un bloque: una línea por
+       dato, con el nombre de la columna a la izquierda. El nombre sale
+       del atributo data-etiqueta de cada celda:
+         <td data-etiqueta="Correo">laura.gomez@facturapp.test</td>
+
+   Concepto nuevo: "container query" (@container). Es como un @media,
+   pero mide el ancho de la caja de la tabla y no el de la pantalla.
+   Así la tabla se adapta aunque esté dentro de una columna angosta.
    --------------------------------------------------------------------- */
 .ui-tabla-caja {
-  overflow-x: auto;
+  container: tabla / inline-size; /* le pone nombre a la caja para medirla */
   background: var(--superficie);
   border: var(--linea) solid var(--borde);
   border-radius: var(--radio-2);
@@ -390,7 +400,80 @@ a {
 /* Columna de acciones: enlaces de texto al final de la fila. */
 .ui-tabla .ui-tabla__acciones {
   text-align: right;
+}
+/* Cada acción no se parte por dentro, pero las acciones sí pueden pasar a otra línea. */
+.ui-tabla__acciones .ui-boton {
   white-space: nowrap;
+}
+
+/* Espacio angosto (800 px o menos): cada fila se muestra como un bloque. */
+@container tabla (max-width: 800px) {
+  /* El encabezado se oculta a la vista, pero lo siguen leyendo los lectores de pantalla. */
+  .ui-tabla thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  /* Tabla, filas y celdas pasan a ser bloques uno debajo del otro. */
+  .ui-tabla,
+  .ui-tabla tbody,
+  .ui-tabla tr,
+  .ui-tabla td {
+    display: block;
+    width: 100%;
+  }
+
+  /* Cada fila es un bloque separado por una línea fina. */
+  .ui-tabla tr {
+    padding: var(--espacio-3);
+    border-bottom: var(--linea) solid var(--borde);
+  }
+  .ui-tabla tbody tr:last-child {
+    border-bottom: 0;
+  }
+
+  /* Cada celda es una línea: nombre de la columna a la izquierda y dato a la derecha. */
+  .ui-tabla td {
+    padding: var(--espacio-1) 0;
+    border-bottom: 0;
+    text-align: left;
+    overflow-wrap: anywhere; /* parte correos o textos largos para que no se salgan */
+  }
+  .ui-tabla td[data-etiqueta] {
+    display: grid;
+    grid-template-columns: minmax(96px, 35%) minmax(0, 1fr);
+    gap: var(--espacio-3);
+    align-items: baseline;
+  }
+  .ui-tabla td[data-etiqueta]::before {
+    content: attr(data-etiqueta);
+    font-family: var(--fuente-texto);
+    font-size: var(--tam-pequeno);
+    font-weight: var(--peso-fuerte);
+    color: var(--texto-2);
+  }
+
+  /* Los números ya no necesitan ir a la derecha. */
+  .ui-tabla .ui-tabla__num {
+    text-align: left;
+  }
+
+  /* Las acciones van al final del bloque, sin etiqueta, y pueden pasar a otra línea. */
+  .ui-tabla td.ui-tabla__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--espacio-2) var(--espacio-4);
+    padding-top: var(--espacio-2);
+  }
+  .ui-tabla td.ui-tabla__acciones::before {
+    display: none;
+  }
+  .ui-tabla__acciones .ui-boton--texto + .ui-boton--texto {
+    margin-left: 0;
+  }
 }
 
 

@@ -68,6 +68,8 @@
     });
     cuerpo.appendChild(fila);
   });
+  // Pone el nombre de cada columna en las celdas nuevas, para la vista de celular.
+  if (window.etiquetarTablas) window.etiquetarTablas();
 
   // Aviso de éxito con el mensaje de HU-21.
   var aviso = document.getElementById("aviso-remision");

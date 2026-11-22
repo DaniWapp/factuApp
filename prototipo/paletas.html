@@ -105,9 +105,9 @@
   .aviso.error { color: var(--error); background: var(--error-suave); }
 
   /* Tabla de repuestos */
-  .tabla-caja { overflow-x: auto; background: var(--superficie); border: 1px solid var(--borde); border-radius: 4px; }
+  .tabla-caja { background: var(--superficie); border: 1px solid var(--borde); border-radius: 4px; }
   table { border-collapse: collapse; width: 100%; font-size: 14px; }
-  th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--borde); white-space: nowrap; }
+  th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--borde); overflow-wrap: anywhere; }
   th { font-size: 12px; font-weight: 600; color: var(--texto-2); border-bottom: 1px solid var(--borde-campo); }
   tr:last-child td { border-bottom: 0; }
   .num { text-align: right; }
