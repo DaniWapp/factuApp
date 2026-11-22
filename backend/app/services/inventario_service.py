@@ -20,13 +20,13 @@ from typing import Any
 
 from app.core.errores import Conflicto, DatosInvalidos, NoEncontrado
 from app.repositories import catalogos_repo, inventario_repo
-from app.repositories.tablas import Repuesto, Usuario
+from app.repositories.tablas import Usuario
 from app.schemas.catalogos import EntradaAlmacenEntrada
 
 
-def revisar_cantidad_por_unidad(repuesto: Repuesto, cantidad: Decimal, campo: str = "cantidad") -> None:
+def revisar_cantidad_por_unidad(unidad_medida: str, cantidad: Decimal, campo: str = "cantidad") -> None:
     """RN-12: si el repuesto se cuenta en unidades, la cantidad debe ser entera."""
-    if repuesto.unidad_medida == "unidad" and cantidad != cantidad.to_integral_value():
+    if unidad_medida == "unidad" and cantidad != cantidad.to_integral_value():
         mensaje = "Este repuesto se maneja en unidades enteras. Escriba una cantidad sin decimales."
         raise DatosInvalidos("CANTIDAD_INVALIDA", mensaje, {campo: mensaje})
 
@@ -48,7 +48,7 @@ def registrar_entrada(conexion: Any, datos: EntradaAlmacenEntrada, usuario: Usua
         raise NoEncontrado("NO_ENCONTRADO", "El repuesto no existe.")
     if not repuesto.activo:
         raise Conflicto("REPUESTO_INACTIVO", "El repuesto está desactivado; no se le pueden registrar entradas.")
-    revisar_cantidad_por_unidad(repuesto, datos.cantidad)
+    revisar_cantidad_por_unidad(repuesto.unidad_medida, datos.cantidad)
 
     # Paso 3: sube el stock y deja el rastro.
     entrada_id = inventario_repo.crear_entrada(conexion, repuesto.id, datos.cantidad, datos.observacion, usuario.id)

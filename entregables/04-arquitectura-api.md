@@ -490,6 +490,8 @@ Además de los seis módulos pedidos, se incluyen **equipos, inventario y solici
 |---|---|---|---|---|---|---|
 | POST | `/api/solicitudes/{id}/entregas` | Admin | `repuestos` [`repuesto_id`, `cantidad`] | 201: `numero_remision`, `estado_entrega` y los repuestos entregados | 404, 409 (`STOCK_INSUFICIENTE`, `MAS_DE_LO_PENDIENTE`, `SOLICITUD_CERRADA`, `CONTRATISTA_INACTIVO`), 422 (`SIN_REPUESTOS`, `CANTIDAD_INVALIDA`) | HU-21 |
 | POST | `/api/entregas/{id}/retraccion` | Admin | `motivo` | 200: la entrega retractada y el nuevo `estado_entrega` | 404, 409 (`YA_RETRACTADA`, `SOLICITUD_CERRADA`), 422 (`MOTIVO_OBLIGATORIO`) | HU-31 |
+| GET | `/api/entregas` | Todos | `?solicitud_id=` (opcional) | 200: lista de entregas con `numero_remision`, solicitud, contratista, usuario, fecha, `retractada` y cantidad de repuestos | — | HU-18, HU-24 |
+| GET | `/api/entregas/{id}` | Todos | — | 200: la remisión (igual que `/remision`) | 404 | HU-24 |
 | GET | `/api/entregas/{id}/remision` | Todos | — | 200: `numero_remision`, fecha y hora, solicitud, equipo, contratista con documento, usuario que entregó, repuestos y si está retractada | 404 | HU-24 |
 | POST | `/api/solicitudes/{id}/devoluciones` | Admin | `repuesto_id`, `cantidad`, `observacion` | 201: la devolución y el stock actual | 404, 409 (`MAS_DE_LO_ENTREGADO`), 422 (`CANTIDAD_INVALIDA`) | HU-33 |
 
