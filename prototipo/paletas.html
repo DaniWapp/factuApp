@@ -1,0 +1,270 @@
+<!doctype html>
+<!--
+  Archivo:  prototipo/paletas.html
+  Proyecto: FacturApp
+
+  Qué es:
+    Una página de prueba para ELEGIR la paleta de colores del sistema.
+    Muestra dos opciones lado a lado, siguiendo la "Dirección visual"
+    de CLAUDE.md: neutros fríos y un solo color de acento.
+    No es parte del sistema: es un prototipo para decidir.
+
+  Cómo abrirla:
+    Doble clic sobre el archivo, o en PowerShell:
+      start C:\AppServ\www\facturApp\prototipo\paletas.html
+
+  Conceptos:
+    - Variables CSS (--acento, --fondo...): cada color se escribe una sola
+      vez y todos los elementos lo usan. Cada opción define sus propias
+      variables, así el mismo HTML se ve con dos paletas.
+    - Contraste: qué tanto se distingue el texto de su fondo. La norma
+      WCAG 2.1 AA pide 4,5:1 para texto y 3:1 para bordes de campos.
+    - Las fuentes IBM Plex se cargan desde Google Fonts (requiere internet).
+      En el sistema real se guardarán en frontend/src/static/.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paletas de FacturApp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  /* Opción A: azul acero */
+  .opcion-a {
+    --acento: #1E5B8C;  --acento-hover: #174A73;  --acento-suave: #E5EEF6;
+    --fondo: #F5F7F9;   --superficie: #FFFFFF;
+    --texto: #1B2430;   --texto-2: #5A6675;
+    --borde: #D9DFE6;   --borde-campo: #7D8A98;
+    --exito: #1E7A4C;   --exito-suave: #E6F2EB;
+    --advertencia: #8A5A00; --advertencia-suave: #FBF1DC;
+    --error: #B42318;   --error-suave: #FBEAE8;
+  }
+  /* Opción B: verde petróleo */
+  .opcion-b {
+    --acento: #0E6973;  --acento-hover: #0A535B;  --acento-suave: #E2F0F1;
+    --fondo: #F3F6F7;   --superficie: #FFFFFF;
+    --texto: #182229;   --texto-2: #54626C;
+    --borde: #D5DDE1;   --borde-campo: #7A8892;
+    --exito: #2D7A3A;   --exito-suave: #E8F3EA;
+    --advertencia: #8F5300; --advertencia-suave: #FCEFDD;
+    --error: #A8321F;   --error-suave: #FAEAE6;
+  }
+
+  /* Base común: tipografías y espacios en múltiplos de 4 px */
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #EEF1F4; color: #1B2430;
+    font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    font-size: 15px; line-height: 1.5;
+  }
+  .mono { font-family: "IBM Plex Mono", Consolas, monospace; font-variant-numeric: tabular-nums; }
+  .pagina { max-width: 1240px; margin: 0 auto; padding: 32px 16px 48px; }
+  .pagina > h1 { font-size: 24px; font-weight: 600; margin: 0 0 4px; }
+  .pagina > p { margin: 0 0 24px; color: #5A6675; max-width: 70ch; }
+
+  /* Dos columnas; una sola en pantallas angostas */
+  .opciones { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 860px) { .opciones { grid-template-columns: 1fr; } }
+
+  .opcion { background: var(--fondo); color: var(--texto); border: 1px solid var(--borde); border-radius: 4px; padding: 24px; min-width: 0; }
+  .opcion h2 { font-size: 18px; font-weight: 600; margin: 0 0 4px; }
+  .opcion .idea { margin: 0 0 20px; color: var(--texto-2); }
+  .opcion h3 { font-size: 13px; font-weight: 600; color: var(--texto-2); margin: 28px 0 8px; padding-bottom: 4px; border-bottom: 1px solid var(--borde); }
+
+  /* Muestras de color */
+  .muestras { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .muestra { display: flex; gap: 8px; align-items: center; background: var(--superficie); border: 1px solid var(--borde); border-radius: 4px; padding: 8px; }
+  .color { width: 32px; height: 32px; border-radius: 2px; border: 1px solid rgba(0,0,0,.12); flex: none; }
+  .muestra b { display: block; font-size: 13px; font-weight: 500; }
+  .muestra span { font-size: 12px; color: var(--texto-2); }
+
+  /* Botones */
+  .acciones { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  .boton { font: 500 15px "IBM Plex Sans", "Segoe UI", sans-serif; background: var(--acento); color: #FFFFFF; border: 0; border-radius: 4px; padding: 8px 16px; cursor: pointer; }
+  .boton:hover { background: var(--acento-hover); }
+  .enlace { font: 500 15px "IBM Plex Sans", "Segoe UI", sans-serif; background: none; border: 0; padding: 8px 0; color: var(--acento); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .boton:focus-visible, .enlace:focus-visible, .campo input:focus-visible {
+    outline: 3px solid var(--acento); outline-offset: 2px;
+  }
+
+  /* Campo de texto */
+  .campo { display: grid; gap: 4px; max-width: 360px; margin-bottom: 16px; }
+  .campo label { font-weight: 500; }
+  .campo input { font: 400 15px "IBM Plex Mono", Consolas, monospace; color: var(--texto); background: var(--superficie); border: 1px solid var(--borde-campo); border-radius: 4px; padding: 8px 12px; }
+  .campo .ayuda { font-size: 13px; color: var(--texto-2); }
+  .campo.con-error input { border-color: var(--error); border-width: 2px; }
+  .campo.con-error .ayuda { color: var(--error); }
+
+  /* Avisos: texto + borde izquierdo fino, sin íconos */
+  .aviso { border-left: 3px solid; border-radius: 0 4px 4px 0; padding: 8px 12px; margin: 0 0 8px; }
+  .aviso b { font-weight: 600; }
+  .aviso.exito { color: var(--exito); background: var(--exito-suave); }
+  .aviso.advertencia { color: var(--advertencia); background: var(--advertencia-suave); }
+  .aviso.error { color: var(--error); background: var(--error-suave); }
+
+  /* Tabla de repuestos */
+  .tabla-caja { overflow-x: auto; background: var(--superficie); border: 1px solid var(--borde); border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--borde); white-space: nowrap; }
+  th { font-size: 12px; font-weight: 600; color: var(--texto-2); border-bottom: 1px solid var(--borde-campo); }
+  tr:last-child td { border-bottom: 0; }
+  .num { text-align: right; }
+  .estado { font-weight: 500; }
+  .estado::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: currentColor; margin-right: 6px; vertical-align: 1px; }
+  .estado.ok { color: var(--exito); }
+  .estado.atencion { color: var(--advertencia); }
+  .estado.problema { color: var(--error); }
+
+  /* Tabla de contrastes */
+  .contrastes td:last-child { font-family: "IBM Plex Mono", Consolas, monospace; text-align: right; }
+</style>
+</head>
+<body>
+<div class="pagina">
+  <h1>Paletas de FacturApp</h1>
+  <p>Dos opciones para elegir. Ambas usan neutros fríos, un solo color de acento y verde, ámbar y rojo solo para estados. Todos los textos cumplen contraste AA (4,5:1) y los bordes de campo, 3:1.</p>
+
+  <div class="opciones">
+
+    <!-- ============ OPCIÓN A ============ -->
+    <section class="opcion opcion-a" aria-labelledby="titulo-a">
+      <h2 id="titulo-a">Opción A · Azul acero</h2>
+      <p class="idea">Sobria y de "ficha técnica": el azul de los planos y las placas de datos.</p>
+
+      <h3>Colores</h3>
+      <div class="muestras">
+        <div class="muestra"><div class="color" style="background:#1E5B8C"></div><div><b>Acento</b><span class="mono">#1E5B8C</span></div></div>
+        <div class="muestra"><div class="color" style="background:#F5F7F9"></div><div><b>Fondo</b><span class="mono">#F5F7F9</span></div></div>
+        <div class="muestra"><div class="color" style="background:#FFFFFF"></div><div><b>Superficie</b><span class="mono">#FFFFFF</span></div></div>
+        <div class="muestra"><div class="color" style="background:#1B2430"></div><div><b>Texto</b><span class="mono">#1B2430</span></div></div>
+        <div class="muestra"><div class="color" style="background:#5A6675"></div><div><b>Texto secundario</b><span class="mono">#5A6675</span></div></div>
+        <div class="muestra"><div class="color" style="background:#D9DFE6"></div><div><b>Borde</b><span class="mono">#D9DFE6 · campo #7D8A98</span></div></div>
+        <div class="muestra"><div class="color" style="background:#1E7A4C"></div><div><b>Éxito</b><span class="mono">#1E7A4C</span></div></div>
+        <div class="muestra"><div class="color" style="background:#8A5A00"></div><div><b>Advertencia</b><span class="mono">#8A5A00</span></div></div>
+        <div class="muestra"><div class="color" style="background:#B42318"></div><div><b>Error</b><span class="mono">#B42318</span></div></div>
+      </div>
+
+      <h3>Botones</h3>
+      <div class="acciones">
+        <button class="boton" type="button">Registrar entrega</button>
+        <button class="enlace" type="button">Cancelar</button>
+      </div>
+
+      <h3>Campos de texto</h3>
+      <div class="campo">
+        <label for="codigo-a">Código del repuesto</label>
+        <input id="codigo-a" type="text" value="VAL-003">
+        <span class="ayuda">Solo letras sin tildes, números y guiones.</span>
+      </div>
+      <div class="campo con-error">
+        <label for="cantidad-a">Cantidad</label>
+        <input id="cantidad-a" type="text" value="-3" aria-describedby="error-a" aria-invalid="true">
+        <span class="ayuda" id="error-a">La cantidad debe ser mayor que cero.</span>
+      </div>
+
+      <h3>Avisos</h3>
+      <p class="aviso exito"><b>Entrega registrada.</b> Remisión REM-000003 generada.</p>
+      <p class="aviso advertencia"><b>Atención.</b> MOT-001: 3 apartadas y 2 en espera de mercancía.</p>
+      <p class="aviso error"><b>No se guardó.</b> No hay stock suficiente de VAL-001. Disponible: 1.</p>
+
+      <h3>Tabla de inventario</h3>
+      <div class="tabla-caja">
+        <table>
+          <thead><tr><th>Código</th><th>Repuesto</th><th class="num">En almacén</th><th class="num">Disponible</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">MOT-001</td><td>Motor ventilador condensador 9 W</td><td class="num mono">14,00</td><td class="num mono">12,00</td><td><span class="estado ok">Disponible</span></td></tr>
+            <tr><td class="mono">COM-002</td><td>Compresor hermético 1/3 HP R600a</td><td class="num mono">2,00</td><td class="num mono">2,00</td><td><span class="estado atencion">Stock bajo</span></td></tr>
+            <tr><td class="mono">VAL-009</td><td>Válvula de servicio 1/4"</td><td class="num mono">0,00</td><td class="num mono">0,00</td><td><span class="estado problema">Sin stock</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Contraste medido</h3>
+      <div class="tabla-caja">
+        <table class="contrastes">
+          <tbody>
+            <tr><td>Acento sobre blanco</td><td>7,17:1</td></tr>
+            <tr><td>Texto sobre fondo</td><td>14,58:1</td></tr>
+            <tr><td>Texto secundario sobre fondo</td><td>5,44:1</td></tr>
+            <tr><td>Borde de campo sobre blanco</td><td>3,52:1</td></tr>
+            <tr><td>Éxito / advertencia / error sobre blanco</td><td>5,33 / 5,93 / 6,57</td></tr>
+            <tr><td>Éxito / advertencia / error sobre su fondo suave</td><td>4,63 / 5,28 / 5,65</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ OPCIÓN B ============ -->
+    <section class="opcion opcion-b" aria-labelledby="titulo-b">
+      <h2 id="titulo-b">Opción B · Verde petróleo</h2>
+      <p class="idea">Más industrial y propia de la refrigeración: el tono de las tuberías y los equipos de frío.</p>
+
+      <h3>Colores</h3>
+      <div class="muestras">
+        <div class="muestra"><div class="color" style="background:#0E6973"></div><div><b>Acento</b><span class="mono">#0E6973</span></div></div>
+        <div class="muestra"><div class="color" style="background:#F3F6F7"></div><div><b>Fondo</b><span class="mono">#F3F6F7</span></div></div>
+        <div class="muestra"><div class="color" style="background:#FFFFFF"></div><div><b>Superficie</b><span class="mono">#FFFFFF</span></div></div>
+        <div class="muestra"><div class="color" style="background:#182229"></div><div><b>Texto</b><span class="mono">#182229</span></div></div>
+        <div class="muestra"><div class="color" style="background:#54626C"></div><div><b>Texto secundario</b><span class="mono">#54626C</span></div></div>
+        <div class="muestra"><div class="color" style="background:#D5DDE1"></div><div><b>Borde</b><span class="mono">#D5DDE1 · campo #7A8892</span></div></div>
+        <div class="muestra"><div class="color" style="background:#2D7A3A"></div><div><b>Éxito</b><span class="mono">#2D7A3A</span></div></div>
+        <div class="muestra"><div class="color" style="background:#8F5300"></div><div><b>Advertencia</b><span class="mono">#8F5300</span></div></div>
+        <div class="muestra"><div class="color" style="background:#A8321F"></div><div><b>Error</b><span class="mono">#A8321F</span></div></div>
+      </div>
+
+      <h3>Botones</h3>
+      <div class="acciones">
+        <button class="boton" type="button">Registrar entrega</button>
+        <button class="enlace" type="button">Cancelar</button>
+      </div>
+
+      <h3>Campos de texto</h3>
+      <div class="campo">
+        <label for="codigo-b">Código del repuesto</label>
+        <input id="codigo-b" type="text" value="VAL-003">
+        <span class="ayuda">Solo letras sin tildes, números y guiones.</span>
+      </div>
+      <div class="campo con-error">
+        <label for="cantidad-b">Cantidad</label>
+        <input id="cantidad-b" type="text" value="-3" aria-describedby="error-b" aria-invalid="true">
+        <span class="ayuda" id="error-b">La cantidad debe ser mayor que cero.</span>
+      </div>
+
+      <h3>Avisos</h3>
+      <p class="aviso exito"><b>Entrega registrada.</b> Remisión REM-000003 generada.</p>
+      <p class="aviso advertencia"><b>Atención.</b> MOT-001: 3 apartadas y 2 en espera de mercancía.</p>
+      <p class="aviso error"><b>No se guardó.</b> No hay stock suficiente de VAL-001. Disponible: 1.</p>
+
+      <h3>Tabla de inventario</h3>
+      <div class="tabla-caja">
+        <table>
+          <thead><tr><th>Código</th><th>Repuesto</th><th class="num">En almacén</th><th class="num">Disponible</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">MOT-001</td><td>Motor ventilador condensador 9 W</td><td class="num mono">14,00</td><td class="num mono">12,00</td><td><span class="estado ok">Disponible</span></td></tr>
+            <tr><td class="mono">COM-002</td><td>Compresor hermético 1/3 HP R600a</td><td class="num mono">2,00</td><td class="num mono">2,00</td><td><span class="estado atencion">Stock bajo</span></td></tr>
+            <tr><td class="mono">VAL-009</td><td>Válvula de servicio 1/4"</td><td class="num mono">0,00</td><td class="num mono">0,00</td><td><span class="estado problema">Sin stock</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Contraste medido</h3>
+      <div class="tabla-caja">
+        <table class="contrastes">
+          <tbody>
+            <tr><td>Acento sobre blanco</td><td>6,39:1</td></tr>
+            <tr><td>Texto sobre fondo</td><td>14,88:1</td></tr>
+            <tr><td>Texto secundario sobre fondo</td><td>5,79:1</td></tr>
+            <tr><td>Borde de campo sobre blanco</td><td>3,64:1</td></tr>
+            <tr><td>Éxito / advertencia / error sobre blanco</td><td>5,31 / 6,17 / 6,69</td></tr>
+            <tr><td>Éxito / advertencia / error sobre su fondo suave</td><td>4,66 / 5,44 / 5,72</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+</div>
+</body>
+</html>

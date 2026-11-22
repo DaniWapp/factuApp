@@ -49,6 +49,7 @@ facturApp/
 │   │   └── repositories/ (consultas SQL por tabla; única capa que toca la base)
 │   └── tests/        (pytest)
 ├── database/        (schema.sql y seed.sql)
+├── prototipo/       (páginas de prueba de diseño, no son parte del sistema: paletas.html)
 └── entregables/
 ```
 - Nombre de capas: la capa de datos se llama `repositories/` (SQL directo, sin ORM). Si una instrucción dice "models", se entiende como `repositories/`; no se crea `models/`.
