@@ -17,7 +17,7 @@ from typing import Literal
 
 from pydantic import BaseModel
 
-from app.schemas.comunes import Correo, texto
+from app.schemas.comunes import Correo, EstadoEntrada, texto  # noqa: F401 (EstadoEntrada se usa en el router)
 
 
 class UsuarioEntrada(BaseModel):
@@ -25,11 +25,6 @@ class UsuarioEntrada(BaseModel):
     nombre: texto(100)
     correo: Correo
     rol: Literal["admin", "oficina"]
-
-
-class EstadoEntrada(BaseModel):
-    """Datos para activar o desactivar (PATCH .../estado)."""
-    activo: bool
 
 
 class UsuarioSalida(BaseModel):

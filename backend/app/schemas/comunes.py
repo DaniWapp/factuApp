@@ -15,9 +15,10 @@ Conceptos:
 """
 
 import re
+from decimal import Decimal
 from typing import Annotated
 
-from pydantic import AfterValidator, StringConstraints
+from pydantic import AfterValidator, BaseModel, Field, PlainSerializer, StringConstraints
 
 # Patrón sencillo de correo: texto, @, texto, punto, texto, sin espacios.
 PATRON_CORREO = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
@@ -56,6 +57,21 @@ def texto(maximo: int):
 def texto_opcional(maximo: int):
     """Texto que puede faltar (None); si viene, sin espacios en los extremos y de máximo "maximo" caracteres."""
     return Annotated[str, StringConstraints(strip_whitespace=True, max_length=maximo)] | None
+
+
+# Cantidad que llega: mayor que cero (RN-11) y con máximo 2 decimales.
+# Si debe ser entera depende de la unidad del repuesto (RN-12): eso lo
+# revisa el service, porque necesita consultar la base de datos.
+CantidadEntrada = Annotated[Decimal, Field(gt=0, max_digits=12, decimal_places=2)]
+
+# Cantidad que sale: Decimal guarda los decimales exactos, pero en JSON
+# se envía como número (9.0) y no como texto ("9.00").
+CantidadSalida = Annotated[Decimal, PlainSerializer(float, return_type=float)]
+
+
+class EstadoEntrada(BaseModel):
+    """Datos para activar o desactivar un registro (PATCH .../estado)."""
+    activo: bool
 
 
 Correo = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=150),

@@ -63,6 +63,15 @@ class Conflicto(ErrorApi):
     estado_http = 409
 
 
+class DatosInvalidos(ErrorApi):
+    """422: un dato no es válido, y para saberlo hubo que consultar la base de datos.
+
+    Por ejemplo, 2,5 es una cantidad válida para un repuesto en metros,
+    pero no para uno que se cuenta en unidades (RN-12).
+    """
+    estado_http = 422
+
+
 # ---------------------------------------------------------------- formato único
 
 def respuesta_error(estado_http: int, codigo: str, mensaje: str,
