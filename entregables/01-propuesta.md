@@ -70,13 +70,15 @@ Desarrollar un sistema web que registre las solicitudes de repuestos para la rep
 3. **Contratistas (Admin):** crear, editar, listar y desactivar; el dato único es la cédula o NIT.
 4. **Catálogo de repuestos (Admin):** categorías y repuestos con código, nombre, categoría y unidad de medida; se desactivan en lugar de eliminarse.
 5. **Equipos (neveras):** registrar y listar por código.
-6. **Inventario básico:** stock disponible por repuesto; el Admin registra las entradas al almacén; el stock baja automáticamente con cada entrega y no se puede entregar más de lo disponible.
+6. **Inventario básico:** stock en almacén, apartado, disponible y en espera por repuesto; el Admin registra las entradas al almacén; al crear una solicitud se aparta lo pedido (lo que falte queda en espera de mercancía); el stock baja con cada entrega y no se puede entregar más de lo apartado.
 7. **Solicitudes:** crear una solicitud (equipo, contratista, fecha de entrega y uno o más repuestos con su cantidad), listarlas y ver su detalle.
 8. **Registro de entregas (Admin), totales o parciales:** se puede entregar todo lo solicitado o solo una parte y completar después; el sistema muestra lo entregado y lo pendiente por cada repuesto.
 9. **Estado de la solicitud:** Admin u Oficina radicadora marcan el equipo como reparado o devuelto.
 10. **Historial:** cada entrega y cada cambio de estado queda guardado con quién lo hizo y cuándo, y se ve en el detalle de la solicitud.
 11. **Remisión:** una por cada entrega (también por cada entrega parcial), con número consecutivo, fecha, contratista, equipo y repuestos con cantidades; se ve en pantalla y se imprime desde el navegador.
 12. **Base técnica:** `schema.sql` y `seed.sql`, `.env.example`, README con cómo ejecutar y pruebas con pytest del login, los permisos y el registro de entregas.
+13. **Corrección de errores (Admin, con motivo y sin borrar nada):** retractar entregas y entradas al almacén, registrar devoluciones de repuestos no usados, editar o anular solicitudes sin entregas, reabrir solicitudes cerradas, reasignar el contratista de una solicitud y reemplazar repuestos desactivados que no tienen stock.
+14. **Confirmación:** toda acción que guarda, cambia o desactiva datos pide confirmación antes de ejecutarse.
 
 ### Fase 2: Mejoras
 
@@ -105,7 +107,7 @@ Desarrollar un sistema web que registre las solicitudes de repuestos para la rep
 
 ### Reglas de alcance
 
-1. El stock baja al registrar cada entrega, no al crear la solicitud.
+1. Al crear una solicitud el stock se aparta; el stock en almacén baja al registrar cada entrega.
 2. La fase 1 debe estar completa y funcionando antes de empezar la fase 2.
 
 ## 4. Roles, permisos y módulos
@@ -128,7 +130,11 @@ La columna "Fase" indica si la acción entra en el MVP (fase 1) o en las mejoras
 | Ver e imprimir remisiones | Sí | Sí | 1 |
 | Gestionar catálogos: contratistas, categorías y repuestos | Sí | No | 1 |
 | Crear, editar y listar usuarios | Sí | No | 1 |
-| Activar y desactivar usuarios (un usuario inactivo no puede entrar) | Sí | No | 1 |
+| Activar y desactivar usuarios (un usuario inactivo no puede entrar; un Admin no puede desactivarse a sí mismo ni al último Admin activo) | Sí | No | 1 |
+| Retractar entregas y entradas al almacén, con motivo | Sí | No | 1 |
+| Registrar devoluciones de repuestos no usados | Sí | No | 1 |
+| Reabrir solicitudes cerradas, reasignar contratistas y reemplazar repuestos desactivados | Sí | No | 1 |
+| Editar o anular solicitudes sin entregas | Sí | No | 1 |
 | Restaurar la contraseña de un usuario con una contraseña temporal | Sí | No | 2 |
 | Cambiar su propia contraseña | Sí | Sí | 2 |
 | Cambiar a la vista de Oficina radicadora sin volver a iniciar sesión | Sí | No aplica | 2 |
