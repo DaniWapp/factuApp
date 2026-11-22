@@ -179,7 +179,7 @@ Lo marcado con **(fase 2)** se construye después del MVP, según la sección 3.
 ### Cómo se conectan las partes
 
 ```
-Navegador -> Flask (frontend, puerto 5000) -> API FastAPI (JSON, puerto 8000) -> MySQL o MariaDB (puerto 3306)
+Navegador -> Flask (frontend, puerto 5050) -> API FastAPI (JSON, puerto 8000) -> MySQL o MariaDB (puerto 3306)
 ```
 
 1. **El navegador solo habla con Flask.** El usuario nunca ve ni llama directamente a la API.
