@@ -94,7 +94,7 @@ Correspondencia con el ejemplo: clients -> contratistas, products -> repuestos, 
 - Comentarios para principiantes: cabecera en cada archivo, docstring en cada función, explicar el porqué y los conceptos nuevos la primera vez que aparecen.
 - Nunca credenciales en el código: usar .env y un .env.example sin valores reales.
 - MVP primero: la fase 1 completa y funcionando antes de empezar la fase 2.
-- Git: al terminar cada entregable (`entregables/NN-*.md`), hacer commit y push a `main` sin preguntar. Nunca subir `.env` ni secretos.
+- Git: al terminar cada entregable (`entregables/NN-*.md`) o cada tarea completada (código, SQL, documentación), hacer commit y push a `main` sin preguntar. Nunca subir `.env` ni secretos.
 
 ## Alcance (detalle en `entregables/01-propuesta.md`, sección 3)
 - Fase 1 (MVP): login con roles; usuarios (crear, editar, activar/desactivar); contratistas; catálogo de categorías y repuestos; equipos; inventario básico con entradas; solicitudes; entregas totales o parciales; estado reparado/devuelto; historial de cambios; remisión por entrega impresa desde el navegador; schema.sql, seed.sql, .env.example, README y pruebas pytest de login, permisos y entregas.
@@ -160,7 +160,8 @@ Diapositivas:
 - Situación actual del cliente: las solicitudes se llevan en un Excel compartido.
 - Entregable 00 (método con IA): en curso.
 - Entregable 02 (requisitos): terminado (`entregables/02-requisitos.md`, etiqueta v0.2-requisitos). Quedan por escribir los grupos Gestión de usuarios (HU-07 a HU-11) y Equipos (HU-15 y HU-16), y siguen abiertas las preguntas de la sección 6.
-- Entregable 03 (modelo de datos): terminado (`entregables/03-modelo-datos.md`): 14 tablas, diagrama entidad-relación, diccionario de datos y relaciones. Valores provisionales hasta responder PA-06, PA-11 y PA-27. Siguiente paso: `database/schema.sql`.
+- Entregable 03 (modelo de datos): terminado (`entregables/03-modelo-datos.md`): 14 tablas, diagrama entidad-relación, diccionario de datos y relaciones. Valores provisionales hasta responder PA-06, PA-11 y PA-27. 
+- `database/schema.sql`: creado y probado en MySQL 8.0.17 de AppServ (14 tablas, 14 PK, 10 UNIQUE, 27 FK, 18 CHECK; se puede ejecutar varias veces). Falta probarlo en MariaDB (XAMPP). La base `facturapp` existe y está vacía. Siguiente paso: `database/seed.sql`.
 - Diseño de la propuesta:
   - Etapa 1 (arquitectura y carpetas): aprobada.
   - Etapa 2 (módulos y pantallas): aprobada.
